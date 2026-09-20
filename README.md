@@ -1,86 +1,152 @@
 # آرا املاک — Ara Amlak
 
+[![CI](https://github.com/T3RON/AraAmlak/actions/workflows/ci.yml/badge.svg)](https://github.com/T3RON/AraAmlak/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.12-blue)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-5.2_LTS-green)](https://djangoproject.com)
+
 پلتفرم مدیریت چندآژانسی برای مشاوران املاک ایران.
 
-## تکنولوژی‌ها
+هر «آژانس» یک tenant مجزاست. «فایل» = ملک ثبت‌شده برای فروش یا اجاره؛ «درخواست» = نیازمندی مشتری.
 
-- **Backend**: Django 5.2 LTS + DRF + Django Channels (Daphne)
-- **Database**: PostgreSQL 16 + PostGIS
-- **Cache/Queue**: Redis 7 + Celery 5
-- **Frontend**: Django Templates + HTMX + Alpine.js + Tailwind CSS
-- **Testing**: pytest-django + factory_boy
-- **Linting**: ruff
+---
 
-## راه‌اندازی محیط توسعه
+## ویژگی‌ها
+
+- 🏢 **چندآژانسی (Multi-tenant):** هر آژانس داده‌های کاملاً مجزا دارد
+- 📱 **ورود با OTP:** احراز هویت مبتنی بر شماره موبایل (SMS)
+- 🗺️ **PostGIS:** جستجوی جغرافیایی و نمایش روی نقشه
+- 🇮🇷 **فارسی کامل:** RTL، تقویم جلالی، ارقام فارسی، فونت وزیرمتن
+- ⚡ **ASGI:** Django Channels + Daphne برای WebSocket
+- 🔄 **Celery:** پردازش غیرهمزمان (SMS، AI، انتشار، رندر)
+
+---
+
+## راه‌اندازی سریع
 
 ### پیش‌نیازها
 - Docker Desktop
 - Git
 
-### راه‌اندازی
+### مراحل
 
 ```bash
-# کلون پروژه
+# ۱. کلون پروژه
 git clone https://github.com/T3RON/AraAmlak.git
 cd AraAmlak
 
-# ساخت و راه‌اندازی سرویس‌ها
-docker compose up --build
+# ۲. کپی متغیرهای محیطی
+cp .env.example .env
+# فایل .env را ویرایش کنید و مقادیر واقعی بگذارید
 
-# در یک ترمینال جداگانه، ساخت سوپرادمین
-docker compose exec web python manage.py createsuperuser
+# ۳. راه‌اندازی همه سرویس‌ها
+make up
 ```
 
-### آدرس‌های محلی
-- وب‌اپ: http://localhost:8000
-- پنل ادمین: http://localhost:8000/admin/
-- Swagger API: http://localhost:8000/api/docs/
+در مرورگر: **http://localhost:8000**  
+پنل ادمین: **http://localhost:8000/admin/**  
+بررسی سلامت: **http://localhost:8000/health/**  
+Swagger API: **http://localhost:8000/api/docs/**
 
-## اجرای تست‌ها
+---
+
+## دستورهای Makefile
+
+| دستور | توضیح |
+|-------|-------|
+| `make up` | راه‌اندازی همه سرویس‌ها (build + start) |
+| `make down` | توقف و حذف کانتینرها |
+| `make test` | اجرای تست‌ها |
+| `make lint` | بررسی کد با ruff |
+| `make migrate` | اجرای migration‌ها |
+| `make shell` | Django shell |
+| `make seed` | بارگذاری داده اولیه |
+| `make logs` | نمایش لاگ سرویس web |
+
+---
+
+## اجرای تست
 
 ```bash
-# داخل Docker
-docker compose exec web pytest
+# داخل Docker (توصیه‌شده)
+make test
 
-# محلی (با محیط مجازی)
-pytest
+# محلی (بدون Docker، برای تست‌های بدون GIS)
+pip install -r requirements/dev.txt
+DJANGO_SETTINGS_MODULE=ara_amlak.settings.testing_nogis pytest tests/test_core_currency.py tests/test_encrypted_field.py tests/test_otp.py -v
 ```
 
-## Lint
-
-```bash
-ruff check .
-ruff check . --fix  # اصلاح خودکار
-```
+---
 
 ## ساختار پروژه
 
 ```
-ara_amlak/          ← پکیج Django
+ara_amlak/          ← پکیج اصلی Django
+├── settings/
+│   ├── base.py     ← تنظیمات پایه
+│   ├── development.py
+│   ├── production.py
+│   └── testing.py
+├── celery.py
+├── urls.py
+└── asgi.py
+
 apps/
-├── core/           ← مدل‌های پایه، utilities، middleware
+├── core/           ← مدل‌های پایه، utilities، middleware، /health
 ├── accounts/       ← CustomUser، OTP، احراز هویت
 ├── agencies/       ← Agency، Branch، AgencyMember
-├── listings/       ← فایل‌های ملکی (فاز بعد)
-├── crm/            ← درخواست‌ها و مشتریان (فاز بعد)
-└── ...
-templates/          ← قالب‌های HTML
-static/             ← CSS، JS، فونت
+├── listings/       ← فایل‌های ملکی (فاز ۲)
+├── crm/            ← درخواست‌ها (فاز ۲)
+└── ...             ← ۱۲ اپ در مجموع
+
+templates/          ← قالب‌های HTML (RTL، فارسی)
+static/             ← CSS، JS، فونت وزیرمتن
+specs/              ← Spec Kit: constitution + زیرفازها
+docker/             ← Dockerfile‌ها
 ```
+
+---
 
 ## متغیرهای محیطی
 
-| متغیر | توضیح | نمونه |
-|-------|-------|-------|
-| `SECRET_KEY` | کلید محرمانه Django | (تولید با `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`) |
-| `DATABASE_URL` | آدرس PostgreSQL | `postgis://user:pass@host/db` |
-| `REDIS_URL` | آدرس Redis | `redis://localhost:6379/0` |
-| `FIELD_ENCRYPTION_KEY` | کلید Fernet برای رمزنگاری فیلدها | (تولید با `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`) |
+فایل `.env.example` را ببینید. مهم‌ترین‌ها:
 
-## ساختار شاخه‌های Git
+| متغیر | توضیح |
+|-------|-------|
+| `SECRET_KEY` | کلید محرمانه Django |
+| `DATABASE_URL` | آدرس PostgreSQL (`postgis://...`) |
+| `REDIS_URL` | آدرس Redis |
+| `FIELD_ENCRYPTION_KEY` | کلید Fernet برای رمزنگاری فیلدها |
 
-- `main` — شاخه پایدار
-- `phase/1-bootstrap` — فاز ۱ (این شاخه)
-- `phase/2-*` — فاز‌های بعدی
+---
 
-هر تسک پس از تکمیل کامیت می‌شود. پیام کامیت طبق Conventional Commits.
+## قرارداد کامیت
+
+قالب اجباری: `<type>(<scope>): <subject>`
+
+```
+feat(listings): add property search with PostGIS radius filter
+
+Phase: 2
+```
+
+جزئیات در [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+برای نصب hooks:
+```bash
+pip install pre-commit gitlint
+pre-commit install --hook-type commit-msg
+pre-commit install
+git config commit.template .gitmessage
+```
+
+---
+
+## مشارکت
+
+راهنمای کامل در [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+---
+
+## لایسنس
+
+MIT © آرا املاک
