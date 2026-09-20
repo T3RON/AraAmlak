@@ -4,24 +4,39 @@
 {% block title %}داشبورد — آرا املاک{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-6">
+  <!-- Welcome -->
   <div>
-    <h1 class="text-3xl font-bold">خوش آمدید{% if user.full_name %}، {{ user.full_name }}{% endif %}</h1>
-    <p class="mt-1 text-[#8e8e93]">داشبورد آرا املاک — فاز ۱</p>
+    <h1 class="page-title">خوش آمدید{% if user.full_name %}، {{ user.full_name }}{% endif %}</h1>
+    <p class="page-sub">{% if agency %}{{ agency.name }}{% else %}آرا املاک{% endif %} — داشبورد</p>
   </div>
 
-  <!-- Quick stats placeholder -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    {% for label, value in stats %}
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-3xl p-5 border border-black/5 dark:border-white/10">
-      <p class="text-xs text-[#8e8e93] mb-1">{{ label }}</p>
-      <p class="text-2xl font-bold">{{ value|fa_number }}</p>
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">
+    <div class="card" style="text-align:center;">
+      <p class="text-xs text-muted" style="margin-bottom:.5rem;">فایل‌های فعال</p>
+      <p style="font-size:2rem;font-weight:700;color:var(--green);">{{ active_listings|fa_number }}</p>
     </div>
-    {% empty %}
-    <div class="col-span-4 text-center text-[#8e8e93] py-12">
-      هنوز داده‌ای برای نمایش وجود ندارد.
+    <div class="card" style="text-align:center;">
+      <p class="text-xs text-muted" style="margin-bottom:.5rem;">کل فایل‌ها</p>
+      <p style="font-size:2rem;font-weight:700;">{{ total_listings|fa_number }}</p>
     </div>
-    {% endfor %}
+    <div class="card" style="text-align:center;">
+      <p class="text-xs text-muted" style="margin-bottom:.5rem;">درخواست‌های جدید</p>
+      <p style="font-size:2rem;font-weight:700;color:var(--accent);">{{ new_requests|fa_number }}</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <p class="text-xs text-muted" style="margin-bottom:.5rem;">کل درخواست‌ها</p>
+      <p style="font-size:2rem;font-weight:700;">{{ total_requests|fa_number }}</p>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="{% url 'listings:list' %}" class="btn btn-primary">فایل‌های ملک</a>
+    <a href="{% url 'listings:create' %}" class="btn btn-ghost">+ ثبت فایل جدید</a>
+    <a href="{% url 'crm:list' %}" class="btn btn-ghost">درخواست‌ها</a>
+    <a href="{% url 'crm:create' %}" class="btn btn-ghost">+ ثبت درخواست</a>
   </div>
 </div>
 {% endblock %}

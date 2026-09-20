@@ -4,116 +4,112 @@
 {% block title %}{{ listing.code }} — آرا املاک{% endblock %}
 
 {% block content %}
-<div class="space-y-6 max-w-3xl">
+<div class="space-y-6" style="max-width:800px;">
 
   <!-- Breadcrumb -->
-  <nav class="text-sm text-[#8e8e93]">
-    <a href="{% url 'listings:list' %}" class="hover:text-[#007aff]">فایل‌های ملک</a>
-    <span class="mx-1">/</span>
+  <nav class="breadcrumb">
+    <a href="{% url 'listings:list' %}">فایل‌های ملک</a>
+    <span> / </span>
     <span>{{ listing.code }}</span>
   </nav>
 
   <!-- Header card -->
-  <div class="bg-white dark:bg-[#2c2c2e] rounded-3xl border border-black/5 dark:border-white/10 p-6">
-    <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
+  <div class="card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
       <div>
-        <h1 class="text-2xl font-bold">
+        <h1 style="font-size:1.5rem;font-weight:700;">
           {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
         </h1>
-        {% if listing.title %}
-        <p class="text-[#8e8e93] mt-1">{{ listing.title }}</p>
-        {% endif %}
-        <p class="text-xs text-[#8e8e93] mt-1">کد: {{ listing.code }}</p>
+        {% if listing.title %}<p class="text-muted" style="margin-top:.25rem;">{{ listing.title }}</p>{% endif %}
+        <p class="text-xs text-muted" style="margin-top:.25rem;">کد: {{ listing.code }}</p>
       </div>
-      <!-- Status + actions -->
-      <div class="flex items-center gap-2" id="status-badge">
-        {% include "listings/partials/status_badge.html" %}
+      <div id="status-badge">
+        <span class="badge
+          {% if listing.status == 'active' %}badge-green
+          {% elif listing.status == 'reserved' %}badge-orange
+          {% elif listing.status == 'sold' %}badge-gray
+          {% elif listing.status == 'expired' %}badge-red
+          {% else %}badge-blue{% endif %}">
+          {{ listing.get_status_display }}
+        </span>
       </div>
     </div>
 
-    <!-- HTMX status change -->
+    <!-- HTMX inline status change -->
     <form hx-post="{% url 'listings:status_update' listing.pk %}"
           hx-target="#status-badge"
           hx-swap="innerHTML"
-          class="flex items-center gap-2">
+          style="display:flex;align-items:center;gap:.5rem;">
       {% csrf_token %}
-      <select name="status"
-              class="text-sm bg-[#f2f2f7] dark:bg-[#3a3a3c] border-0 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#007aff]">
-        {% for val, label in listing.get_status_choices %}
-          <option value="{{ val }}" {% if val == listing.status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
+      <select name="status" class="form-control" style="width:auto;">
+        <option value="draft" {% if listing.status == 'draft' %}selected{% endif %}>پیش‌نویس</option>
+        <option value="active" {% if listing.status == 'active' %}selected{% endif %}>فعال</option>
+        <option value="reserved" {% if listing.status == 'reserved' %}selected{% endif %}>رزرو شده</option>
+        <option value="sold" {% if listing.status == 'sold' %}selected{% endif %}>فروخته/اجاره</option>
+        <option value="expired" {% if listing.status == 'expired' %}selected{% endif %}>منقضی</option>
       </select>
-      <button type="submit"
-              class="text-sm bg-[#007aff] text-white px-3 py-1.5 rounded-xl hover:bg-[#0071e3] transition-colors">
-        تغییر وضعیت
-      </button>
+      <button type="submit" class="btn btn-primary">تغییر وضعیت</button>
     </form>
   </div>
 
   <!-- Details grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="detail-grid">
 
     <!-- Location -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4">
-      <h2 class="text-xs font-semibold text-[#8e8e93] uppercase tracking-wide mb-3">موقعیت</h2>
-      <dl class="space-y-1.5 text-sm">
-        {% if listing.province %}<div class="flex justify-between"><dt class="text-[#8e8e93]">استان</dt><dd>{{ listing.province }}</dd></div>{% endif %}
-        {% if listing.city %}<div class="flex justify-between"><dt class="text-[#8e8e93]">شهر</dt><dd>{{ listing.city }}</dd></div>{% endif %}
-        {% if listing.district %}<div class="flex justify-between"><dt class="text-[#8e8e93]">منطقه</dt><dd>{{ listing.district }}</dd></div>{% endif %}
-        {% if listing.address %}<div class="mt-2 text-[#8e8e93] text-xs">{{ listing.address }}</div>{% endif %}
+    <div class="card">
+      <h2 class="form-section-title">موقعیت</h2>
+      <dl>
+        {% if listing.province %}<div class="detail-row"><dt>استان</dt><dd>{{ listing.province }}</dd></div>{% endif %}
+        {% if listing.city %}<div class="detail-row"><dt>شهر</dt><dd>{{ listing.city }}</dd></div>{% endif %}
+        {% if listing.district %}<div class="detail-row"><dt>منطقه</dt><dd>{{ listing.district }}</dd></div>{% endif %}
+        {% if listing.address %}<p class="text-xs text-muted" style="margin-top:.5rem;">{{ listing.address }}</p>{% endif %}
       </dl>
     </div>
 
     <!-- Physical -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4">
-      <h2 class="text-xs font-semibold text-[#8e8e93] uppercase tracking-wide mb-3">مشخصات</h2>
-      <dl class="space-y-1.5 text-sm">
-        {% if listing.area %}<div class="flex justify-between"><dt class="text-[#8e8e93]">متراژ</dt><dd>{{ listing.area|fa_number }} m²</dd></div>{% endif %}
-        <div class="flex justify-between"><dt class="text-[#8e8e93]">اتاق</dt><dd>{{ listing.rooms|fa_number }}</dd></div>
-        {% if listing.floor is not None %}<div class="flex justify-between"><dt class="text-[#8e8e93]">طبقه</dt><dd>{{ listing.floor|fa_number }}</dd></div>{% endif %}
-        {% if listing.build_year %}<div class="flex justify-between"><dt class="text-[#8e8e93]">سال ساخت</dt><dd>{{ listing.build_year|fa_number }}</dd></div>{% endif %}
-        {% if listing.direction %}<div class="flex justify-between"><dt class="text-[#8e8e93]">جهت</dt><dd>{{ listing.get_direction_display }}</dd></div>{% endif %}
+    <div class="card">
+      <h2 class="form-section-title">مشخصات</h2>
+      <dl>
+        {% if listing.area %}<div class="detail-row"><dt>متراژ</dt><dd>{{ listing.area|fa_number }} m²</dd></div>{% endif %}
+        <div class="detail-row"><dt>اتاق</dt><dd>{{ listing.rooms|fa_number }}</dd></div>
+        {% if listing.floor is not None %}<div class="detail-row"><dt>طبقه</dt><dd>{{ listing.floor|fa_number }}</dd></div>{% endif %}
+        {% if listing.build_year %}<div class="detail-row"><dt>سال ساخت</dt><dd>{{ listing.build_year|fa_number }}</dd></div>{% endif %}
+        {% if listing.direction %}<div class="detail-row"><dt>جهت</dt><dd>{{ listing.get_direction_display }}</dd></div>{% endif %}
       </dl>
-      <div class="flex gap-3 mt-3 text-xs">
-        {% if listing.parking %}<span class="text-[#34c759]">✓ پارکینگ</span>{% endif %}
-        {% if listing.elevator %}<span class="text-[#34c759]">✓ آسانسور</span>{% endif %}
-        {% if listing.storage %}<span class="text-[#34c759]">✓ انباری</span>{% endif %}
+      <div style="display:flex;gap:.75rem;margin-top:.75rem;font-size:.75rem;">
+        {% if listing.parking %}<span style="color:var(--green);">✓ پارکینگ</span>{% endif %}
+        {% if listing.elevator %}<span style="color:var(--green);">✓ آسانسور</span>{% endif %}
+        {% if listing.storage %}<span style="color:var(--green);">✓ انباری</span>{% endif %}
       </div>
     </div>
 
     <!-- Pricing -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4">
-      <h2 class="text-xs font-semibold text-[#8e8e93] uppercase tracking-wide mb-3">قیمت</h2>
-      <dl class="space-y-1.5 text-sm">
-        {% if listing.sale_price %}<div class="flex justify-between"><dt class="text-[#8e8e93]">فروش</dt><dd class="font-semibold">{{ listing.sale_price|toman }}</dd></div>{% endif %}
-        {% if listing.mortgage_amount %}<div class="flex justify-between"><dt class="text-[#8e8e93]">رهن</dt><dd class="font-semibold">{{ listing.mortgage_amount|toman }}</dd></div>{% endif %}
-        {% if listing.rent_amount %}<div class="flex justify-between"><dt class="text-[#8e8e93]">اجاره ماهانه</dt><dd class="font-semibold">{{ listing.rent_amount|toman }}</dd></div>{% endif %}
-        {% if listing.price_negotiable %}<div class="text-xs text-[#8e8e93] mt-1">قیمت قابل مذاکره</div>{% endif %}
+    <div class="card">
+      <h2 class="form-section-title">قیمت</h2>
+      <dl>
+        {% if listing.sale_price %}<div class="detail-row"><dt>فروش</dt><dd class="font-bold">{{ listing.sale_price|toman }}</dd></div>{% endif %}
+        {% if listing.mortgage_amount %}<div class="detail-row"><dt>رهن</dt><dd class="font-bold">{{ listing.mortgage_amount|toman }}</dd></div>{% endif %}
+        {% if listing.rent_amount %}<div class="detail-row"><dt>اجاره</dt><dd class="font-bold">{{ listing.rent_amount|toman }}</dd></div>{% endif %}
+        {% if listing.price_negotiable %}<div class="text-xs text-muted" style="margin-top:.5rem;">قیمت قابل مذاکره</div>{% endif %}
       </dl>
     </div>
 
     <!-- Assignment -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4">
-      <h2 class="text-xs font-semibold text-[#8e8e93] uppercase tracking-wide mb-3">مسئول پرونده</h2>
-      <dl class="space-y-1.5 text-sm">
-        {% if listing.assigned_to %}<div class="flex justify-between"><dt class="text-[#8e8e93]">مشاور</dt><dd>{{ listing.assigned_to.get_full_name }}</dd></div>{% endif %}
-        {% if listing.branch %}<div class="flex justify-between"><dt class="text-[#8e8e93]">شعبه</dt><dd>{{ listing.branch.name }}</dd></div>{% endif %}
-        <div class="flex justify-between"><dt class="text-[#8e8e93]">ثبت شده</dt><dd>{{ listing.created_at|date:"Y/m/d" }}</dd></div>
+    <div class="card">
+      <h2 class="form-section-title">مسئول پرونده</h2>
+      <dl>
+        {% if listing.assigned_to %}<div class="detail-row"><dt>مشاور</dt><dd>{{ listing.assigned_to.full_name }}</dd></div>{% endif %}
+        {% if listing.branch %}<div class="detail-row"><dt>شعبه</dt><dd>{{ listing.branch.name }}</dd></div>{% endif %}
+        <div class="detail-row"><dt>ثبت شده</dt><dd>{{ listing.created_at|date:"Y/m/d" }}</dd></div>
       </dl>
     </div>
 
   </div>
 
   <!-- Actions -->
-  <div class="flex gap-3">
-    <a href="{% url 'listings:update' listing.pk %}"
-       class="bg-[#007aff] text-white text-sm font-medium px-5 py-2.5 rounded-2xl hover:bg-[#0071e3] transition-colors">
-      ویرایش فایل
-    </a>
-    <a href="{% url 'listings:list' %}"
-       class="bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 text-sm px-5 py-2.5 rounded-2xl hover:bg-black/5 transition-colors">
-      بازگشت
-    </a>
+  <div style="display:flex;gap:.75rem;">
+    <a href="{% url 'listings:update' listing.pk %}" class="btn btn-primary">ویرایش فایل</a>
+    <a href="{% url 'listings:list' %}" class="btn btn-ghost">بازگشت</a>
   </div>
 
 </div>

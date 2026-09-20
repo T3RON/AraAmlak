@@ -36,3 +36,5 @@ Thumbs.db
 
 # Node
 node_modules/
+
+db_local.sqlite3

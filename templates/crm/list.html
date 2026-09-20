@@ -6,116 +6,79 @@
 {% block content %}
 <div class="space-y-6">
 
-  <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-3">
+  <div class="page-header">
     <div>
-      <h1 class="text-2xl font-bold">درخواست‌ها</h1>
-      <p class="text-sm text-[#8e8e93] mt-0.5">{{ page_obj.paginator.count|fa_number }} درخواست</p>
+      <h1 class="page-title">درخواست‌ها</h1>
+      <p class="page-sub">{{ page_obj.paginator.count|fa_number }} درخواست</p>
     </div>
-    <a href="{% url 'crm:create' %}"
-       class="inline-flex items-center gap-2 bg-[#007aff] text-white text-sm font-medium px-4 py-2 rounded-2xl hover:bg-[#0071e3] transition-colors">
-      + ثبت درخواست جدید
-    </a>
+    <a href="{% url 'crm:create' %}" class="btn btn-primary">+ ثبت درخواست جدید</a>
   </div>
 
   <!-- Filters -->
-  <form method="get" class="flex flex-wrap gap-2">
-    <select name="status"
-            class="text-sm bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#007aff]"
-            onchange="this.form.submit()">
+  <form method="get" class="filters">
+    <select name="status" class="form-control" style="width:auto;" onchange="this.form.submit()">
       <option value="">همه وضعیت‌ها</option>
       {% for val, label in status_choices %}
         <option value="{{ val }}" {% if val == current_status %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-    <select name="priority"
-            class="text-sm bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#007aff]"
-            onchange="this.form.submit()">
+    <select name="priority" class="form-control" style="width:auto;" onchange="this.form.submit()">
       <option value="">همه اولویت‌ها</option>
       {% for val, label in priority_choices %}
         <option value="{{ val }}" {% if val == request.GET.priority %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
     {% if request.GET %}
-    <a href="{% url 'crm:list' %}"
-       class="text-sm text-[#ff3b30] px-3 py-1.5 rounded-xl hover:bg-[#ff3b30]/10 transition-colors">
-      پاک کردن فیلتر
-    </a>
+      <a href="{% url 'crm:list' %}" class="btn" style="color:var(--red)">× پاک‌کردن</a>
     {% endif %}
   </form>
 
-  <!-- Requests list -->
   {% if requests %}
-  <div class="space-y-3">
+  <div>
     {% for req in requests %}
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <!-- Info -->
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap mb-1">
-            <span class="font-semibold text-sm">{{ req.client_name }}</span>
-            <!-- Priority badge -->
-            <span class="text-xs px-2 py-0.5 rounded-full
-              {% if req.priority == 'urgent' %}bg-[#ff3b30]/15 text-[#ff3b30]
-              {% elif req.priority == 'high' %}bg-[#ff9500]/15 text-[#ff9500]
-              {% elif req.priority == 'normal' %}bg-[#007aff]/15 text-[#007aff]
-              {% else %}bg-[#8e8e93]/15 text-[#8e8e93]{% endif %}">
+    <div class="list-item">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:.75rem;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.375rem;">
+            <span class="font-medium text-sm">{{ req.client_name }}</span>
+            <span class="badge {% if req.priority == 'urgent' %}badge-red{% elif req.priority == 'high' %}badge-orange{% elif req.priority == 'normal' %}badge-blue{% else %}badge-gray{% endif %}">
               {{ req.get_priority_display }}
             </span>
-            <!-- Status badge -->
-            <span class="text-xs px-2 py-0.5 rounded-full
-              {% if req.status == 'new' %}bg-[#34c759]/15 text-[#34c759]
-              {% elif req.status == 'in_progress' %}bg-[#007aff]/15 text-[#007aff]
-              {% elif req.status == 'matched' %}bg-[#5856d6]/15 text-[#5856d6]
-              {% elif req.status == 'closed' or req.status == 'cancelled' %}bg-[#8e8e93]/15 text-[#8e8e93]
-              {% else %}bg-[#007aff]/15 text-[#007aff]{% endif %}">
+            <span class="badge {% if req.status == 'new' %}badge-green{% elif req.status == 'in_progress' %}badge-blue{% elif req.status == 'matched' %}badge-purple{% else %}badge-gray{% endif %}">
               {{ req.get_status_display }}
             </span>
           </div>
-          <p class="text-xs text-[#8e8e93]">
+          <p class="text-xs text-muted">
             {{ req.get_deal_type_display }}
             {% if req.city %} · {{ req.city }}{% endif %}
             {% if req.min_budget or req.max_budget %}
-              · بودجه:
-              {% if req.min_budget %}از {{ req.min_budget|toman }} {% endif %}
-              {% if req.max_budget %}تا {{ req.max_budget|toman }}{% endif %}
+              · بودجه: {% if req.min_budget %}از {{ req.min_budget|toman }} {% endif %}{% if req.max_budget %}تا {{ req.max_budget|toman }}{% endif %}
             {% endif %}
           </p>
-          {% if req.notes %}
-          <p class="text-xs text-[#8e8e93] mt-1 line-clamp-1">{{ req.notes }}</p>
-          {% endif %}
+          {% if req.notes %}<p class="text-xs text-muted line-clamp-1" style="margin-top:.25rem;">{{ req.notes }}</p>{% endif %}
         </div>
-        <!-- Actions -->
-        <div class="flex items-center gap-2">
-          <a href="{% url 'crm:update' req.pk %}"
-             class="text-xs text-[#007aff] hover:underline">ویرایش</a>
-          <span class="text-xs text-[#8e8e93]">{{ req.created_at|date:"y/m/d" }}</span>
+        <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0;">
+          <a href="{% url 'crm:update' req.pk %}" class="text-sm text-accent">ویرایش</a>
+          <span class="text-xs text-muted">{{ req.created_at|date:"y/m/d" }}</span>
         </div>
       </div>
     </div>
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
   {% if page_obj.has_other_pages %}
-  <div class="flex justify-center gap-2 mt-6">
-    {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}"
-       class="px-3 py-1.5 text-sm rounded-xl bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 hover:bg-[#007aff]/10 transition-colors">قبلی</a>
-    {% endif %}
-    <span class="px-3 py-1.5 text-sm text-[#8e8e93]">صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}</span>
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}"
-       class="px-3 py-1.5 text-sm rounded-xl bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 hover:bg-[#007aff]/10 transition-colors">بعدی</a>
-    {% endif %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}
+    <span>{{ page_obj.number|fa_number }} / {{ page_obj.paginator.num_pages|fa_number }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}
   </div>
   {% endif %}
 
   {% else %}
-  <div class="text-center py-20 text-[#8e8e93]">
-    <p class="text-4xl mb-4">📋</p>
+  <div class="empty-state">
+    <div class="icon">📋</div>
     <p class="font-medium">هنوز درخواستی ثبت نشده است.</p>
-    <a href="{% url 'crm:create' %}" class="mt-4 inline-block text-[#007aff] hover:underline">ثبت اولین درخواست</a>
+    <a href="{% url 'crm:create' %}" class="text-accent" style="display:block;margin-top:.75rem;">ثبت اولین درخواست</a>
   </div>
   {% endif %}
 

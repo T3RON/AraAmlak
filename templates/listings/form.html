@@ -4,182 +4,87 @@
 {% block title %}{{ page_title|default:"ثبت فایل" }} — آرا املاک{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl space-y-6">
+<div style="max-width:700px;">
 
-  <!-- Header -->
-  <div>
-    <nav class="text-sm text-[#8e8e93] mb-1">
-      <a href="{% url 'listings:list' %}" class="hover:text-[#007aff]">فایل‌های ملک</a>
-      <span class="mx-1">/</span>
-      <span>{{ page_title|default:"ثبت فایل جدید" }}</span>
-    </nav>
-    <h1 class="text-2xl font-bold">{{ page_title|default:"ثبت فایل جدید" }}</h1>
-  </div>
+  <nav class="breadcrumb" style="margin-bottom:.5rem;">
+    <a href="{% url 'listings:list' %}">فایل‌های ملک</a> / {{ page_title|default:"ثبت فایل جدید" }}
+  </nav>
+  <h1 class="page-title" style="margin-bottom:1.5rem;">{{ page_title|default:"ثبت فایل جدید" }}</h1>
 
-  <!-- Form -->
-  <form method="post" class="space-y-5">
+  <form method="post" class="space-y-4">
     {% csrf_token %}
 
     {% if form.errors %}
-    <div class="bg-[#ff3b30]/10 text-[#ff3b30] rounded-2xl px-4 py-3 text-sm">
-      لطفاً خطاهای زیر را برطرف کنید:
-      {{ form.errors }}
-    </div>
+    <div class="msg msg-error">لطفاً خطاهای زیر را برطرف کنید: {{ form.errors }}</div>
     {% endif %}
 
-    <!-- Type section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">نوع معامله</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.property_type.label }}</label>
-          {{ form.property_type }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.deal_type.label }}</label>
-          {{ form.deal_type }}
-        </div>
+    <div class="form-section">
+      <h2 class="form-section-title">نوع معامله</h2>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">{{ form.property_type.label }}</label>{{ form.property_type }}</div>
+        <div class="form-group"><label class="form-label">{{ form.deal_type.label }}</label>{{ form.deal_type }}</div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">{{ form.title.label }}</label>
-        {{ form.title }}
+      <div class="form-group"><label class="form-label">{{ form.title.label }}</label>{{ form.title }}</div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="form-section-title">موقعیت</h2>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">{{ form.province.label }}</label>{{ form.province }}</div>
+        <div class="form-group"><label class="form-label">{{ form.city.label }}</label>{{ form.city }}</div>
+      </div>
+      <div class="form-group"><label class="form-label">{{ form.district.label }}</label>{{ form.district }}</div>
+      <div class="form-group"><label class="form-label">{{ form.address.label }}</label>{{ form.address }}</div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="form-section-title">مشخصات فیزیکی</h2>
+      <div class="form-grid-3">
+        <div class="form-group"><label class="form-label">{{ form.area.label }}</label>{{ form.area }}</div>
+        <div class="form-group"><label class="form-label">{{ form.rooms.label }}</label>{{ form.rooms }}</div>
+        <div class="form-group"><label class="form-label">{{ form.floor.label }}</label>{{ form.floor }}</div>
+        <div class="form-group"><label class="form-label">{{ form.total_floors.label }}</label>{{ form.total_floors }}</div>
+        <div class="form-group"><label class="form-label">{{ form.build_year.label }}</label>{{ form.build_year }}</div>
+        <div class="form-group"><label class="form-label">{{ form.direction.label }}</label>{{ form.direction }}</div>
+      </div>
+      <div style="display:flex;gap:1.5rem;padding-top:.5rem;">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.parking }} {{ form.parking.label }}</label>
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.elevator }} {{ form.elevator.label }}</label>
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.storage }} {{ form.storage.label }}</label>
       </div>
     </div>
 
-    <!-- Location section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">موقعیت</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.province.label }}</label>
-          {{ form.province }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.city.label }}</label>
-          {{ form.city }}
-        </div>
+    <div class="form-section">
+      <h2 class="form-section-title">قیمت (تومان)</h2>
+      <div class="form-grid-3">
+        <div class="form-group"><label class="form-label">{{ form.sale_price.label }}</label>{{ form.sale_price }}</div>
+        <div class="form-group"><label class="form-label">{{ form.mortgage_amount.label }}</label>{{ form.mortgage_amount }}</div>
+        <div class="form-group"><label class="form-label">{{ form.rent_amount.label }}</label>{{ form.rent_amount }}</div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">{{ form.district.label }}</label>
-        {{ form.district }}
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">{{ form.address.label }}</label>
-        {{ form.address }}
+      <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.price_negotiable }} {{ form.price_negotiable.label }}</label>
+    </div>
+
+    <div class="form-section">
+      <h2 class="form-section-title">اطلاعات مالک (محرمانه)</h2>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">{{ form.owner_name.label }}</label>{{ form.owner_name }}</div>
+        <div class="form-group"><label class="form-label">{{ form.owner_phone.label }}</label>{{ form.owner_phone }}</div>
       </div>
     </div>
 
-    <!-- Physical section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">مشخصات فیزیکی</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.area.label }}</label>
-          {{ form.area }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.rooms.label }}</label>
-          {{ form.rooms }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.floor.label }}</label>
-          {{ form.floor }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.total_floors.label }}</label>
-          {{ form.total_floors }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.build_year.label }}</label>
-          {{ form.build_year }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.direction.label }}</label>
-          {{ form.direction }}
-        </div>
-      </div>
-      <!-- Checkboxes -->
-      <div class="flex flex-wrap gap-6 pt-2">
-        <label class="flex items-center gap-2 text-sm cursor-pointer">
-          {{ form.parking }} <span>{{ form.parking.label }}</span>
-        </label>
-        <label class="flex items-center gap-2 text-sm cursor-pointer">
-          {{ form.elevator }} <span>{{ form.elevator.label }}</span>
-        </label>
-        <label class="flex items-center gap-2 text-sm cursor-pointer">
-          {{ form.storage }} <span>{{ form.storage.label }}</span>
-        </label>
+    <div class="form-section">
+      <h2 class="form-section-title">وضعیت و انتساب</h2>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">{{ form.status.label }}</label>{{ form.status }}</div>
+        <div class="form-group"><label class="form-label">{{ form.assigned_to.label }}</label>{{ form.assigned_to }}</div>
+        <div class="form-group"><label class="form-label">{{ form.branch.label }}</label>{{ form.branch }}</div>
       </div>
     </div>
 
-    <!-- Pricing section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">قیمت (تومان)</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.sale_price.label }}</label>
-          {{ form.sale_price }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.mortgage_amount.label }}</label>
-          {{ form.mortgage_amount }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.rent_amount.label }}</label>
-          {{ form.rent_amount }}
-        </div>
-      </div>
-      <label class="flex items-center gap-2 text-sm cursor-pointer">
-        {{ form.price_negotiable }} <span>{{ form.price_negotiable.label }}</span>
-      </label>
-    </div>
-
-    <!-- Owner section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">اطلاعات مالک (محرمانه)</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.owner_name.label }}</label>
-          {{ form.owner_name }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.owner_phone.label }}</label>
-          {{ form.owner_phone }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Workflow section -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
-      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">وضعیت و انتساب</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.status.label }}</label>
-          {{ form.status }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.assigned_to.label }}</label>
-          {{ form.assigned_to }}
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">{{ form.branch.label }}</label>
-          {{ form.branch }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Submit -->
-    <div class="flex gap-3 pt-2">
-      <button type="submit"
-              class="bg-[#007aff] text-white font-medium px-6 py-2.5 rounded-2xl hover:bg-[#0071e3] transition-colors">
-        ذخیره فایل
-      </button>
-      <a href="{% url 'listings:list' %}"
-         class="bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 px-5 py-2.5 rounded-2xl text-sm hover:bg-black/5 transition-colors">
-        انصراف
-      </a>
+    <div style="display:flex;gap:.75rem;padding-top:.5rem;">
+      <button type="submit" class="btn btn-primary">ذخیره فایل</button>
+      <a href="{% url 'listings:list' %}" class="btn btn-ghost">انصراف</a>
     </div>
   </form>
-
 </div>
 {% endblock %}

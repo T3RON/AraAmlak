@@ -4,35 +4,29 @@
 {% block title %}ورود — آرا املاک{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-[60vh]">
-  <div class="w-full max-w-sm">
-    <!-- Card -->
-    <div class="bg-white dark:bg-[#2c2c2e] rounded-3xl shadow-sm border border-black/5 dark:border-white/10 p-8 space-y-6">
-      <!-- Logo / Title -->
-      <div class="text-center space-y-1">
-        <h1 class="text-2xl font-bold">آرا املاک</h1>
-        <p class="text-sm text-[#8e8e93]">برای ادامه، شماره موبایل خود را وارد کنید</p>
+<div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+  <div style="width:100%;max-width:380px;">
+    <div class="card" style="padding:2rem;">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:.25rem;">آرا املاک</h1>
+        <p class="text-muted text-sm">برای ادامه، شماره موبایل خود را وارد کنید</p>
       </div>
 
-      <form method="post" action="{% url 'accounts:login' %}" class="space-y-4">
+      {% if form.errors or error %}
+      <div class="msg msg-error" style="margin-bottom:1rem;">
+        {% if error %}{{ error }}{% else %}شماره موبایل نادرست است.{% endif %}
+      </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'accounts:login' %}">
         {% csrf_token %}
-        <div class="space-y-1">
-          <label for="phone" class="block text-sm font-medium">شماره موبایل</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            inputmode="numeric"
-            placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-            autocomplete="tel"
-            class="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-[#f2f2f7] dark:bg-[#3a3a3c] px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#007aff] transition text-center ltr"
-            required
-          />
+        <div class="form-group">
+          <label for="phone" class="form-label">شماره موبایل</label>
+          <input type="tel" id="phone" name="phone" inputmode="numeric"
+                 placeholder="09123456789" autocomplete="tel"
+                 class="form-control" style="text-align:center;direction:ltr;" required />
         </div>
-        <button
-          type="submit"
-          class="w-full bg-[#007aff] hover:bg-[#0066d6] active:scale-[.98] text-white font-semibold rounded-2xl py-3 transition-all duration-150"
-        >
+        <button type="submit" class="btn btn-primary w-full" style="width:100%;justify-content:center;">
           ارسال کد تأیید
         </button>
       </form>

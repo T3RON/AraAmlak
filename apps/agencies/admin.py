@@ -1,9 +1,14 @@
 """Agencies admin configuration."""
 
 from django.contrib import admin
-from django.contrib.gis.admin import GISModelAdmin
 
 from .models import Agency, AgencyMember, Branch
+
+# Use GISModelAdmin only when GDAL is available
+try:
+    from django.contrib.gis.admin import GISModelAdmin as BranchBaseAdmin
+except Exception:  # noqa: BLE001
+    BranchBaseAdmin = admin.ModelAdmin  # type: ignore[assignment,misc]
 
 
 @admin.register(Agency)
@@ -16,7 +21,7 @@ class AgencyAdmin(admin.ModelAdmin):
 
 
 @admin.register(Branch)
-class BranchAdmin(GISModelAdmin):
+class BranchAdmin(BranchBaseAdmin):
     list_display = ["name", "agency", "phone", "is_active"]
     list_filter = ["agency", "is_active"]
     search_fields = ["name", "address"]

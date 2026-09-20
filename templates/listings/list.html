@@ -7,87 +7,72 @@
 <div class="space-y-6">
 
   <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-3">
+  <div class="page-header">
     <div>
-      <h1 class="text-2xl font-bold">فایل‌های ملک</h1>
-      <p class="text-sm text-[#8e8e93] mt-0.5">{{ page_obj.paginator.count|fa_number }} فایل</p>
+      <h1 class="page-title">فایل‌های ملک</h1>
+      <p class="page-sub">{{ page_obj.paginator.count|fa_number }} فایل</p>
     </div>
-    <a href="{% url 'listings:create' %}"
-       class="inline-flex items-center gap-2 bg-[#007aff] text-white text-sm font-medium px-4 py-2 rounded-2xl hover:bg-[#0071e3] transition-colors">
-      + ثبت فایل جدید
-    </a>
+    <a href="{% url 'listings:create' %}" class="btn btn-primary">+ ثبت فایل جدید</a>
   </div>
 
-  <!-- Filters (HTMX-driven) -->
-  <form method="get" class="flex flex-wrap gap-2">
-    <select name="status"
-            class="text-sm bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#007aff]"
-            onchange="this.form.submit()">
+  <!-- Filters -->
+  <form method="get" class="filters">
+    <select name="status" class="form-control" style="width:auto;" onchange="this.form.submit()">
       <option value="">همه وضعیت‌ها</option>
       {% for val, label in status_choices %}
         <option value="{{ val }}" {% if val == current_status %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
     <input type="text" name="city" value="{{ request.GET.city }}" placeholder="شهر"
-           class="text-sm bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#007aff]" />
-    <button type="submit"
-            class="text-sm bg-[#007aff]/10 text-[#007aff] px-3 py-1.5 rounded-xl hover:bg-[#007aff]/20 transition-colors">
-      جستجو
-    </button>
+           class="form-control" style="width:auto;" />
+    <button type="submit" class="btn btn-ghost">جستجو</button>
     {% if request.GET %}
-    <a href="{% url 'listings:list' %}"
-       class="text-sm text-[#ff3b30] px-3 py-1.5 rounded-xl hover:bg-[#ff3b30]/10 transition-colors">
-      پاک کردن فیلتر
-    </a>
+      <a href="{% url 'listings:list' %}" class="btn" style="color:var(--red)">× پاک‌کردن</a>
     {% endif %}
   </form>
 
-  <!-- Listings grid -->
+  <!-- Grid -->
   {% if listings %}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid-cards">
     {% for listing in listings %}
-    <a href="{% url 'listings:detail' listing.pk %}"
-       class="group block bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-4 hover:shadow-md transition-shadow">
-      <!-- Status badge -->
-      <div class="flex items-start justify-between mb-3">
-        <span class="text-xs font-medium px-2 py-0.5 rounded-full
-          {% if listing.status == 'active' %}bg-[#34c759]/15 text-[#34c759]
-          {% elif listing.status == 'reserved' %}bg-[#ff9500]/15 text-[#ff9500]
-          {% elif listing.status == 'sold' %}bg-[#8e8e93]/15 text-[#8e8e93]
-          {% elif listing.status == 'expired' %}bg-[#ff3b30]/15 text-[#ff3b30]
-          {% else %}bg-[#007aff]/15 text-[#007aff]{% endif %}">
-          {{ listing.get_status_display }}
-        </span>
-        <span class="text-xs text-[#8e8e93]">{{ listing.code }}</span>
-      </div>
-
-      <!-- Type -->
-      <p class="text-sm font-semibold text-[#1c1c1e] dark:text-white mb-1 group-hover:text-[#007aff] transition-colors">
-        {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
-      </p>
-
-      <!-- Location -->
-      {% if listing.city %}
-      <p class="text-xs text-[#8e8e93] mb-2">{{ listing.city }}{% if listing.district %} · {{ listing.district }}{% endif %}</p>
-      {% endif %}
-
-      <!-- Specs row -->
-      <div class="flex flex-wrap gap-2 text-xs text-[#8e8e93] mb-3">
-        {% if listing.area %}<span>{{ listing.area|fa_number }} m²</span>{% endif %}
-        {% if listing.rooms is not None %}<span>{{ listing.rooms|fa_number }} اتاق</span>{% endif %}
-        {% if listing.floor is not None %}<span>طبقه {{ listing.floor|fa_number }}</span>{% endif %}
-      </div>
-
-      <!-- Price -->
-      <div class="text-sm font-medium text-[#1c1c1e] dark:text-white">
-        {% if listing.sale_price %}
-          {{ listing.sale_price|toman }}
-        {% elif listing.mortgage_amount or listing.rent_amount %}
-          {% if listing.mortgage_amount %}رهن {{ listing.mortgage_amount|toman }}{% endif %}
-          {% if listing.rent_amount %} · اجاره {{ listing.rent_amount|toman }}{% endif %}
-        {% elif listing.price_negotiable %}
-          <span class="text-[#8e8e93]">توافقی</span>
+    <a href="{% url 'listings:detail' listing.pk %}" style="text-decoration:none;color:inherit;">
+      <div class="card-sm" style="height:100%;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
+        <!-- Header row -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+          <span class="badge
+            {% if listing.status == 'active' %}badge-green
+            {% elif listing.status == 'reserved' %}badge-orange
+            {% elif listing.status == 'sold' %}badge-gray
+            {% elif listing.status == 'expired' %}badge-red
+            {% else %}badge-blue{% endif %}">
+            {{ listing.get_status_display }}
+          </span>
+          <span class="text-xs text-muted">{{ listing.code }}</span>
+        </div>
+        <!-- Type -->
+        <p class="font-medium text-sm" style="margin-bottom:.25rem;">
+          {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
+        </p>
+        <!-- Location -->
+        {% if listing.city %}
+        <p class="text-xs text-muted" style="margin-bottom:.5rem;">
+          {{ listing.city }}{% if listing.district %} · {{ listing.district }}{% endif %}
+        </p>
         {% endif %}
+        <!-- Specs -->
+        <div style="display:flex;gap:.75rem;font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">
+          {% if listing.area %}<span>{{ listing.area|fa_number }} m²</span>{% endif %}
+          <span>{{ listing.rooms|fa_number }} اتاق</span>
+          {% if listing.floor is not None %}<span>طبقه {{ listing.floor|fa_number }}</span>{% endif %}
+        </div>
+        <!-- Price -->
+        <div class="font-medium text-sm">
+          {% if listing.sale_price %}{{ listing.sale_price|toman }}
+          {% elif listing.mortgage_amount or listing.rent_amount %}
+            {% if listing.mortgage_amount %}رهن {{ listing.mortgage_amount|toman }}{% endif %}
+            {% if listing.rent_amount %} · اجاره {{ listing.rent_amount|toman }}{% endif %}
+          {% else %}<span class="text-muted">توافقی</span>{% endif %}
+        </div>
       </div>
     </a>
     {% endfor %}
@@ -95,30 +80,22 @@
 
   <!-- Pagination -->
   {% if page_obj.has_other_pages %}
-  <div class="flex justify-center gap-2 mt-6">
+  <div class="pagination">
     {% if page_obj.has_previous %}
-    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}"
-       class="px-3 py-1.5 text-sm rounded-xl bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 hover:bg-[#007aff]/10 transition-colors">
-      قبلی
-    </a>
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}">قبلی</a>
     {% endif %}
-    <span class="px-3 py-1.5 text-sm text-[#8e8e93]">
-      صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}
-    </span>
+    <span>صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}</span>
     {% if page_obj.has_next %}
-    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"
-       class="px-3 py-1.5 text-sm rounded-xl bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 hover:bg-[#007aff]/10 transition-colors">
-      بعدی
-    </a>
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}">بعدی</a>
     {% endif %}
   </div>
   {% endif %}
 
   {% else %}
-  <div class="text-center py-20 text-[#8e8e93]">
-    <p class="text-4xl mb-4">🏠</p>
+  <div class="empty-state">
+    <div class="icon">🏠</div>
     <p class="font-medium">هنوز فایلی ثبت نشده است.</p>
-    <a href="{% url 'listings:create' %}" class="mt-4 inline-block text-[#007aff] hover:underline">ثبت اولین فایل</a>
+    <a href="{% url 'listings:create' %}" class="text-accent" style="display:block;margin-top:.75rem;">ثبت اولین فایل</a>
   </div>
   {% endif %}
 
