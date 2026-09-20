@@ -16,8 +16,14 @@ def login_view(request):
     if request.method == "POST":
         phone = request.POST.get("phone", "").strip()
         if phone:
+            from django.conf import settings as _s  # noqa: PLC0415
+            from django.core.cache import cache as _c  # noqa: PLC0415
             send_otp(phone)
             request.session["otp_phone"] = phone
+            # In DEBUG mode, show the OTP code on the verify page (no real SMS)
+            if _s.DEBUG:
+                _debug_code = _c.get(f"otp:{phone}")
+                request.session["_debug_otp"] = _debug_code
             return redirect("accounts:otp-verify")
         messages.error(request, "شماره موبایل را وارد کنید.")
     return render(request, "accounts/login.html")
