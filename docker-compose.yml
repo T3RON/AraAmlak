@@ -1,6 +1,11 @@
 version: "3.9"
 
+# ─── Project name ─────────────────────────────────────────────────────────────
+name: ara_amlak
+
 services:
+
+  # ── PostgreSQL 16 + PostGIS ──────────────────────────────────────────────────
   db:
     image: postgis/postgis:16-3.4
     restart: unless-stopped
@@ -11,80 +16,76 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ara}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
+  # ── Redis 7 ─────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
+  # ── Web (Daphne ASGI) ────────────────────────────────────────────────────────
   web:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
     restart: unless-stopped
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             daphne -b 0.0.0.0 -p 8000 ara_amlak.asgi:application"
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
-    environment:
-      DJANGO_SETTINGS_MODULE: ara_amlak.settings.development
-      DATABASE_URL: postgresql://ara:ara_secret@db:5432/ara_amlak
-      REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: dev-secret-key-change-in-production
-      DEBUG: "True"
+      - "${WEB_PORT:-8000}:8000"
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
 
+  # ── Celery Worker ────────────────────────────────────────────────────────────
   celery:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
     restart: unless-stopped
-    command: celery -A ara_amlak worker -l INFO
+    command: celery -A ara_amlak worker -l INFO --concurrency=2
     volumes:
       - .:/app
-    environment:
-      DJANGO_SETTINGS_MODULE: ara_amlak.settings.development
-      DATABASE_URL: postgresql://ara:ara_secret@db:5432/ara_amlak
-      REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: dev-secret-key-change-in-production
-      DEBUG: "True"
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
 
+  # ── Celery Beat ──────────────────────────────────────────────────────────────
   celery-beat:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
     restart: unless-stopped
-    command: celery -A ara_amlak beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: >
+      celery -A ara_amlak beat -l INFO
+      --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
-    environment:
-      DJANGO_SETTINGS_MODULE: ara_amlak.settings.development
-      DATABASE_URL: postgresql://ara:ara_secret@db:5432/ara_amlak
-      REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: dev-secret-key-change-in-production
-      DEBUG: "True"
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
