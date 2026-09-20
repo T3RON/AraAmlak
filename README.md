@@ -35,11 +35,14 @@ git clone https://github.com/T3RON/AraAmlak.git
 cd AraAmlak
 
 # ۲. کپی متغیرهای محیطی
-cp .env.example .env
+cp .env.example .env       # Linux/macOS
+copy .env.example .env     # Windows
+
 # فایل .env را ویرایش کنید و مقادیر واقعی بگذارید
 
 # ۳. راه‌اندازی همه سرویس‌ها
-make up
+make up          # Linux / macOS / Git Bash / WSL
+.\ara.ps1 up     # Windows PowerShell (بدون make)
 ```
 
 در مرورگر: **http://localhost:8000**  
@@ -49,18 +52,21 @@ Swagger API: **http://localhost:8000/api/docs/**
 
 ---
 
-## دستورهای Makefile
+## دستورهای اجرا
 
-| دستور | توضیح |
-|-------|-------|
-| `make up` | راه‌اندازی همه سرویس‌ها (build + start) |
-| `make down` | توقف و حذف کانتینرها |
-| `make test` | اجرای تست‌ها |
-| `make lint` | بررسی کد با ruff |
-| `make migrate` | اجرای migration‌ها |
-| `make shell` | Django shell |
-| `make seed` | بارگذاری داده اولیه |
-| `make logs` | نمایش لاگ سرویس web |
+> **Windows PowerShell:** از `.\ara.ps1 <target>` استفاده کنید.
+> **Linux / macOS / Git Bash / WSL:** از `make <target>` استفاده کنید.
+
+| هدف | Linux/macOS | Windows PS |
+|-----|------------|------------|
+| راه‌اندازی | `make up` | `.\ara.ps1 up` |
+| توقف | `make down` | `.\ara.ps1 down` |
+| تست | `make test` | `.\ara.ps1 test` |
+| lint | `make lint` | `.\ara.ps1 lint` |
+| migration | `make migrate` | `.\ara.ps1 migrate` |
+| Django shell | `make shell` | `.\ara.ps1 shell` |
+| داده اولیه | `make seed` | `.\ara.ps1 seed` |
+| لاگ | `make logs` | `.\ara.ps1 logs` |
 
 ---
 
