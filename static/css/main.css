@@ -2,6 +2,17 @@
 /* Ara Amlak — minimal CSS for local dev (no Tailwind compile needed) */
 /* For production: npx tailwindcss -i static/css/input.css -o static/css/main.css --minify */
 
+/* Vazirmatn — self-hosted */
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Thin.woff2') format('woff2'); font-weight:100; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-ExtraLight.woff2') format('woff2'); font-weight:200; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Light.woff2') format('woff2'); font-weight:300; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Regular.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Medium.woff2') format('woff2'); font-weight:500; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-SemiBold.woff2') format('woff2'); font-weight:600; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Bold.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-ExtraBold.woff2') format('woff2'); font-weight:800; font-display:swap; }
+@font-face { font-family:'Vazirmatn'; src:url('../fonts/Vazirmatn-Black.woff2') format('woff2'); font-weight:900; font-display:swap; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
