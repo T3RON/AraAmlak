@@ -12,11 +12,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, []),
+    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
 )
 
+# Read .env file if present (docker-compose mounts it; local dev uses it directly)
+environ.Env.read_env(BASE_DIR / ".env")
+
 # ─── Security ─────────────────────────────────────────────────────────────────
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="insecure-dev-key-change-me")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 

@@ -1,9 +1,20 @@
 """
 Initial data migration: enable PostgreSQL extensions.
 PostGIS, pg_trgm, and unaccent are required by the project constitution.
+Skipped automatically on non-PostgreSQL backends (e.g. SQLite in tests).
 """
 
-from django.db import migrations
+from django.db import connection, migrations
+
+
+def enable_extensions(apps, schema_editor):
+    """Enable PostgreSQL-specific extensions. No-op on other backends."""
+    if connection.vendor != "postgresql":
+        return
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
 
 
 class Migration(migrations.Migration):
@@ -13,17 +24,5 @@ class Migration(migrations.Migration):
     dependencies = []
 
     operations = [
-        migrations.RunSQL(
-            sql=[
-                "CREATE EXTENSION IF NOT EXISTS postgis;",
-                "CREATE EXTENSION IF NOT EXISTS pg_trgm;",
-                "CREATE EXTENSION IF NOT EXISTS unaccent;",
-            ],
-            reverse_sql=[
-                # Extensions are shared; do not drop them on reverse
-                migrations.RunSQL.noop,
-                migrations.RunSQL.noop,
-                migrations.RunSQL.noop,
-            ],
-        ),
+        migrations.RunPython(enable_extensions, migrations.RunPython.noop),
     ]

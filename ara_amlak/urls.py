@@ -5,10 +5,10 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Health check + homepage
+    path("", include("apps.core.urls")),
     # API
     path("api/", include("ara_amlak.api_urls")),
     # Auth (session-based template views)
     path("auth/", include("apps.accounts.urls")),
-    # App views
-    path("", include("apps.dashboard.urls")),
 ]
