@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}داشبورد — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <div>
+    <h1 class="text-3xl font-bold">خوش آمدید{% if user.full_name %}، {{ user.full_name }}{% endif %}</h1>
+    <p class="mt-1 text-[#8e8e93]">داشبورد آرا املاک — فاز ۱</p>
+  </div>
+
+  <!-- Quick stats placeholder -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for label, value in stats %}
+    <div class="bg-white dark:bg-[#2c2c2e] rounded-3xl p-5 border border-black/5 dark:border-white/10">
+      <p class="text-xs text-[#8e8e93] mb-1">{{ label }}</p>
+      <p class="text-2xl font-bold">{{ value|fa_number }}</p>
+    </div>
+    {% empty %}
+    <div class="col-span-4 text-center text-[#8e8e93] py-12">
+      هنوز داده‌ای برای نمایش وجود ندارد.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

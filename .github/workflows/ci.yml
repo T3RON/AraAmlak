@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "phase/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: test_ara_amlak
+          POSTGRES_USER: ara
+          POSTGRES_PASSWORD: ara_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install system GDAL dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev
+
+      - name: Install Python dependencies
+        run: pip install -r requirements/dev.txt
+
+      - name: Lint with ruff
+        run: ruff check .
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: ara_amlak.settings.testing
+          DATABASE_URL: postgis://ara:ara_secret@localhost:5432/test_ara_amlak
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: ci-secret-key
+          FIELD_ENCRYPTION_KEY: ${{ secrets.FIELD_ENCRYPTION_KEY || 'dGVzdC1rZXktMzItYnl0ZXMtcGFkZGluZy10ZXN0IQ==' }}
+        run: |
+          pytest --tb=short -q --cov=apps --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+        continue-on-error: true

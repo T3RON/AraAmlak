@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}تأیید کد — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[60vh]">
+  <div class="w-full max-w-sm">
+    <div class="bg-white dark:bg-[#2c2c2e] rounded-3xl shadow-sm border border-black/5 dark:border-white/10 p-8 space-y-6">
+      <div class="text-center space-y-1">
+        <h1 class="text-xl font-bold">کد تأیید</h1>
+        <p class="text-sm text-[#8e8e93]">کد ۶ رقمی ارسال‌شده به <span class="font-medium text-[#1c1c1e] dark:text-white">{{ phone }}</span> را وارد کنید</p>
+      </div>
+
+      <form method="post" action="{% url 'accounts:otp-verify' %}" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <input
+            type="text"
+            name="code"
+            inputmode="numeric"
+            maxlength="6"
+            placeholder="● ● ● ● ● ●"
+            autofocus
+            class="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-[#f2f2f7] dark:bg-[#3a3a3c] px-4 py-4 text-2xl font-bold outline-none focus:ring-2 focus:ring-[#007aff] transition text-center ltr tracking-[0.4em]"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-[#007aff] hover:bg-[#0066d6] active:scale-[.98] text-white font-semibold rounded-2xl py-3 transition-all duration-150"
+        >
+          تأیید
+        </button>
+      </form>
+
+      <div class="text-center">
+        <a href="{% url 'accounts:login' %}" class="text-sm text-[#007aff] hover:underline">
+          تغییر شماره موبایل
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
