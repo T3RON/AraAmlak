@@ -1,0 +1,9 @@
+-r base.txt
+pytest>=8.2
+pytest-django>=4.8
+pytest-asyncio>=0.23
+factory-boy>=3.3
+Faker>=25.0
+coverage>=7.5
+ruff>=0.4
+django-debug-toolbar>=4.3

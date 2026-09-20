@@ -1,0 +1,99 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "ara-amlak"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    # Django core
+    "Django>=5.2,<6.0",
+    "django-environ>=0.11",
+    "django-extensions>=3.2",
+    # API
+    "djangorestframework>=3.15",
+    "djangorestframework-simplejwt>=5.3",
+    "drf-spectacular>=0.27",
+    # Database
+    "psycopg[binary]>=3.2",
+    "django-postgres-extra>=2.0",
+    # PostGIS
+    "django.contrib.gis",   # included in Django
+    # Redis / Celery
+    "redis>=5.0",
+    "celery[redis]>=5.4",
+    "django-celery-beat>=2.6",
+    "django-celery-results>=2.5",
+    # Channels / Daphne
+    "channels>=4.1",
+    "daphne>=4.1",
+    "channels-redis>=4.2",
+    # Auth / Security
+    "cryptography>=42.0",
+    # Jalali
+    "django-jalali>=7.0",
+    # Tailwind (CLI wrapper — optional, used in dev)
+    # Static helpers
+    "whitenoise>=6.7",
+    # Image processing
+    "Pillow>=10.4",
+    # Playwright (for rendering)
+    "playwright>=1.44",
+    # Utilities
+    "python-slugify>=8.0",
+    "phonenumbers>=8.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-django>=4.8",
+    "pytest-asyncio>=0.23",
+    "factory-boy>=3.3",
+    "Faker>=25.0",
+    "coverage>=7.5",
+    "ruff>=0.4",
+    "django-debug-toolbar>=4.3",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["apps", "ara_amlak"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # Pyflakes
+    "I",        # isort
+    "B",        # flake8-bugbear
+    "C4",       # flake8-comprehensions
+    "UP",       # pyupgrade
+    "DJ",       # flake8-django
+    "S",        # bandit security
+    "ANN",      # type annotations (warn, not error for now)
+]
+ignore = [
+    "S101",              # assert in tests
+    "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204",  # relax annotations for now
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/tests/*" = ["S", "ANN"]
+"*/migrations/*" = ["E501", "ANN"]
+"conftest.py" = ["S", "ANN"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ara_amlak", "apps"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "ara_amlak.settings.testing"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--tb=short -q"
+
+[tool.coverage.run]
+source = ["apps"]
+omit = ["*/migrations/*", "*/tests/*"]
