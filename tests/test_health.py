@@ -1,4 +1,4 @@
-﻿"""
+"""
 Smoke tests for /health and homepage.
 Run with: DJANGO_SETTINGS_MODULE=ara_amlak.settings.testing_nogis pytest tests/test_health.py
 """

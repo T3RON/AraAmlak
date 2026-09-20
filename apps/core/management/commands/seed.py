@@ -1,4 +1,4 @@
-﻿"""
+"""
 Management command: seed
 Loads initial development data (safe fake data only ظ¤ no real personal info).
 """

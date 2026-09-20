@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* Ara Amlak — minimal CSS for local dev (no Tailwind compile needed) */
 /* For production: npx tailwindcss -i static/css/input.css -o static/css/main.css --minify */
 

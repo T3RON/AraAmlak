@@ -1,4 +1,4 @@
-﻿"""Minimal URLconf for health tests ظ¤ avoids GIS/accounts import chain."""
+"""Minimal URLconf for health tests ظ¤ avoids GIS/accounts import chain."""
 
 from django.urls import path
 

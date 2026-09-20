@@ -1,4 +1,4 @@
-﻿"""URL patterns for core app."""
+"""URL patterns for core app."""
 
 from django.urls import path
 

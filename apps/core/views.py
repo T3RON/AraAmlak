@@ -1,4 +1,4 @@
-﻿"""Core app views: health check and homepage."""
+"""Core app views: health check and homepage."""
 
 from django.http import JsonResponse
 from django.shortcuts import render

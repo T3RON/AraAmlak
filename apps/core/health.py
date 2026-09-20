@@ -1,4 +1,4 @@
-﻿"""
+"""
 Health check service for /health endpoint.
 
 Checks: database, Redis, Celery.
