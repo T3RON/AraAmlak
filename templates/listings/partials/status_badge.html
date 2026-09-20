@@ -1,0 +1,8 @@
+<span class="text-xs font-medium px-2 py-0.5 rounded-full
+  {% if listing.status == 'active' %}bg-[#34c759]/15 text-[#34c759]
+  {% elif listing.status == 'reserved' %}bg-[#ff9500]/15 text-[#ff9500]
+  {% elif listing.status == 'sold' %}bg-[#8e8e93]/15 text-[#8e8e93]
+  {% elif listing.status == 'expired' %}bg-[#ff3b30]/15 text-[#ff3b30]
+  {% else %}bg-[#007aff]/15 text-[#007aff]{% endif %}">
+  {{ listing.get_status_display }}
+</span>

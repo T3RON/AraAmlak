@@ -9,6 +9,11 @@ urlpatterns = [
     path("api/", include("ara_amlak.api_urls")),
     # Auth (session-based template views)
     path("auth/", include("apps.accounts.urls")),
-    # App views
+    # Listings (فایل ملک)
+    path("listings/", include("apps.listings.urls")),
+    # CRM (درخواست)
+    path("crm/requests/", include("apps.crm.urls")),
+    # App views (dashboard, health, home)
+    path("", include("apps.core.urls")),
     path("", include("apps.dashboard.urls")),
 ]

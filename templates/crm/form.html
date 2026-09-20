@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"ثبت درخواست" }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+
+  <!-- Header -->
+  <div>
+    <nav class="text-sm text-[#8e8e93] mb-1">
+      <a href="{% url 'crm:list' %}" class="hover:text-[#007aff]">درخواست‌ها</a>
+      <span class="mx-1">/</span>
+      <span>{{ page_title|default:"ثبت درخواست جدید" }}</span>
+    </nav>
+    <h1 class="text-2xl font-bold">{{ page_title|default:"ثبت درخواست جدید" }}</h1>
+  </div>
+
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="bg-[#ff3b30]/10 text-[#ff3b30] rounded-2xl px-4 py-3 text-sm">
+      لطفاً خطاهای زیر را برطرف کنید:
+      {{ form.errors }}
+    </div>
+    {% endif %}
+
+    <!-- Client -->
+    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">اطلاعات مراجعه‌کننده</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.client_name.label }}</label>
+          {{ form.client_name }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.client_phone.label }}</label>
+          {{ form.client_phone }}
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ form.source.label }}</label>
+        {{ form.source }}
+      </div>
+    </div>
+
+    <!-- Need spec -->
+    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">نیاز</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.deal_type.label }}</label>
+          {{ form.deal_type }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.property_types.label }}</label>
+          {{ form.property_types }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.city.label }}</label>
+          {{ form.city }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.district.label }}</label>
+          {{ form.district }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.min_area.label }}</label>
+          {{ form.min_area }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.max_area.label }}</label>
+          {{ form.max_area }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.min_rooms.label }}</label>
+          {{ form.min_rooms }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.max_rooms.label }}</label>
+          {{ form.max_rooms }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.min_budget.label }}</label>
+          {{ form.min_budget }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.max_budget.label }}</label>
+          {{ form.max_budget }}
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ form.notes.label }}</label>
+        {{ form.notes }}
+      </div>
+    </div>
+
+    <!-- Workflow -->
+    <div class="bg-white dark:bg-[#2c2c2e] rounded-2xl border border-black/5 dark:border-white/10 p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-[#8e8e93] uppercase tracking-wide">وضعیت و اولویت</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.status.label }}</label>
+          {{ form.status }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.priority.label }}</label>
+          {{ form.priority }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.assigned_to.label }}</label>
+          {{ form.assigned_to }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ form.contacted_at.label }}</label>
+          {{ form.contacted_at }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex gap-3 pt-2">
+      <button type="submit"
+              class="bg-[#007aff] text-white font-medium px-6 py-2.5 rounded-2xl hover:bg-[#0071e3] transition-colors">
+        ذخیره درخواست
+      </button>
+      <a href="{% url 'crm:list' %}"
+         class="bg-white dark:bg-[#2c2c2e] border border-black/10 dark:border-white/10 px-5 py-2.5 rounded-2xl text-sm hover:bg-black/5 transition-colors">
+        انصراف
+      </a>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
