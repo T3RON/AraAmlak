@@ -2,13 +2,33 @@ name: CI
 
 on:
   push:
-    branches: ["main", "phase/**"]
+    branches: ["main", "phase/**", "chore/**", "fix/**", "hotfix/**"]
   pull_request:
     branches: ["main"]
 
 jobs:
+  # ── Job 1: Lint ──────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff
+        run: ruff check .
+
+  # ── Job 2: Test ──────────────────────────────────────────────────────────────
   test:
-    name: Test & Lint
+    name: Test (pytest + PostGIS)
     runs-on: ubuntu-latest
 
     services:
@@ -45,7 +65,7 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install system GDAL dependencies
+      - name: Install system GDAL
         run: |
           sudo apt-get update
           sudo apt-get install -y gdal-bin libgdal-dev
@@ -53,21 +73,92 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements/dev.txt
 
-      - name: Lint with ruff
-        run: ruff check .
-
       - name: Run tests
         env:
           DJANGO_SETTINGS_MODULE: ara_amlak.settings.testing
           DATABASE_URL: postgis://ara:ara_secret@localhost:5432/test_ara_amlak
           REDIS_URL: redis://localhost:6379/0
-          SECRET_KEY: ci-secret-key
+          SECRET_KEY: ci-secret-key-not-for-production
           FIELD_ENCRYPTION_KEY: ${{ secrets.FIELD_ENCRYPTION_KEY || 'dGVzdC1rZXktMzItYnl0ZXMtcGFkZGluZy10ZXN0IQ==' }}
-        run: |
-          pytest --tb=short -q --cov=apps --cov-report=xml
+          ALLOWED_HOSTS: localhost
+        run: pytest --tb=short -q --cov=apps --cov-report=xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
           files: coverage.xml
         continue-on-error: true
+
+  # ── Job 3: Migration check ───────────────────────────────────────────────────
+  migration-check:
+    name: Migration check
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: test_ara_amlak
+          POSTGRES_USER: ara
+          POSTGRES_PASSWORD: ara_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install system GDAL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev
+
+      - name: Install Python dependencies
+        run: pip install -r requirements/dev.txt
+
+      - name: Check for missing migrations
+        env:
+          DJANGO_SETTINGS_MODULE: ara_amlak.settings.testing
+          DATABASE_URL: postgis://ara:ara_secret@localhost:5432/test_ara_amlak
+          SECRET_KEY: ci-secret-key-not-for-production
+          FIELD_ENCRYPTION_KEY: dGVzdC1rZXktMzItYnl0ZXMtcGFkZGluZy10ZXN0IQ==
+        run: python manage.py makemigrations --check --no-input
+
+  # ── Job 4: PR commit-msg validation ─────────────────────────────────────────
+  commitlint:
+    name: Commit message validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install gitlint
+        run: pip install gitlint
+
+      - name: Validate PR commit messages
+        run: |
+          # Get all commits in this PR
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+          git log --format="%H %s" ${BASE}..${HEAD} | while read sha subject; do
+            echo "Checking: $subject"
+            git log -1 --format="%B" $sha | gitlint --config .gitlint
+          done
