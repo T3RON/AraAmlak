@@ -57,4 +57,7 @@ class Match(TimeStampedModel):
         ]
 
     def __str__(self) -> str:
-        return f"Match #{self.pk}: درخواست {self.request_id} ↔ فایل {self.listing_id} [{self.score}]"
+        return (
+            f"Match #{self.pk}: درخواست {self.request_id}"
+            f" ↔ فایل {self.listing_id} [{self.score}]"
+        )
