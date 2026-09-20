@@ -1,0 +1,27 @@
+[general]
+# Enforce Conventional Commits for آرا املاک
+# Format: <type>(<scope>): <subject>
+# Subject max 72 chars, imperative mood, no period.
+
+ignore-merge-commits=true
+ignore-revert-commits=false
+ignore-fixup-commits=false
+
+[rules]
+# Built-in rules to enforce
+# B1: Title must not be longer than line-length chars
+# T1: Title must not end with a period
+# T2: Title has a hard limit of line-length chars
+# T5: Title must have a valid Conventional Commits type/scope format
+
+[title-max-length]
+line-length=72
+
+[title-trailing-punctuation]
+# Disallow period at end of title
+
+[conventional-commits-rule]
+# Enforce Conventional Commits format
+# type(scope): subject
+types=feat,fix,docs,style,refactor,perf,test,build,ci,chore,revert
+scopes=core,accounts,agencies,listings,crm,matching,messaging,ai,publishing,rendering,accounting,dashboard,ui,infra,deps,specs

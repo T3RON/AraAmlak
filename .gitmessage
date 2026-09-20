@@ -1,0 +1,33 @@
+# ─── Commit Message Template — آرا املاک ──────────────────────────────────────
+# <type>(<scope>): <subject — imperative, lowercase, no period, max 72 chars>
+#
+# [optional body — free-form, Farsi or English]
+#
+# [footers]
+# Phase: <phase-number>
+# BREAKING CHANGE: <description>   ← only when breaking API/schema
+# Closes #<issue>
+#
+# ── Types ─────────────────────────────────────────────────────────────────────
+#   feat       new feature
+#   fix        bug fix
+#   docs       documentation only
+#   style      formatting (no logic change)
+#   refactor   code change (not fix/feat)
+#   perf       performance improvement
+#   test       add/modify tests
+#   build      build system / dependencies
+#   ci         CI config changes
+#   chore      maintenance (no src/test change)
+#   revert     revert a previous commit
+#
+# ── Scopes ────────────────────────────────────────────────────────────────────
+#   core | accounts | agencies | listings | crm | matching | messaging
+#   ai | publishing | rendering | accounting | dashboard
+#   ui | infra | deps | specs
+#
+# ── Examples ──────────────────────────────────────────────────────────────────
+#   feat(listings): add property search with PostGIS radius filter
+#   fix(accounts): correct OTP expiry check in Redis
+#   docs(specs): add phase-2 spec for listings CRUD
+#   chore(infra): upgrade PostgreSQL image to 16.3
