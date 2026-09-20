@@ -22,9 +22,9 @@
         {% endfor %}
       {% endif %}
 
-      {% if request.session._debug_otp %}
-      <div class="msg msg-info" style="margin-bottom:1rem;font-family:monospace;font-size:1.1rem;text-align:center;letter-spacing:.3em;">
-        🔧 DEBUG — کد: <strong>{{ request.session._debug_otp }}</strong>
+      {% if debug_otp %}
+      <div class="msg msg-info" style="margin-bottom:1rem;font-family:monospace;font-size:1.2rem;text-align:center;letter-spacing:.3em;">
+        🔧 DEBUG — کد: <strong>{{ debug_otp }}</strong>
       </div>
       {% endif %}
 

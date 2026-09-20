@@ -20,10 +20,9 @@ def login_view(request):
             from django.core.cache import cache as _c  # noqa: PLC0415
             send_otp(phone)
             request.session["otp_phone"] = phone
-            # In DEBUG mode, show the OTP code on the verify page (no real SMS)
+            # In DEBUG mode, store OTP in session under a non-underscore key
             if _s.DEBUG:
-                _debug_code = _c.get(f"otp:{phone}")
-                request.session["_debug_otp"] = _debug_code
+                request.session["debug_otp_code"] = _c.get(f"otp:{phone}")
             return redirect("accounts:otp-verify")
         messages.error(request, "شماره موبایل را وارد کنید.")
     return render(request, "accounts/login.html")
@@ -40,10 +39,16 @@ def otp_verify_view(request):
             user, _ = User.objects.get_or_create(phone=phone, defaults={"is_active": True})
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             del request.session["otp_phone"]
+            request.session.pop("debug_otp_code", None)
             messages.success(request, f"خوش آمدید، {user.get_short_name()}!")
             return redirect("dashboard:home")
         messages.error(request, "کد نادرست یا منقضی شده است.")
-    return render(request, "accounts/otp_verify.html", {"phone": phone})
+    # Pass debug OTP to context (only present in DEBUG mode)
+    ctx = {
+        "phone": phone,
+        "debug_otp": request.session.get("debug_otp_code"),
+    }
+    return render(request, "accounts/otp_verify.html", ctx)
 
 
 def logout_view(request):
