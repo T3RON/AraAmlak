@@ -36,3 +36,6 @@ Thumbs.db
 
 # Node
 node_modules/
+
+# CBM graph artifact (generated locally; see docs/code-intelligence.md)
+.codebase-memory/
