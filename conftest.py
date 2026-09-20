@@ -8,16 +8,33 @@ inside fixtures so that no-GIS pure-unit tests can still run.
 import pytest
 
 
+# Generic aliases used by listings/crm tests
 @pytest.fixture
-def agency_a(db):
+def agency(db):
     from apps.agencies.models import Agency
-    return Agency.objects.create(name="آژانس الف", slug="agency-a")
+    return Agency.objects.create(name="آژانس تست اصلی", slug="main-agency")
 
 
 @pytest.fixture
 def agency_b(db):
     from apps.agencies.models import Agency
     return Agency.objects.create(name="آژانس ب", slug="agency-b")
+
+
+@pytest.fixture
+def user(db, agency):
+    from apps.accounts.models import CustomUser
+    u = CustomUser.objects.create_user(phone="09100000001", full_name="مشاور تست")
+    u.agency = agency
+    u.save()
+    return u
+
+
+# Named aliases kept for backward compat
+@pytest.fixture
+def agency_a(db):
+    from apps.agencies.models import Agency
+    return Agency.objects.create(name="آژانس الف", slug="agency-a")
 
 
 @pytest.fixture

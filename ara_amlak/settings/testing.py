@@ -4,7 +4,8 @@ from .base import *  # noqa: F401, F403
 
 DEBUG = True
 SECRET_KEY = "test-secret-key-not-for-production"  # noqa: S105
-FIELD_ENCRYPTION_KEY = "dGVzdC1rZXktMzItYnl0ZXMtcGFkZGluZy10ZXN0IQ=="
+# Valid 32-byte Fernet key for tests — not used in production
+FIELD_ENCRYPTION_KEY = "_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4="  # noqa: S105
 
 DATABASES = {
     "default": {

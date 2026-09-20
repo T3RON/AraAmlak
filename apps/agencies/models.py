@@ -3,11 +3,19 @@ Agencies app models: Agency, Branch, AgencyMember.
 """
 
 from django.conf import settings
-from django.contrib.gis.db import models as gis_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TimeStampedModel
+
+# ─── Optional PostGIS support ─────────────────────────────────────────────────
+try:
+    from django.contrib.gis.db import models as gis_models
+
+    _HAS_GIS = True
+except Exception:  # noqa: BLE001
+    gis_models = None  # type: ignore[assignment]
+    _HAS_GIS = False
 
 
 class AgencyPlan(models.TextChoices):
@@ -52,8 +60,10 @@ class Branch(TimeStampedModel):
     )
     name = models.CharField(_("نام شعبه"), max_length=200)
     address = models.TextField(_("آدرس"), blank=True)
-    location = gis_models.PointField(
-        _("موقعیت جغرافیایی"), geography=True, blank=True, null=True
+    location = (
+        gis_models.PointField(_("موقعیت جغرافیایی"), geography=True, blank=True, null=True)
+        if _HAS_GIS
+        else models.TextField(_("موقعیت جغرافیایی (WKT)"), blank=True)
     )
     phone = models.CharField(_("تلفن"), max_length=20, blank=True)
     is_active = models.BooleanField(_("فعال"), default=True)
