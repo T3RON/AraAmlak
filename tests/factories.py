@@ -7,6 +7,8 @@ from factory.django import DjangoModelFactory
 
 from apps.accounts.models import CustomUser
 from apps.agencies.models import Agency, AgencyMember, Branch
+from apps.crm.models import Request as CrmRequest
+from apps.listings.models import DealType, Listing, PropertyType
 
 
 class AgencyFactory(DjangoModelFactory):
@@ -47,3 +49,28 @@ class AgencyMemberFactory(DjangoModelFactory):
     user = factory.SubFactory(CustomUserFactory)
     agency = factory.SubFactory(AgencyFactory)
     role = "agent"
+
+
+class ListingFactory(DjangoModelFactory):
+    class Meta:
+        model = Listing
+
+    agency = factory.SubFactory(AgencyFactory)
+    property_type = PropertyType.APARTMENT
+    deal_type = DealType.SALE
+    city = factory.Sequence(lambda n: f"شهر {n}")
+    area = 80
+    rooms = 2
+    status = "active"
+
+
+class RequestFactory(DjangoModelFactory):
+    class Meta:
+        model = CrmRequest
+
+    agency = factory.SubFactory(AgencyFactory)
+    client_name = factory.Sequence(lambda n: f"مراجعه‌کننده {n}")
+    deal_type = DealType.SALE
+    city = factory.Sequence(lambda n: f"شهر {n}")
+    status = "new"
+    priority = "normal"
