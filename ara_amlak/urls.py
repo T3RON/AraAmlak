@@ -13,6 +13,8 @@ urlpatterns = [
     path("listings/", include("apps.listings.urls")),
     # CRM (درخواست)
     path("crm/requests/", include("apps.crm.urls")),
+    # Matching (تطبیق فایل با درخواست)
+    path("matching/", include("apps.matching.urls")),
     # App views (dashboard, health, home)
     path("", include("apps.core.urls")),
     path("", include("apps.dashboard.urls")),

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}تطبیق‌ها — {{ crm_request.client_name }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:900px;">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{% url 'crm:list' %}">درخواست‌ها</a>
+    <span> / </span>
+    <span>{{ crm_request.client_name }}</span>
+    <span> / </span>
+    <span>تطبیق‌ها</span>
+  </nav>
+
+  <!-- Request summary -->
+  <div class="card">
+    <h1 style="font-size:1.25rem;font-weight:700;margin-bottom:.75rem;">
+      فایل‌های پیشنهادی برای «{{ crm_request.client_name }}»
+    </h1>
+    <div style="display:flex;flex-wrap:wrap;gap:1.5rem;font-size:.875rem;color:var(--text-muted);">
+      <span>نوع معامله: <strong>{{ crm_request.get_deal_type_display }}</strong></span>
+      {% if crm_request.city %}<span>شهر: <strong>{{ crm_request.city }}</strong></span>{% endif %}
+      {% if crm_request.min_budget or crm_request.max_budget %}
+        <span>بودجه:
+          {% if crm_request.min_budget %}از {{ crm_request.min_budget|toman }}{% endif %}
+          {% if crm_request.max_budget %}تا {{ crm_request.max_budget|toman }}{% endif %}
+        </span>
+      {% endif %}
+      {% if crm_request.min_area or crm_request.max_area %}
+        <span>متراژ:
+          {% if crm_request.min_area %}از {{ crm_request.min_area|fa_number }} m²{% endif %}
+          {% if crm_request.max_area %}تا {{ crm_request.max_area|fa_number }} m²{% endif %}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Match count -->
+  {% if matches %}
+  <p class="text-muted" style="font-size:.875rem;">
+    {{ matches|length|fa_number }} فایل منطبق یافت شد — مرتب‌سازی بر اساس امتیاز تطبیق
+  </p>
+
+  <!-- Match cards -->
+  <div style="display:grid;gap:1rem;">
+    {% for match in matches %}
+    <div class="card" style="display:flex;align-items:flex-start;gap:1.25rem;flex-wrap:wrap;">
+
+      <!-- Score badge -->
+      <div style="
+        min-width:3.5rem;text-align:center;
+        background:{% if match.score >= 70 %}var(--green){% elif match.score >= 40 %}var(--orange){% else %}var(--text-muted){% endif %};
+        color:#fff;border-radius:.75rem;padding:.5rem .75rem;font-size:.875rem;font-weight:700;
+        flex-shrink:0;">
+        {{ match.score|fa_number }}
+        <div style="font-size:.65rem;font-weight:400;margin-top:.1rem;">امتیاز</div>
+      </div>
+
+      <!-- Listing info -->
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.25rem;">
+          <span class="badge
+            {% if match.listing.status == 'active' %}badge-green
+            {% elif match.listing.status == 'reserved' %}badge-orange
+            {% else %}badge-gray{% endif %}" style="font-size:.7rem;">
+            {{ match.listing.get_status_display }}
+          </span>
+          <a href="{% url 'listings:detail' match.listing.pk %}"
+             style="font-weight:600;color:var(--accent);">
+            {{ match.listing.code }}
+          </a>
+          <span class="text-muted" style="font-size:.8rem;">
+            {{ match.listing.get_property_type_display }} — {{ match.listing.get_deal_type_display }}
+          </span>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;color:var(--text-muted);">
+          {% if match.listing.city %}
+          <span>📍 {{ match.listing.city }}{% if match.listing.district %} — {{ match.listing.district }}{% endif %}</span>
+          {% endif %}
+          {% if match.listing.area %}
+          <span>📐 {{ match.listing.area|fa_number }} m²</span>
+          {% endif %}
+          {% if match.listing.rooms %}
+          <span>🛏 {{ match.listing.rooms|fa_number }} اتاق</span>
+          {% endif %}
+          {% if match.listing.sale_price %}
+          <span class="font-bold" style="color:var(--text-primary);">{{ match.listing.sale_price|toman }}</span>
+          {% elif match.listing.rent_amount %}
+          <span class="font-bold" style="color:var(--text-primary);">اجاره {{ match.listing.rent_amount|toman }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Action -->
+      <a href="{% url 'listings:detail' match.listing.pk %}" class="btn btn-ghost" style="flex-shrink:0;">
+        مشاهده فایل
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="card" style="text-align:center;padding:3rem 1rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+    <h2 style="font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">هنوز تطبیقی یافت نشده</h2>
+    <p class="text-muted" style="font-size:.875rem;margin-bottom:1.5rem;">
+      برای یافتن فایل‌های منطبق، اطلاعات درخواست را کامل‌تر کنید.
+    </p>
+    <a href="{% url 'crm:update' crm_request.pk %}" class="btn btn-primary">ویرایش درخواست</a>
+  </div>
+  {% endif %}
+
+  <!-- Back -->
+  <div>
+    <a href="{% url 'crm:list' %}" class="btn btn-ghost">بازگشت به درخواست‌ها</a>
+  </div>
+
+</div>
+{% endblock %}

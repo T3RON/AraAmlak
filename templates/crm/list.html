@@ -58,6 +58,7 @@
           {% if req.notes %}<p class="text-xs text-muted line-clamp-1" style="margin-top:.25rem;">{{ req.notes }}</p>{% endif %}
         </div>
         <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0;">
+          <a href="{% url 'matching:request_matches' req.pk %}" class="text-sm" style="color:var(--green);">تطبیق‌ها</a>
           <a href="{% url 'crm:update' req.pk %}" class="text-sm text-accent">ویرایش</a>
           <span class="text-xs text-muted">{{ req.created_at|date:"y/m/d" }}</span>
         </div>
