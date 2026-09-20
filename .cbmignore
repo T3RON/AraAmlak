@@ -1,0 +1,7 @@
+﻿staticfiles/
+media/
+node_modules/
+htmlcov/
+static/vendor/
+*.min.js
+*.min.css

@@ -1,0 +1,33 @@
+﻿# ظ¤ظ¤ظ¤ Commit Message Template ظ¤ ╪ت╪▒╪د ╪د┘à┘╪د┌ر ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤
+# <type>(<scope>): <subject ظ¤ imperative, lowercase, no period, max 72 chars>
+#
+# [optional body ظ¤ free-form, Farsi or English]
+#
+# [footers]
+# Phase: <phase-number>
+# BREAKING CHANGE: <description>   ظ only when breaking API/schema
+# Closes #<issue>
+#
+# ظ¤ظ¤ Types ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤
+#   feat       new feature
+#   fix        bug fix
+#   docs       documentation only
+#   style      formatting (no logic change)
+#   refactor   code change (not fix/feat)
+#   perf       performance improvement
+#   test       add/modify tests
+#   build      build system / dependencies
+#   ci         CI config changes
+#   chore      maintenance (no src/test change)
+#   revert     revert a previous commit
+#
+# ظ¤ظ¤ Scopes ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤
+#   core | accounts | agencies | listings | crm | matching | messaging
+#   ai | publishing | rendering | accounting | dashboard
+#   ui | infra | deps | specs
+#
+# ظ¤ظ¤ Examples ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤ظ¤
+#   feat(listings): add property search with PostGIS radius filter
+#   fix(accounts): correct OTP expiry check in Redis
+#   docs(specs): add phase-2 spec for listings CRUD
+#   chore(infra): upgrade PostgreSQL image to 16.3
