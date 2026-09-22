@@ -41,4 +41,4 @@
 - [x] `docs/HANDOFF.md` → update
 - [x] `specs/phase-4/tasks.md` → mark all done
 - [x] Commit: `docs(specs): update HANDOFF for phase 4`
-- [ ] `git push -u origin phase/4-publishing`
+- [x] `git push -u origin phase/4-publishing`
