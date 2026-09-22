@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}انتشار — {{ listing.code }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:900px;">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{% url 'listings:list' %}">فایل‌های ملک</a>
+    <span> / </span>
+    <a href="{% url 'listings:detail' listing.pk %}">{{ listing.code }}</a>
+    <span> / </span>
+    <span>انتشار در پورتال‌ها</span>
+  </nav>
+
+  <!-- Listing summary -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 style="font-size:1.25rem;font-weight:700;">
+          {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
+        </h1>
+        <p class="text-muted" style="font-size:.875rem;margin-top:.25rem;">
+          کد: {{ listing.code }}
+          {% if listing.city %} · {{ listing.city }}{% endif %}
+          {% if listing.area %} · {{ listing.area|fa_number }} m²{% endif %}
+        </p>
+      </div>
+      <span class="badge
+        {% if listing.status == 'active' %}badge-green
+        {% elif listing.status == 'reserved' %}badge-orange
+        {% else %}badge-gray{% endif %}">
+        {{ listing.get_status_display }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Publish form -->
+  {% if portal_configs %}
+  <div class="card">
+    <h2 class="form-section-title">انتشار جدید</h2>
+    <form method="post" action="{% url 'publishing:publish' listing.pk %}"
+          style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+      {% csrf_token %}
+      <select name="portal_config_id" class="form-control" style="width:auto;min-width:180px;">
+        {% for config in portal_configs %}
+        <option value="{{ config.pk }}">{{ config.get_portal_display }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">ارسال به پورتال</button>
+    </form>
+    {% if messages %}
+    <div style="margin-top:.75rem;">
+      {% for message in messages %}
+      <p class="{% if message.tags == 'success' %}text-muted{% else %}badge badge-orange{% endif %}"
+         style="font-size:.875rem;">{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:2rem 1rem;">
+    <p class="text-muted" style="font-size:.875rem;">
+      هیچ پورتال فعالی تنظیم نشده است.
+      برای افزودن پورتال به <a href="/admin/publishing/portalconfig/add/" style="color:var(--accent);">پنل ادمین</a> بروید.
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Job history -->
+  <div>
+    <h2 class="form-section-title" style="margin-bottom:1rem;">سابقه انتشار</h2>
+
+    {% if jobs %}
+    <div style="display:grid;gap:.75rem;">
+      {% for job in jobs %}
+      <div class="card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+
+        <!-- Status badge -->
+        <span class="badge
+          {% if job.status == 'success' %}badge-green
+          {% elif job.status == 'running' %}badge-blue
+          {% elif job.status == 'failed' %}badge-red
+          {% else %}badge-gray{% endif %}"
+          style="flex-shrink:0;min-width:4.5rem;text-align:center;">
+          {{ job.get_status_display }}
+        </span>
+
+        <!-- Info -->
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:.9rem;">
+            {{ job.portal_config.get_portal_display }}
+          </div>
+          <div style="font-size:.8rem;color:var(--text-muted);">
+            {% if job.external_id %}شناسه: {{ job.external_id }} · {% endif %}
+            ثبت: {{ job.created_at|date:"Y/m/d H:i" }}
+            {% if job.published_at %} · انتشار: {{ job.published_at|date:"Y/m/d H:i" }}{% endif %}
+            {% if job.retries %} · تلاش مجدد: {{ job.retries|fa_number }}{% endif %}
+          </div>
+          {% if job.error_message %}
+          <div style="font-size:.75rem;color:var(--red);margin-top:.25rem;">{{ job.error_message }}</div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="card" style="text-align:center;padding:2rem 1rem;">
+      <p class="text-muted" style="font-size:.875rem;">هنوز هیچ job انتشاری ثبت نشده است.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Back -->
+  <div>
+    <a href="{% url 'listings:detail' listing.pk %}" class="btn btn-ghost">بازگشت به فایل ملک</a>
+  </div>
+
+</div>
+{% endblock %}

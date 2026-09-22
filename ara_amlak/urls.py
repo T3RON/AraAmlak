@@ -15,6 +15,8 @@ urlpatterns = [
     path("crm/requests/", include("apps.crm.urls")),
     # Matching (تطبیق فایل با درخواست)
     path("matching/", include("apps.matching.urls")),
+    # Publishing (انتشار به پورتال)
+    path("publishing/", include("apps.publishing.urls")),
     # App views (dashboard, health, home)
     path("", include("apps.core.urls")),
     path("", include("apps.dashboard.urls")),
