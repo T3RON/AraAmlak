@@ -38,3 +38,5 @@ Thumbs.db
 node_modules/
 
 db_local.sqlite3
+
+test_media/
