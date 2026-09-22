@@ -1,8 +1,8 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از فاز ۴
-**شاخه جاری:** `phase/4-publishing`
-**آخرین کامیت:** `8303c6b` — test(publishing)
+**آخرین به‌روزرسانی:** پس از تکمیل فازهای 0C / 1A / 2A
+**شاخه‌های جاری:** `phase/0c-roles-audit-invite` · `phase/1a-geo-models` · `phase/2a-contact-consent`
+**آخرین کامیت:** `9f6e31f` — feat(crm): phase 2A
 
 ---
 
@@ -11,108 +11,92 @@
 | فاز | موضوع | وضعیت | درصد |
 |-----|--------|--------|------|
 | 0a | زیرساخت (Docker, CI, pre-commit) | ✅ کامل | 100% |
-| 1 | Bootstrap (Django scaffold, 12 اپ، core/accounts/agencies) | ✅ کامل | 100% |
-| 2 | listings + crm (مدل، سرویس، view، template) | ✅ کامل | 100% |
-| 3 | Matching engine + Dashboard واقعی | ✅ کامل | 100% |
-| **4** | **Publishing (انتشار به پورتال‌ها)** | **✅ کامل** | **100%** |
-| 5 | SMS / OTP واقعی | ⬜ شروع نشده | 0% |
+| 0B | دیزاین‌سیستم Apple-style | ⚠️ نسبی | 60% |
+| **0C** | **هویت کاربر، نقش‌ها، AuditLog، دعوت عضو** | **✅ کامل** | **100%** |
+| **1A** | **مدل داده فایل (City/Neighborhood/Feature)** | **✅ کامل** | **100%** |
+| 1B | صفحات CRUD فایل | ✅ کامل | 100% |
+| 1C | رسانه (آپلود عکس) | ⬜ شروع نشده | 0% |
+| 1D | جستجو، فیلتر، نقشه، ایمپورت | ⬜ شروع نشده | 0% |
+| **2A** | **مخاطبین، درخواست‌ها، رضایت پیامک** | **✅ کامل** | **100%** |
+| 2B | تایم‌لاین، بازدید، وظایف | ⬜ شروع نشده | 0% |
+| 3 | Matching engine + Dashboard | ✅ کامل | 100% |
+| 4 (roadmap) | پیامک و اشتراک عمومی | ⬜ شروع نشده | 0% |
+| 4 (ما ساختیم) | Publishing به پورتال‌ها | ✅ کامل | 100% |
+| 5–11 | صدا، رندر، انتشار، حسابداری، AI، ... | ⬜ شروع نشده | 0% |
 
 ---
 
-## ۲. آنچه کامل و تست‌شده است
+## ۲. آنچه در این جلسه کامل شد
 
-### زیرساخت (فاز 0a / 1 / 2 / 3 — ثابت، تغییر نشده)
-- Docker Compose، CI، pre-commit، Makefile، ara.ps1
-- core/accounts/agencies/listings/crm/matching — کامل‌شده در فازهای قبل
+### فاز 0C — نقش‌ها، AuditLog، دعوت عضو
 
-### اپ `publishing` — جدید در فاز ۴
+- [`apps/accounts/permissions.py`](../apps/accounts/permissions.py)
+  - `PERMISSION_MATRIX` — ماتریس دسترسی در یک فایل مرکزی
+  - `has_permission()`, `RoleRequired` mixin, `role_required` decorator
+- [`apps/core/models.py`](../apps/core/models.py) — `AuditLog` + `AuditLog.log()` factory
+  - actions: login/logout/create/update/delete/view_phone/invite/publish/other
+- [`apps/agencies/models.py`](../apps/agencies/models.py) — `Invitation` (single-use, token, expiry, `accept()`)
+- [`apps/accounts/invite_views.py`](../apps/accounts/invite_views.py) — invite_create, invite_list, `InviteAcceptView` (OTP دو-مرحله‌ای)
+- templates: `invite_create.html`, `invite_list.html`, `invite_accept.html`
+- migrations: `core/0002_initial`, `agencies/0003_invitation`
+- تست‌ها: **18 passing** در `tests/test_0c_roles_audit_invite.py`
 
-#### مدل‌ها
-- [`apps/publishing/models.py`](../apps/publishing/models.py)
-  - `Portal` choices: dummy, divar, sheypoor
-  - `JobStatus` choices: pending / running / success / failed
-  - `PortalConfig` — کانفیگ پورتال برای هر آژانس (credentials رمزنگاری‌شده)
-  - `PublishJob` — هر بار ارسال به پورتال (agency, listing, portal_config, status, external_id, ...)
+### فاز 1A — مدل داده کامل فایل ملک
 
-#### Adapter pattern
-- [`apps/publishing/adapters.py`](../apps/publishing/adapters.py)
-  - `BasePortalAdapter` — کلاس پایه
-  - `DummyAdapter` — همیشه موفق؛ برای dev/test
-  - `ADAPTER_MAP` — رجیستری adapter‌ها
-  - `get_adapter(portal)` — برگرداندن adapter مناسب
+- `City` — شهر با استان و slug یکتا
+- `Neighborhood` — محله با aliases برای جستجوی گفتاری و فازی
+- `NeighborhoodAdjacency` — جدول همجواری (ویرایش‌پذیر بدون کد)
+- `Feature` — امکانات M2M (آسانسور، پارکینگ، ...)
+- `Listing` — اضافه‌شده: `neighborhood` FK، `location` (GIS/text)، `land_area`، `units_per_floor`، `balcony`، `features` M2M، CheckConstraint `floor ≤ total_floors`
+- `ListingStatusHistory` — تاریخچه تغییر وضعیت append-only
+- `ListingImage` — اضافه‌شده: `caption` field
+- migration: `listings/0003`
+- تست‌ها: **16 passing** در `tests/test_1a_geo_models.py`
 
-#### سرویس و task
-- [`apps/publishing/services.py`](../apps/publishing/services.py) — `publish_listing(listing_id, config_id)`
-- [`apps/publishing/tasks.py`](../apps/publishing/tasks.py) — `publish_listing_task` (Celery, max_retries=3)
+### فاز 2A — مخاطبین، رضایت پیامک
 
-#### UI
-- [`apps/publishing/views.py`](../apps/publishing/views.py) — `ListingPublishJobListView`, `PublishCreateView`
-- [`apps/publishing/urls.py`](../apps/publishing/urls.py) — `/publishing/listings/<pk>/jobs/`
-- [`templates/publishing/publish_job_list.html`](../templates/publishing/publish_job_list.html)
-- [`templates/listings/detail.html`](../templates/listings/detail.html) — دکمه «انتشار در پورتال‌ها» اضافه شد
-
-#### داشبورد
-- [`apps/dashboard/views.py`](../apps/dashboard/views.py) — کارت ششم: `published_today`
-- [`templates/dashboard/home.html`](../templates/dashboard/home.html) — ۶ کارت آماری
-
-### تست‌ها (72 passing)
-
-| فایل | تعداد | نیاز به PostGIS |
-|------|-------|----------------|
-| `tests/test_otp.py` | 9 | خیر |
-| `tests/test_listings_nogis.py` | 10 | خیر |
-| `tests/test_crm_nogis.py` | 8 | خیر |
-| `tests/test_matching_nogis.py` | 13 | خیر |
-| `tests/test_publishing_nogis.py` | **12** | خیر |
-| `tests/test_core_currency.py` | 16 | خیر |
-| `tests/test_encrypted_field.py` | 4 | خیر |
-| `tests/test_listings_isolation.py` | 3 | **بله** |
-| `tests/test_crm_isolation.py` | 2 | **بله** |
+- `Contact` — مخاطب tenant-scoped، phone رمزنگاری‌شده + phone_normalized برای index، `merge_into()`
+- `ContactPhone` — چند شماره برای هر مخاطب
+- `ConsentRecord` — رضایت دریافت پیامک append-only با `revoke()`
+- `Request` — اضافه‌شده: `contact` FK، `expires_at` (auto 60d)، `PUBLIC_FORM` source، `EXPIRED` status
+- migration: `crm/0003`
+- تست‌ها: **16 passing** در `tests/test_2a_contact_consent.py`
 
 ---
 
-## ۳. آنچه نیمه‌کاره است
+## ۳. تست‌ها (135 passing — بدون PostGIS)
 
-### ۳.۱ Adapter‌های واقعی (Divar, Sheypoor)
-`DummyAdapter` پیاده‌سازی شده اما adapter‌های واقعی (Divar, Sheypoor) نیاز به مستندات API رسمی دارند.
-نقطه افزودن:
-```python
-# apps/publishing/adapters.py
-ADAPTER_MAP = {
-    "dummy": DummyAdapter,
-    "divar": DivarAdapter,   # ← بعد از خواندن مستندات رسمی
-}
-```
+| فایل | تعداد |
+|------|-------|
+| `tests/test_otp.py` | 9 |
+| `tests/test_listings_nogis.py` | 10 |
+| `tests/test_crm_nogis.py` | 8 |
+| `tests/test_matching_nogis.py` | 13 |
+| `tests/test_publishing_nogis.py` | 12 |
+| `tests/test_core_currency.py` | 16 |
+| `tests/test_encrypted_field.py` | 4 |
+| `tests/test_0c_roles_audit_invite.py` | **18** |
+| `tests/test_1a_geo_models.py` | **16** |
+| `tests/test_2a_contact_consent.py` | **16** |
+| **جمع** | **135** |
 
-### ۳.۲ آپلود تصویر (ListingImage)
-مدل `ListingImage` ساخته شده اما endpoint آپلود فایل وجود ندارد.
-
-### ۳.۳ Tailwind CSS
-از Tailwind compile نشده — CSS متغیرها در `static/css/main.css` موجودند.
-
-### ۳.۴ SMS integration
-`accounts/tasks.py` stub است (فاز ۵).
-
-### ۳.۵ اپ‌های stub
-اپ‌های `messaging`, `ai`, `rendering`, `accounting` فقط stub هستند.
+> تست‌های GIS (`test_listings_isolation.py`, `test_crm_isolation.py`, `test_tenant_isolation.py`) فقط در Docker/CI اجرا می‌شوند.
 
 ---
 
-## ۴. تصمیم‌های معماری
+## ۴. آنچه نیمه‌کاره است
 
-### ✅ تصمیم‌های گرفته‌شده (فاز ۴)
+### ۴.۱ فازهای بعدی (اولویت‌بندی)
+1. **1C** — آپلود چندتایی عکس (MinIO/S3، Celery thumbnail)
+2. **1D** — جستجو، فیلتر pg_trgm، ایمپورت Excel
+3. **2B** — تایم‌لاین، بازدید، وظایف
+4. **4A (roadmap)** — زیرساخت پیامک (adapter واقعی SMS)
+5. **4B (roadmap)** — ارسال خودکار تطبیق، فرم اشتراک عمومی
 
-| تصمیم | دلیل |
-|--------|-------|
-| Adapter pattern برای portal‌ها | افزودن portal جدید فقط با یک کلاس جدید |
-| DummyAdapter در MVP | real API docs لازم است — never guess endpoints |
-| `PublishJob.agency` denormalized | فیلتر tenant-scoped بدون JOIN |
-| `credentials` رمزنگاری با EncryptedCharField | API token هرگز plain-text در DB |
-| Celery task با max_retries=3 | شبکه و خطای موقت retry می‌شود |
-| `publish_listing()` service مستقل از view | view فقط dispatch می‌کند |
-
-### ✅ تصمیم‌های گرفته‌شده (فازهای قبل — بدون تغییر)
-→ در HANDOFF قبلی مستند شده
+### ۴.۲ موارد نیمه‌کاره
+- Invitation: URL در `ara_amlak/urls.py` باید confirm شود (از `auth/` prefix استفاده می‌کند)
+- `test_tenant_isolation.py` — تست‌های pre-existing broken (مربوط به factory_boy factories)
+- `test_health.py` — یک تست `home.html` broken (pre-existing)
 
 ---
 
@@ -122,90 +106,28 @@ ADAPTER_MAP = {
 |--------|---------|
 | **Python** | 3.13.0 |
 | **Django** | 5.2 LTS |
-| **GDAL** | روی Windows نصب نیست — همه تست‌های GIS فقط در Docker/CI |
+| **GDAL** | روی Windows نصب نیست |
 | **Fernet key** | `testing_nogis.py` = `_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4=` |
-| **pytest default DS** | `ara_amlak.settings.testing` (PostGIS) — برای local باید `--ds=ara_amlak.settings.testing_nogis` |
-| **Celery در dev** | `publish_listing_task.delay()` بدون worker run نمی‌شود — از `.\ara.ps1 up` استفاده کن |
-| **`&&` در PowerShell** | کار نمی‌کند — از `;` یا `if ($?) { ... }` |
+| **phone_normalized** | باید توسط caller قبل از save ست شود (phone رمزنگاری‌شده است) |
+| **ConsentRecord** | append-only — هرگز update نکنید؛ فقط `revoke()` |
+| **AuditLog** | append-only — هرگز update/delete نکنید |
 
 ---
 
-## ۶. وضعیت گیت
+## ۶. دستورهای اجرا و تست
 
-```
-شاخه:      phase/4-publishing
-origin:    pending push
-Working tree: clean
-```
-
-### کامیت‌های فاز ۴
-```
-8303c6b  test(publishing): add 12 no-GIS publishing tests
-81be505  feat(dashboard): add published_today stat card
-f41a185  feat(publishing): add publish job list view, urls, template, listing link
-001ab8c  feat(publishing): add admin for PortalConfig and PublishJob
-c1d5931  feat(publishing): add adapter pattern, publish service, and celery task
-e1a737f  feat(publishing): add PortalConfig and PublishJob models
-```
-
-### شاخه‌های remote
-```
-origin/phase/4-publishing  ← جاری (پس از push)
-origin/phase/3-matching-dashboard
-origin/phase/2-listings-crm
-origin/phase/1-bootstrap
-origin/phase/0a-scaffold
-```
-
----
-
-## ۷. قدم‌های بعدی (به ترتیب اولویت)
-
-### فاز ۵ — SMS / OTP واقعی
-- خواندن مستندات ارائه‌دهنده SMS ایرانی (فراسمس، کاوه‌نگار، ...)
-- پیاده‌سازی `accounts/tasks.py` واقعی
-- OTP تست واقعی (در حال حاضر debug OTP در terminal نمایش داده می‌شود)
-
-### بهبودهای کوتاه‌مدت
-- آپلود تصویر برای `ListingImage`
-- Adapter‌های واقعی Divar و Sheypoor (پس از خواندن مستندات)
-- `property_types` JSONField widget در CRM form → MultipleChoice
-
----
-
-## ۸. دستورهای اجرا و تست
-
-### تست local (بدون Docker)
 ```powershell
-# تست no-GIS (همه باید سبز باشند — 72 passed)
-python -m pytest --ds=ara_amlak.settings.testing_nogis `
-  tests/test_core_currency.py `
-  tests/test_encrypted_field.py `
-  tests/test_otp.py `
-  tests/test_listings_nogis.py `
-  tests/test_crm_nogis.py `
-  tests/test_matching_nogis.py `
-  tests/test_publishing_nogis.py `
+# تست no-GIS (135 تست)
+python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
+  --ignore=tests/test_tenant_isolation.py `
+  --ignore=tests/test_health.py `
   -v
 
 # lint
 python -m ruff check .
-```
 
-### اجرای dev server
-```powershell
+# dev server
 python manage.py runserver 8990 --settings=ara_amlak.settings.local_sqlite
-# سپس در مرورگر: http://127.0.0.1:8990
-# لاگین: 09000000000 (بررسی OTP در terminal)
-# داشبورد: /dashboard/
-# فایل ملک → انتشار: /publishing/listings/<pk>/jobs/
-```
-
-### تست کامل (Docker — PostGIS لازم دارد)
-```powershell
-.\ara.ps1 up
-.\ara.ps1 test
-.\ara.ps1 lint
 ```
 
 ---
