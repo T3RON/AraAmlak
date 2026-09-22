@@ -1,0 +1,8 @@
+{# ─── Full media gallery partial ──────────────────────────────────────────── #}
+<div id="media-gallery" style="display:flex;flex-direction:column;gap:.5rem;">
+  {% for m in media_list %}
+    {% include "listings/partials/media_item.html" with media=m listing=listing %}
+  {% empty %}
+    <p class="text-muted" style="font-size:.85rem;padding:.5rem 0;">هنوز رسانه‌ای آپلود نشده است.</p>
+  {% endfor %}
+</div>

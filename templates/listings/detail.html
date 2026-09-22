@@ -106,8 +106,11 @@
 
   </div>
 
+  <!-- Media section (Phase 1C) -->
+  {% include "listings/partials/media_upload.html" with listing=listing media_list=media_list %}
+
   <!-- Actions -->
-  <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem;">
     <a href="{% url 'listings:update' listing.pk %}" class="btn btn-primary">ویرایش فایل</a>
     <a href="{% url 'publishing:job_list' listing.pk %}" class="btn btn-ghost">انتشار در پورتال‌ها</a>
     <a href="{% url 'listings:list' %}" class="btn btn-ghost">بازگشت</a>

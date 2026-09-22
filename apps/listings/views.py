@@ -58,8 +58,16 @@ class ListingDetailView(LoginRequiredMixin, DetailView):
         return (
             Listing.objects
             .select_related("agency", "assigned_to", "branch")
-            .prefetch_related("images")
+            .prefetch_related("images", "media_files")
         )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        from apps.listings.models import Media  # noqa: PLC0415
+        ctx["media_list"] = Media.objects.filter(
+            listing=self.object
+        ).order_by("order", "created_at")
+        return ctx
 
 
 class ListingCreateView(LoginRequiredMixin, CreateView):

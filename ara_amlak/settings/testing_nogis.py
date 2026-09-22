@@ -15,6 +15,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.admin",
     # Project apps (no GIS)
     "apps.core",
     "apps.accounts",
@@ -64,6 +67,9 @@ CELERY_TASK_EAGER_PROPAGATES = True
 
 # Redis mock for OTP tests
 REDIS_URL = "redis://localhost:6379/1"
+
+# URL configuration for view tests
+ROOT_URLCONF = "ara_amlak.urls"
 
 # Disable GIS requirement in agencies.Branch
 # (Branch.location uses PointField which requires GDAL)

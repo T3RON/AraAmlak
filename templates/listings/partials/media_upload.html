@@ -1,0 +1,128 @@
+{% load static %}
+{# ─── Media upload panel — included inside listing detail ────────────────── #}
+
+<div class="card" x-data="mediaUpload()" style="margin-top:1.5rem;">
+  <h2 class="form-section-title">رسانه‌ها</h2>
+
+  {# ── Upload dropzone ── #}
+  <div @dragover.prevent="dragging=true"
+       @dragleave.prevent="dragging=false"
+       @drop.prevent="handleDrop($event)"
+       :class="dragging ? 'dropzone-active' : ''"
+       style="border:2px dashed var(--line);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;"
+       @click="$refs.fileInput.click()">
+    <input type="file"
+           x-ref="fileInput"
+           multiple
+           accept="image/*,video/mp4,application/pdf"
+           style="display:none;"
+           @change="handleFiles($event.target.files)">
+    <div style="font-size:2rem;margin-bottom:.5rem;">📁</div>
+    <p style="font-size:.85rem;color:var(--muted);">برای آپلود کلیک کنید یا فایل را اینجا رها کنید</p>
+    <p style="font-size:.75rem;color:var(--muted);">عکس (JPEG/PNG/WebP) · ویدئو (MP4) · سند (PDF) — حداکثر ۲۰ MB</p>
+  </div>
+
+  {# upload type selector #}
+  <div style="display:flex;gap:.75rem;align-items:center;margin-top:.75rem;flex-wrap:wrap;">
+    <label style="font-size:.8rem;font-weight:600;">نوع رسانه:</label>
+    <label style="font-size:.8rem;display:flex;align-items:center;gap:.25rem;">
+      <input type="radio" name="upload_type" value="photo" x-model="uploadType"> عکس
+    </label>
+    <label style="font-size:.8rem;display:flex;align-items:center;gap:.25rem;">
+      <input type="radio" name="upload_type" value="video" x-model="uploadType"> ویدئو
+    </label>
+    <label style="font-size:.8rem;display:flex;align-items:center;gap:.25rem;">
+      <input type="radio" name="upload_type" value="document" x-model="uploadType"> سند خصوصی
+    </label>
+  </div>
+
+  {# progress list #}
+  <template x-if="uploads.length > 0">
+    <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.4rem;">
+      <template x-for="(u, i) in uploads" :key="i">
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;">
+          <span x-text="u.name" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+          <span x-show="u.status==='uploading'" style="color:var(--accent);">⬆ در حال آپلود…</span>
+          <span x-show="u.status==='done'" style="color:var(--green);">✓ آپلود شد</span>
+          <span x-show="u.status==='error'" style="color:var(--red);" x-text="u.error"></span>
+        </div>
+      </template>
+    </div>
+  </template>
+
+  {# gallery #}
+  <div style="margin-top:1.25rem;">
+    <div id="media-gallery" style="display:flex;flex-direction:column;gap:.5rem;">
+      {% for m in media_list %}
+        {% include "listings/partials/media_item.html" with media=m listing=listing %}
+      {% empty %}
+        <p class="text-muted" style="font-size:.85rem;padding:.5rem 0;">هنوز رسانه‌ای آپلود نشده است.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.dropzone-active { border-color: var(--accent) !important; background: var(--accent-soft); }
+</style>
+
+<script>
+function mediaUpload() {
+  return {
+    dragging: false,
+    uploadType: 'photo',
+    uploads: [],
+    uploadUrl: '{% url "listings:media_upload" listing.pk %}',
+    csrfToken: '{{ csrf_token }}',
+
+    handleDrop(e) {
+      this.dragging = false;
+      this.handleFiles(e.dataTransfer.files);
+    },
+
+    handleFiles(files) {
+      for (const file of files) {
+        this.uploadFile(file);
+      }
+    },
+
+    uploadFile(file) {
+      const entry = { name: file.name, status: 'uploading', error: '' };
+      this.uploads.push(entry);
+      const idx = this.uploads.length - 1;
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('media_type', this.uploadType);
+      if (this.uploadType === 'document') fd.append('is_private', 'true');
+
+      fetch(this.uploadUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': this.csrfToken, 'HX-Request': 'true' },
+        body: fd,
+      })
+      .then(async r => {
+        if (r.ok) {
+          const html = await r.text();
+          // Append new card into gallery
+          const gallery = document.getElementById('media-gallery');
+          const noItems = gallery.querySelector('p.text-muted');
+          if (noItems) noItems.remove();
+          gallery.insertAdjacentHTML('beforeend', html);
+          this.uploads[idx].status = 'done';
+          // Bind HTMX on new element
+          if (window.htmx) htmx.process(gallery.lastElementChild);
+        } else {
+          const txt = await r.text();
+          this.uploads[idx].status = 'error';
+          this.uploads[idx].error = txt.replace(/<[^>]+>/g, '').trim().slice(0, 80) || 'خطای آپلود';
+        }
+      })
+      .catch(() => {
+        this.uploads[idx].status = 'error';
+        this.uploads[idx].error = 'اتصال قطع شد';
+      });
+    }
+  };
+}
+</script>

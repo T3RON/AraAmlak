@@ -11,6 +11,9 @@ Models:
 - ListingImage: تصاویر فایل
 """
 
+import uuid as _uuid
+from pathlib import Path as _Path
+
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -436,3 +439,155 @@ class ListingImage(models.Model):
 
     def __str__(self) -> str:
         return f"تصویر {self.order + 1} — {self.listing}"
+
+
+# ─── Media (Phase 1C) ─────────────────────────────────────────────────────────
+
+
+def _media_upload_path(instance: "Media", filename: str) -> str:
+    ext = _Path(filename).suffix.lower()
+    new_name = f"{_uuid.uuid4().hex}{ext}"
+    return f"listings/{instance.listing_id}/{new_name}"
+
+
+def _thumb_upload_path(instance: "Media", filename: str) -> str:
+    return f"listings/{instance.listing_id}/thumbs/{filename}"
+
+
+def _webp_upload_path(instance: "Media", filename: str) -> str:
+    return f"listings/{instance.listing_id}/webp/{filename}"
+
+
+class MediaType(models.TextChoices):
+    PHOTO = "photo", _("عکس")
+    VIDEO = "video", _("ویدئو")
+    DOCUMENT = "document", _("سند")
+
+
+class MediaStatus(models.TextChoices):
+    PENDING = "pending", _("در انتظار پردازش")
+    PROCESSING = "processing", _("در حال پردازش")
+    READY = "ready", _("آماده")
+    ERROR = "error", _("خطا")
+
+
+# Allowed MIME types — validated from real file bytes (magic), not extension
+ALLOWED_PHOTO_MIMES = frozenset(
+    ["image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif"]
+)
+ALLOWED_VIDEO_MIMES = frozenset(
+    ["video/mp4", "video/quicktime", "video/x-msvideo", "video/webm"]
+)
+ALLOWED_DOCUMENT_MIMES = frozenset(
+    [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ]
+)
+ALLOWED_MIMES_BY_TYPE: dict = {
+    MediaType.PHOTO: ALLOWED_PHOTO_MIMES,
+    MediaType.VIDEO: ALLOWED_VIDEO_MIMES,
+    MediaType.DOCUMENT: ALLOWED_DOCUMENT_MIMES,
+}
+
+MAX_UPLOAD_SIZE_BYTES: dict = {
+    MediaType.PHOTO: 20 * 1024 * 1024,
+    MediaType.VIDEO: 50 * 1024 * 1024,
+    MediaType.DOCUMENT: 20 * 1024 * 1024,
+}
+
+
+class Media(TimeStampedModel):
+    """
+    رسانه متصل به فایل ملک — فاز 1C.
+
+    - photo:    عکس عمومی؛ thumbnail + webp در Celery ساخته می‌شود؛ EXIF/GPS حذف می‌شود.
+    - video:    ویدئو عمومی؛ فقط ذخیره می‌شود.
+    - document: سند خصوصی؛ دسترسی فقط با signed URL کوتاه‌مدت.
+    """
+
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name="media_files",
+        verbose_name=_("فایل ملک"),
+    )
+    media_type = models.CharField(
+        _("نوع رسانه"),
+        max_length=10,
+        choices=MediaType.choices,
+        default=MediaType.PHOTO,
+        db_index=True,
+    )
+    file = models.FileField(
+        _("فایل"),
+        upload_to=_media_upload_path,
+        max_length=500,
+    )
+    thumbnail = models.FileField(
+        _("بندانگشتی"),
+        upload_to=_thumb_upload_path,
+        blank=True,
+        max_length=500,
+    )
+    webp = models.FileField(
+        _("نسخه WebP"),
+        upload_to=_webp_upload_path,
+        blank=True,
+        max_length=500,
+    )
+    is_private = models.BooleanField(
+        _("سند خصوصی"),
+        default=False,
+        help_text=_("اسناد خصوصی فقط با لینک امضاشده قابل دسترسند"),
+    )
+    is_cover = models.BooleanField(_("تصویر شاخص"), default=False)
+    order = models.PositiveSmallIntegerField(_("ترتیب"), default=0)
+    caption = models.CharField(_("توضیح"), max_length=200, blank=True)
+    original_filename = models.CharField(_("نام فایل اصلی"), max_length=300, blank=True)
+    mime_type = models.CharField(_("نوع MIME"), max_length=100, blank=True)
+    file_size = models.PositiveBigIntegerField(_("حجم (بایت)"), default=0)
+    status = models.CharField(
+        _("وضعیت پردازش"),
+        max_length=15,
+        choices=MediaStatus.choices,
+        default=MediaStatus.PENDING,
+        db_index=True,
+    )
+    error_message = models.CharField(_("پیغام خطا"), max_length=500, blank=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_media",
+        verbose_name=_("آپلود توسط"),
+    )
+
+    class Meta:
+        verbose_name = _("رسانه")
+        verbose_name_plural = _("رسانه‌ها")
+        ordering = ["order", "created_at"]
+        indexes = [
+            models.Index(
+                fields=["listing", "media_type", "is_private"],
+                name="media_listing_type_priv_idx",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_media_type_display()} — {self.listing} [{self.status}]"
+
+    def generate_signed_url(self, expires_seconds: int = 300) -> str:
+        """Generate a time-limited signed URL for private documents."""
+        from django.core import signing  # noqa: PLC0415
+        from django.utils import timezone  # noqa: PLC0415
+
+        token = signing.dumps(
+            {"media_id": self.pk, "exp": (timezone.now().timestamp() + expires_seconds)},
+            salt="media-signed-url",
+        )
+        from django.urls import reverse  # noqa: PLC0415
+        return reverse("listings:media_serve_private", kwargs={"token": token})

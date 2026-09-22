@@ -5,6 +5,7 @@ Listings Django admin.
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
+from apps.listings.media_models import Media
 from apps.listings.models import (
     City,
     Feature,
@@ -110,3 +111,28 @@ class ListingAdmin(admin.ModelAdmin):
             "fields": ("published_at", "expires_at", "created_at", "updated_at"),
         }),
     )
+
+
+# ─── Media (Phase 1C) ─────────────────────────────────────────────────────────
+
+
+class MediaInline(admin.TabularInline):
+    model = Media
+    extra = 0
+    fields = ("media_type", "file", "is_private", "is_cover", "order", "caption", "status")
+    readonly_fields = ("status",)
+
+
+@admin.register(Media)
+class MediaAdmin(admin.ModelAdmin):
+    list_display = (
+        "listing", "media_type", "is_private", "is_cover",
+        "original_filename", "status", "created_at",
+    )
+    list_filter = ("media_type", "status", "is_private")
+    search_fields = ("listing__code", "original_filename", "caption")
+    readonly_fields = (
+        "status", "mime_type", "file_size",
+        "thumbnail", "webp", "created_at", "updated_at",
+    )
+    ordering = ("-created_at",)

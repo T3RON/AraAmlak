@@ -11,3 +11,23 @@ def expire_overdue_listings_task():
     from apps.listings.services import expire_overdue_listings
 
     return expire_overdue_listings()
+
+
+@shared_task(
+    name="listings.process_media",
+    bind=True,
+    max_retries=3,
+    default_retry_delay=30,
+)
+def process_media_task(self, media_id: int) -> dict:
+    """
+    Process a photo Media record: strip EXIF, generate thumbnail + WebP.
+    Retries up to 3 times on transient errors.
+    """
+    from apps.listings.media_services import process_photo  # noqa: PLC0415
+
+    try:
+        process_photo(media_id)
+        return {"media_id": media_id, "status": "ok"}
+    except Exception as exc:  # noqa: BLE001
+        raise self.retry(exc=exc) from exc

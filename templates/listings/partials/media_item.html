@@ -1,0 +1,67 @@
+{% load static %}
+{# ─── single media card (photo/video/doc row in the gallery) ─────────────── #}
+<div class="media-item"
+     id="media-item-{{ media.pk }}"
+     data-id="{{ media.pk }}"
+     style="display:flex;align-items:center;gap:.75rem;padding:.6rem;border:1px solid var(--line);border-radius:10px;background:var(--surface);">
+
+  {# thumbnail or icon #}
+  <div style="flex:none;width:64px;height:48px;border-radius:6px;overflow:hidden;background:var(--panel);display:flex;align-items:center;justify-content:center;">
+    {% if media.media_type == 'photo' %}
+      {% if media.thumbnail %}
+        <img src="{{ media.thumbnail.url }}" alt="{{ media.caption }}"
+             style="width:100%;height:100%;object-fit:cover;">
+      {% elif media.file %}
+        <img src="{{ media.file.url }}" alt="{{ media.caption }}"
+             style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+        <span style="font-size:1.5rem;">🖼</span>
+      {% endif %}
+    {% elif media.media_type == 'video' %}
+      <span style="font-size:1.5rem;">🎬</span>
+    {% else %}
+      <span style="font-size:1.5rem;">📄</span>
+    {% endif %}
+  </div>
+
+  {# info #}
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:.8rem;font-weight:600;color:var(--ink);">
+      {{ media.get_media_type_display }}
+      {% if media.is_cover %}<span class="badge badge-green" style="font-size:.65rem;padding:.1rem .4rem;">شاخص</span>{% endif %}
+      {% if media.is_private %}<span class="badge badge-orange" style="font-size:.65rem;padding:.1rem .4rem;">خصوصی</span>{% endif %}
+    </div>
+    {% if media.caption %}<div style="font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ media.caption }}</div>{% endif %}
+    <div style="font-size:.7rem;color:var(--muted);">
+      {% if media.status == 'ready' %}<span style="color:var(--green);">✓ آماده</span>
+      {% elif media.status == 'processing' %}<span style="color:var(--amber);">⏳ پردازش…</span>
+      {% elif media.status == 'error' %}<span style="color:var(--red);" title="{{ media.error_message }}">✗ خطا</span>
+      {% else %}<span style="color:var(--muted);">⏸ در انتظار</span>{% endif %}
+    </div>
+  </div>
+
+  {# actions #}
+  <div style="display:flex;gap:.4rem;flex:none;">
+    {% if media.media_type == 'photo' and not media.is_cover %}
+    <form method="post" action="{% url 'listings:media_set_cover' listing.pk media.pk %}"
+          hx-post="{% url 'listings:media_set_cover' listing.pk media.pk %}"
+          hx-target="#media-gallery"
+          hx-swap="innerHTML">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-ghost" style="font-size:.7rem;padding:.2rem .5rem;" title="تعیین به‌عنوان شاخص">شاخص</button>
+    </form>
+    {% endif %}
+    {% if media.is_private %}
+    <a href="{{ media.generate_signed_url }}" target="_blank"
+       class="btn btn-ghost" style="font-size:.7rem;padding:.2rem .5rem;" title="مشاهده سند">دریافت</a>
+    {% endif %}
+    <form method="post" action="{% url 'listings:media_delete' listing.pk media.pk %}"
+          hx-post="{% url 'listings:media_delete' listing.pk media.pk %}"
+          hx-target="#media-item-{{ media.pk }}"
+          hx-swap="outerHTML"
+          hx-confirm="حذف این رسانه؟">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger" style="font-size:.7rem;padding:.2rem .5rem;">حذف</button>
+    </form>
+  </div>
+</div>
