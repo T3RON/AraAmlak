@@ -14,8 +14,9 @@ Covers:
 - Dashboard context: published_today count
 """
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from apps.listings.models import DealType, Listing, ListingStatus, PropertyType
 from apps.publishing.adapters import ADAPTER_MAP, DummyAdapter, PublishError, get_adapter

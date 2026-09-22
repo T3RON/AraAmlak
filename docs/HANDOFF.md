@@ -1,8 +1,8 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از فاز ۳
-**شاخه جاری:** `phase/3-matching-dashboard`
-**آخرین کامیت:** `5cc174c` — tests(matching)
+**آخرین به‌روزرسانی:** پس از فاز ۴
+**شاخه جاری:** `phase/4-publishing`
+**آخرین کامیت:** `8303c6b` — test(publishing)
 
 ---
 
@@ -13,52 +13,57 @@
 | 0a | زیرساخت (Docker, CI, pre-commit) | ✅ کامل | 100% |
 | 1 | Bootstrap (Django scaffold, 12 اپ، core/accounts/agencies) | ✅ کامل | 100% |
 | 2 | listings + crm (مدل، سرویس، view، template) | ✅ کامل | 100% |
-| **3** | **Matching engine + Dashboard واقعی** | **✅ کامل** | **100%** |
-| 4 | Publishing (انتشار به پورتال‌ها) | ⬜ شروع نشده | 0% |
+| 3 | Matching engine + Dashboard واقعی | ✅ کامل | 100% |
+| **4** | **Publishing (انتشار به پورتال‌ها)** | **✅ کامل** | **100%** |
 | 5 | SMS / OTP واقعی | ⬜ شروع نشده | 0% |
 
 ---
 
 ## ۲. آنچه کامل و تست‌شده است
 
-### زیرساخت (فاز 0a / 1 / 2 — ثابت، تغییر نشده)
+### زیرساخت (فاز 0a / 1 / 2 / 3 — ثابت، تغییر نشده)
 - Docker Compose، CI، pre-commit، Makefile، ara.ps1
-- core/accounts/agencies/listings/crm — کامل‌شده در فازهای قبل
+- core/accounts/agencies/listings/crm/matching — کامل‌شده در فازهای قبل
 
-### اپ `matching` — جدید در فاز ۳
-- [`apps/matching/models.py`](../apps/matching/models.py) — `Match` (agency FK, request FK, listing FK, score)
-- [`apps/matching/services.py`](../apps/matching/services.py) — `find_matches(request)` با امتیازبندی ۵ معیاری
-- [`apps/matching/tasks.py`](../apps/matching/tasks.py) — `run_matching_for_request` Celery task
-- [`apps/matching/signals.py`](../apps/matching/signals.py) — post_save Request → task dispatch
-- [`apps/matching/apps.py`](../apps/matching/apps.py) — `ready()` hook
-- [`apps/matching/admin.py`](../apps/matching/admin.py)
-- [`apps/matching/views.py`](../apps/matching/views.py) — `RequestMatchListView`
-- [`apps/matching/urls.py`](../apps/matching/urls.py) — `/matching/requests/<pk>/matches/`
-- [`apps/matching/migrations/0001_initial.py`](../apps/matching/migrations/0001_initial.py)
-- [`templates/matching/match_list.html`](../templates/matching/match_list.html) — کارت‌های match با badge امتیاز
+### اپ `publishing` — جدید در فاز ۴
 
-### امتیازبندی matching
-| معیار | امتیاز |
-|-------|--------|
-| city یکسان | +۳۰ |
-| property_type در property_types | +۲۵ |
-| area در بازه | +۲۰ |
-| قیمت در بودجه | +۱۵ |
-| اتاق در بازه | +۱۰ |
-| **حداکثر** | **۱۰۰** |
+#### مدل‌ها
+- [`apps/publishing/models.py`](../apps/publishing/models.py)
+  - `Portal` choices: dummy, divar, sheypoor
+  - `JobStatus` choices: pending / running / success / failed
+  - `PortalConfig` — کانفیگ پورتال برای هر آژانس (credentials رمزنگاری‌شده)
+  - `PublishJob` — هر بار ارسال به پورتال (agency, listing, portal_config, status, external_id, ...)
 
-### داشبورد — بهبود یافته
-- [`apps/dashboard/views.py`](../apps/dashboard/views.py) — ۵ کارت آماری
-  - فایل‌های active، کل فایل‌ها، درخواست‌های جدید، کل درخواست‌ها، **تطبیق‌های امروز**
-- [`templates/dashboard/home.html`](../templates/dashboard/home.html) — آپدیت شده
+#### Adapter pattern
+- [`apps/publishing/adapters.py`](../apps/publishing/adapters.py)
+  - `BasePortalAdapter` — کلاس پایه
+  - `DummyAdapter` — همیشه موفق؛ برای dev/test
+  - `ADAPTER_MAP` — رجیستری adapter‌ها
+  - `get_adapter(portal)` — برگرداندن adapter مناسب
 
-### تست‌ها (60 passing)
+#### سرویس و task
+- [`apps/publishing/services.py`](../apps/publishing/services.py) — `publish_listing(listing_id, config_id)`
+- [`apps/publishing/tasks.py`](../apps/publishing/tasks.py) — `publish_listing_task` (Celery, max_retries=3)
+
+#### UI
+- [`apps/publishing/views.py`](../apps/publishing/views.py) — `ListingPublishJobListView`, `PublishCreateView`
+- [`apps/publishing/urls.py`](../apps/publishing/urls.py) — `/publishing/listings/<pk>/jobs/`
+- [`templates/publishing/publish_job_list.html`](../templates/publishing/publish_job_list.html)
+- [`templates/listings/detail.html`](../templates/listings/detail.html) — دکمه «انتشار در پورتال‌ها» اضافه شد
+
+#### داشبورد
+- [`apps/dashboard/views.py`](../apps/dashboard/views.py) — کارت ششم: `published_today`
+- [`templates/dashboard/home.html`](../templates/dashboard/home.html) — ۶ کارت آماری
+
+### تست‌ها (72 passing)
+
 | فایل | تعداد | نیاز به PostGIS |
 |------|-------|----------------|
 | `tests/test_otp.py` | 9 | خیر |
 | `tests/test_listings_nogis.py` | 10 | خیر |
 | `tests/test_crm_nogis.py` | 8 | خیر |
-| `tests/test_matching_nogis.py` | **13** | خیر |
+| `tests/test_matching_nogis.py` | 13 | خیر |
+| `tests/test_publishing_nogis.py` | **12** | خیر |
 | `tests/test_core_currency.py` | 16 | خیر |
 | `tests/test_encrypted_field.py` | 4 | خیر |
 | `tests/test_listings_isolation.py` | 3 | **بله** |
@@ -68,46 +73,46 @@
 
 ## ۳. آنچه نیمه‌کاره است
 
-### ۳.۱ آپلود تصویر (ListingImage)
-مدل `ListingImage` ساخته شده اما endpoint آپلود فایل وجود ندارد (Phase 2.5 / بعداً).
-
-### ۳.۲ Tailwind CSS
-فایل `static/css/main.css` دارای CSS متغیرها و طراحی کامل است؛ اما از Tailwind compile نشده.
-برای استفاده از class‌های Tailwind:
-```bash
-npx tailwindcss -i static/css/input.css -o static/css/main.css --watch
+### ۳.۱ Adapter‌های واقعی (Divar, Sheypoor)
+`DummyAdapter` پیاده‌سازی شده اما adapter‌های واقعی (Divar, Sheypoor) نیاز به مستندات API رسمی دارند.
+نقطه افزودن:
+```python
+# apps/publishing/adapters.py
+ADAPTER_MAP = {
+    "dummy": DummyAdapter,
+    "divar": DivarAdapter,   # ← بعد از خواندن مستندات رسمی
+}
 ```
 
-### ۳.۳ SMS integration
-`accounts/tasks.py` stub است — ارائه‌دهنده SMS ایرانی integrate نشده (فاز ۵).
+### ۳.۲ آپلود تصویر (ListingImage)
+مدل `ListingImage` ساخته شده اما endpoint آپلود فایل وجود ندارد.
 
-### ۳.۴ اپ‌های stub
-اپ‌های `messaging`, `ai`, `publishing`, `rendering`, `accounting` فقط stub هستند.
+### ۳.۳ Tailwind CSS
+از Tailwind compile نشده — CSS متغیرها در `static/css/main.css` موجودند.
 
-### ۳.۵ Celery در dev local
-در local_sqlite، `CELERY_TASK_ALWAYS_EAGER=False` — یعنی signal dispatch وجود دارد اما worker نمی‌دود.
-برای دیدن matching در عمل: یا Docker Compose را بالا بیار (`.\ara.ps1 up`) یا `CELERY_TASK_ALWAYS_EAGER=True` در local_sqlite تنظیم کن.
+### ۳.۴ SMS integration
+`accounts/tasks.py` stub است (فاز ۵).
+
+### ۳.۵ اپ‌های stub
+اپ‌های `messaging`, `ai`, `rendering`, `accounting` فقط stub هستند.
 
 ---
 
 ## ۴. تصمیم‌های معماری
 
-### ✅ تصمیم‌های گرفته‌شده (فاز ۳)
+### ✅ تصمیم‌های گرفته‌شده (فاز ۴)
 
 | تصمیم | دلیل |
 |--------|-------|
-| `Match.agency` denormalized | فیلتر tenant-scoped بدون JOIN |
-| Signal dispatch (نه inline) | اجرای matching فقط در Celery — view نازک |
-| `find_matches` upsert pattern | `bulk_create` + `bulk_update` بدون race condition در MVP |
-| Hard filters: agency + deal_type + active status | حذف کامل نامنطبق‌ها قبل از scoring |
-| Soft filters: score accumulation | هر معیار جداگانه — partial match امتیاز می‌گیرد |
-| Score > 0 فقط persist می‌شود | جلوگیری از انباشته شدن سطر‌های بی‌ارزش |
+| Adapter pattern برای portal‌ها | افزودن portal جدید فقط با یک کلاس جدید |
+| DummyAdapter در MVP | real API docs لازم است — never guess endpoints |
+| `PublishJob.agency` denormalized | فیلتر tenant-scoped بدون JOIN |
+| `credentials` رمزنگاری با EncryptedCharField | API token هرگز plain-text در DB |
+| Celery task با max_retries=3 | شبکه و خطای موقت retry می‌شود |
+| `publish_listing()` service مستقل از view | view فقط dispatch می‌کند |
 
 ### ✅ تصمیم‌های گرفته‌شده (فازهای قبل — بدون تغییر)
-→ در نسخه قبلی HANDOFF مستند شده
-
-### ❌ امتحان‌شده و کار نکرده (فازهای قبل)
-→ در نسخه قبلی HANDOFF مستند شده
+→ در HANDOFF قبلی مستند شده
 
 ---
 
@@ -118,9 +123,9 @@ npx tailwindcss -i static/css/input.css -o static/css/main.css --watch
 | **Python** | 3.13.0 |
 | **Django** | 5.2 LTS |
 | **GDAL** | روی Windows نصب نیست — همه تست‌های GIS فقط در Docker/CI |
-| **Fernet key** | `testing_nogis.py` = `_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4=` (32-byte valid) |
+| **Fernet key** | `testing_nogis.py` = `_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4=` |
 | **pytest default DS** | `ara_amlak.settings.testing` (PostGIS) — برای local باید `--ds=ara_amlak.settings.testing_nogis` |
-| **Signal در dev** | `run_matching_for_request.delay()` در local بدون worker run نمی‌شود |
+| **Celery در dev** | `publish_listing_task.delay()` بدون worker run نمی‌شود — از `.\ara.ps1 up` استفاده کن |
 | **`&&` در PowerShell** | کار نمی‌کند — از `;` یا `if ($?) { ... }` |
 
 ---
@@ -128,24 +133,25 @@ npx tailwindcss -i static/css/input.css -o static/css/main.css --watch
 ## ۶. وضعیت گیت
 
 ```
-شاخه:      phase/3-matching-dashboard
+شاخه:      phase/4-publishing
 origin:    pending push
 Working tree: clean
 ```
 
-### کامیت‌های فاز ۳
+### کامیت‌های فاز ۴
 ```
-5cc174c  test(matching): add 13 no-GIS tests for scoring, filters, isolation
-aa3d632  feat(dashboard): add matches_today stat card and agency-scoped counts
-b9afc11  feat(matching): add match list view, urls, template, crm list link
-59369a5  feat(matching): add matching service, Celery task, post_save signal
-3b76fb2  feat(matching): add Match model, migration, admin
-5d64a79  fix(accounts): add LOGIN_URL, LOGIN_REDIRECT_URL to base settings
+8303c6b  test(publishing): add 12 no-GIS publishing tests
+81be505  feat(dashboard): add published_today stat card
+f41a185  feat(publishing): add publish job list view, urls, template, listing link
+001ab8c  feat(publishing): add admin for PortalConfig and PublishJob
+c1d5931  feat(publishing): add adapter pattern, publish service, and celery task
+e1a737f  feat(publishing): add PortalConfig and PublishJob models
 ```
 
 ### شاخه‌های remote
 ```
-origin/phase/3-matching-dashboard  ← جاری (پس از push)
+origin/phase/4-publishing  ← جاری (پس از push)
+origin/phase/3-matching-dashboard
 origin/phase/2-listings-crm
 origin/phase/1-bootstrap
 origin/phase/0a-scaffold
@@ -155,17 +161,14 @@ origin/phase/0a-scaffold
 
 ## ۷. قدم‌های بعدی (به ترتیب اولویت)
 
-### فاز ۴ — Publishing
-- اتصال به پورتال‌ها (دیوار، شیپور)
-- نیاز به خواندن مستندات API رسمی قبل از کدنویسی
-- `apps/publishing/models.py` — `PortalConfig`, `PublishJob`
-
 ### فاز ۵ — SMS / OTP واقعی
-- خواندن مستندات ارائه‌دهنده SMS ایرانی
+- خواندن مستندات ارائه‌دهنده SMS ایرانی (فراسمس، کاوه‌نگار، ...)
 - پیاده‌سازی `accounts/tasks.py` واقعی
+- OTP تست واقعی (در حال حاضر debug OTP در terminal نمایش داده می‌شود)
 
 ### بهبودهای کوتاه‌مدت
 - آپلود تصویر برای `ListingImage`
+- Adapter‌های واقعی Divar و Sheypoor (پس از خواندن مستندات)
 - `property_types` JSONField widget در CRM form → MultipleChoice
 
 ---
@@ -174,7 +177,7 @@ origin/phase/0a-scaffold
 
 ### تست local (بدون Docker)
 ```powershell
-# تست no-GIS (همه باید سبز باشند — 60 passed)
+# تست no-GIS (همه باید سبز باشند — 72 passed)
 python -m pytest --ds=ara_amlak.settings.testing_nogis `
   tests/test_core_currency.py `
   tests/test_encrypted_field.py `
@@ -182,6 +185,7 @@ python -m pytest --ds=ara_amlak.settings.testing_nogis `
   tests/test_listings_nogis.py `
   tests/test_crm_nogis.py `
   tests/test_matching_nogis.py `
+  tests/test_publishing_nogis.py `
   -v
 
 # lint
@@ -194,7 +198,7 @@ python manage.py runserver 8990 --settings=ara_amlak.settings.local_sqlite
 # سپس در مرورگر: http://127.0.0.1:8990
 # لاگین: 09000000000 (بررسی OTP در terminal)
 # داشبورد: /dashboard/
-# درخواست‌ها + تطبیق: /crm/requests/ → کلیک روی «تطبیق‌ها»
+# فایل ملک → انتشار: /publishing/listings/<pk>/jobs/
 ```
 
 ### تست کامل (Docker — PostGIS لازم دارد)
