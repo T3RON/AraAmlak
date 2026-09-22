@@ -15,15 +15,15 @@ Covers:
 - Tenant isolation: AuditLog agency filter
 """
 
+from datetime import timedelta
+
 import pytest
 from django.utils import timezone
-from datetime import timedelta
 
 from apps.accounts.models import CustomUser, UserRole
 from apps.accounts.permissions import (
     ROLE_AGENT,
     ROLE_OWNER,
-    ROLE_VIEWER,
     has_permission,
     has_permission_by_roles,
 )
