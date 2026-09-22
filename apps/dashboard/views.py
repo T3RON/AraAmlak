@@ -13,6 +13,7 @@ def home_view(request):
     from apps.crm.models import Request, RequestStatus
     from apps.listings.models import Listing, ListingStatus
     from apps.matching.models import Match
+    from apps.publishing.models import JobStatus, PublishJob
 
     agency = get_current_agency()
 
@@ -28,9 +29,14 @@ def home_view(request):
         matches_today = Match.all_objects.filter(
             agency=agency, created_at__date=today
         ).count()
+        published_today = PublishJob.all_objects.filter(
+            agency=agency,
+            status=JobStatus.SUCCESS,
+            published_at__date=today,
+        ).count()
     else:
         active_listings = total_listings = 0
-        new_requests = total_requests = matches_today = 0
+        new_requests = total_requests = matches_today = published_today = 0
 
     ctx = {
         "active_listings": active_listings,
@@ -38,6 +44,7 @@ def home_view(request):
         "new_requests": new_requests,
         "total_requests": total_requests,
         "matches_today": matches_today,
+        "published_today": published_today,
         "agency": agency,
     }
     return render(request, "dashboard/home.html", ctx)
