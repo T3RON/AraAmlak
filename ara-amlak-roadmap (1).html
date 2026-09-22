@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آرا املاک (Ara Amlak) — نقشه راه و پرامپت‌های فازبندی‌شده</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --panel: #eaf1f1;
+  --ink: #15262b;
+  --muted: #58696e;
+  --line: #d5e0e1;
+  --accent: #0d5a63;
+  --accent-soft: #dcecee;
+  --focus: #0d5a63;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1a1d; --surface: #142226; --panel: #1a2d32; --ink: #e2ecec;
+    --muted: #93a9ad; --line: #26393e; --accent: #62c3cc; --accent-soft: #17343a; --focus: #62c3cc;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1a1d; --surface: #142226; --panel: #1a2d32; --ink: #e2ecec;
+  --muted: #93a9ad; --line: #26393e; --accent: #62c3cc; --accent-soft: #17343a; --focus: #62c3cc;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(1.25rem + env(safe-area-inset-top, 0px)); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Vazirmatn", "Vazir", Tahoma, "Segoe UI", system-ui, sans-serif;
+  font-size: 17px; line-height: 1.95;
+}
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+.shell { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 76rem; margin: 0 auto; padding: 0 1.25rem 6rem; }
+@media (min-width: 1000px) {
+  .shell { grid-template-columns: 17.5rem minmax(0, 46rem); gap: 3rem; justify-content: center; }
+  .toc-mobile { display: none; }
+}
+@media (max-width: 999px) {
+  .toc-side { display: none; }
+}
+
+/* sidebar (sits on the right in RTL) */
+.toc-side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 2rem 0 2rem; font-size: 0.86rem; line-height: 1.7; }
+.toc-side .brand { font-weight: 800; font-size: 1rem; margin: 0 0 .25rem; }
+.progress { color: var(--muted); margin: 0 0 1.2rem; }
+.toc-group { margin-bottom: 1rem; }
+.toc-h { margin: 0 0 .2rem; font-weight: 700; }
+.toc-h a { color: var(--ink); text-decoration: none; }
+.toc-group ul { list-style: none; margin: 0; padding: 0; }
+.toc-group li { margin: 0; display: flex; gap: .5rem; align-items: flex-start; padding: .1rem 0; }
+.toc-group li a { color: var(--muted); text-decoration: none; }
+.toc-group li a:hover, .toc-h a:hover { color: var(--accent); }
+.toc-group li input { margin-top: .45rem; accent-color: var(--accent); flex: none; }
+.toc-group li.is-done a { text-decoration: line-through; opacity: .55; }
+
+.toc-mobile { margin: 1rem 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: .25rem 1rem; font-size: .9rem; }
+.toc-mobile summary { cursor: pointer; padding: .55rem 0; font-weight: 700; }
+
+/* content */
+main { padding-top: 2.5rem; min-width: 0; }
+main > h1:first-child { border-right: 0; padding-right: 0; font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.5; font-weight: 800; margin: 0 0 .4rem; letter-spacing: -0.01em; }
+.subtitle { margin: 0 0 1.5rem; color: var(--accent); font-weight: 700; font-size: .95rem; }
+h1 { font-size: 1.75rem; line-height: 1.5; font-weight: 800; margin: 4.5rem 0 .6rem; padding-right: .9rem; border-right: 5px solid var(--accent); }
+h2 { font-size: 1.3rem; line-height: 1.6; font-weight: 700; margin: 3rem 0 .3rem; }
+main > h1:first-child + p { color: var(--muted); }
+p, li { margin: .6rem 0; }
+ul, ol { padding-inline-start: 1.4rem; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0 0; }
+strong { font-weight: 700; }
+.meta { margin: 0 0 1rem; color: var(--muted); font-size: .88rem; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .85em; direction: ltr; unicode-bidi: isolate; background: var(--accent-soft); padding: .08em .4em; border-radius: 5px; }
+
+.table-wrap { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; line-height: 1.7; }
+th, td { padding: .6rem .85rem; text-align: start; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { background: var(--accent-soft); font-weight: 700; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+
+.prompt { margin: 1rem 0 1.5rem; background: var(--panel); border: 1px solid var(--line); border-right: 4px solid var(--accent); border-radius: 12px; overflow: hidden; }
+.prompt-bar { display: flex; justify-content: space-between; align-items: center; padding: .4rem .9rem; border-bottom: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
+.copy { font: inherit; font-size: .82rem; color: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .2rem .8rem; cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy.ok { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.prompt pre { font-family: inherit; margin: 0; padding: 1rem 1.1rem; overflow-x: auto; direction: rtl; text-align: right; }
+.prompt pre.ltr, .prompt pre.ltr code { direction: ltr; text-align: left; }
+.prompt pre code { display: block; background: none; padding: 0; font-family: inherit; font-size: .9rem; line-height: 1.95; direction: rtl; unicode-bidi: normal; white-space: pre-wrap; word-break: break-word; }
+
+li.check { list-style: none; margin-inline-start: -1.4rem; }
+li.check input { margin-inline-end: .5rem; accent-color: var(--accent); }
+
+@media print {
+  .toc-side, .toc-mobile, .copy { display: none !important; }
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .shell { display: block; padding: 0; }
+  .prompt { break-inside: avoid-page; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="toc-side" aria-label="فهرست">
+    <p class="brand">فهرست و پیشرفت</p>
+    <p class="progress" id="progress"></p>
+    <div class="toc-group"><p class="toc-h">مقدمه</p><ul><li><a href="#۱-خلاصه-محصول">۱. خلاصه محصول</a></li><li><a href="#۲-تصمیمهای-معماری-فرضها">۲. تصمیم‌های معماری (فرض‌ها)</a></li><li><a href="#۳-ریسکها-و-واقعیتهایی-که-باید-از-اول-بدانید">۳. ریسک‌ها و واقعیت‌هایی که باید از اول بدانید</a></li><li><a href="#۴-زمانبندی">۴. زمان‌بندی</a></li><li><a href="#۵-روش-استفاده">۵. روش استفاده</a></li><li><a href="#۶-قرارداد-گیت-و-کامیت-الزامی-برای-ایجنت">۶. قرارداد گیت و کامیت (الزامی برای ایجنت)</a></li><li><a href="#۷-بلوک-زمینه-مشترک-بالای-هر-پرامپت-بچسبانید">۷. بلوک زمینه مشترک (بالای هر پرامپت بچسبانید)</a></li><li><a href="#۸-پرامپت-راهاندازی-codebase-memory-mcp-یکبار-بعد-از-0A">۸. پرامپت راه‌اندازی codebase-memory-mcp (یک‌بار، بعد از 0A)</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-0-پایه-هفته-12">فاز 0 — پایه (هفته 1–2)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-0A-ریپو-زیرساخت-Spec-Kit" aria-label="انجام شد"><a href="#فاز-0A-ریپو-زیرساخت-Spec-Kit">فاز 0A — ریپو، زیرساخت، Spec Kit</a></li><li><input type="checkbox" class="done" data-id="فاز-0B-دیزاینسیستم-Apple-style-و-RTL" aria-label="انجام شد"><a href="#فاز-0B-دیزاینسیستم-Apple-style-و-RTL">فاز 0B — دیزاین‌سیستم Apple-style و RTL</a></li><li><input type="checkbox" class="done" data-id="فاز-0C-هویت-کاربر-آژانس-نقشها-Audit" aria-label="انجام شد"><a href="#فاز-0C-هویت-کاربر-آژانس-نقشها-Audit">فاز 0C — هویت کاربر، آژانس، نقش‌ها، Audit</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-1-مدیریت-فایلها-هفته-35">فاز 1 — مدیریت فایل‌ها (هفته 3–5)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-1A-مدل-داده-فایل" aria-label="انجام شد"><a href="#فاز-1A-مدل-داده-فایل">فاز 1A — مدل داده فایل</a></li><li><input type="checkbox" class="done" data-id="فاز-1B-صفحات-CRUD-فایل" aria-label="انجام شد"><a href="#فاز-1B-صفحات-CRUD-فایل">فاز 1B — صفحات CRUD فایل</a></li><li><input type="checkbox" class="done" data-id="فاز-1C-رسانه-عکس-ویدئو-سند" aria-label="انجام شد"><a href="#فاز-1C-رسانه-عکس-ویدئو-سند">فاز 1C — رسانه (عکس، ویدئو، سند)</a></li><li><input type="checkbox" class="done" data-id="فاز-1D-جستجو-فیلتر-نقشه-ایمپورتاکسپورت" aria-label="انجام شد"><a href="#فاز-1D-جستجو-فیلتر-نقشه-ایمپورتاکسپورت">فاز 1D — جستجو، فیلتر، نقشه، ایمپورت/اکسپورت</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-2-مخاطبین-درخواستها-و-CRM-هفته-67">فاز 2 — مخاطبین، درخواست‌ها و CRM (هفته 6–7)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-2A-مخاطبین-و-درخواستها" aria-label="انجام شد"><a href="#فاز-2A-مخاطبین-و-درخواستها">فاز 2A — مخاطبین و درخواست‌ها</a></li><li><input type="checkbox" class="done" data-id="فاز-2B-تایملاین-بازدید-وظایف" aria-label="انجام شد"><a href="#فاز-2B-تایملاین-بازدید-وظایف">فاز 2B — تایم‌لاین، بازدید، وظایف</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-3-موتور-تطبیق-و-داشبورد-هفته-89">فاز 3 — موتور تطبیق و داشبورد (هفته 8–9)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-3A-موتور-امتیازدهی" aria-label="انجام شد"><a href="#فاز-3A-موتور-امتیازدهی">فاز 3A — موتور امتیازدهی</a></li><li><input type="checkbox" class="done" data-id="فاز-3B-رکورد-تطبیق-و-تریگرها" aria-label="انجام شد"><a href="#فاز-3B-رکورد-تطبیق-و-تریگرها">فاز 3B — رکورد تطبیق و تریگرها</a></li><li><input type="checkbox" class="done" data-id="فاز-3C-داشبورد-هوشمند-و-بلادرنگ" aria-label="انجام شد"><a href="#فاز-3C-داشبورد-هوشمند-و-بلادرنگ">فاز 3C — داشبورد هوشمند و بلادرنگ</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-4-پیامک-و-اشتراک-عمومی-هفته-10">فاز 4 — پیامک و اشتراک عمومی (هفته 10)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-4A-زیرساخت-پیامک" aria-label="انجام شد"><a href="#فاز-4A-زیرساخت-پیامک">فاز 4A — زیرساخت پیامک</a></li><li><input type="checkbox" class="done" data-id="فاز-4B-ارسال-خودکار-رضایت-فرم-اشتراک-عمومی" aria-label="انجام شد"><a href="#فاز-4B-ارسال-خودکار-رضایت-فرم-اشتراک-عمومی">فاز 4B — ارسال خودکار، رضایت، فرم اشتراک عمومی</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-5-صدا-و-ثبت-هوشمند-هفته-1112-نقطه-MVP">فاز 5 — صدا و ثبت هوشمند (هفته 11–12) — نقطه MVP</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-5A-لایهی-پروایدر-هوش-مصنوعی" aria-label="انجام شد"><a href="#فاز-5A-لایهی-پروایدر-هوش-مصنوعی">فاز 5A — لایه‌ی پروایدر هوش مصنوعی</a></li><li><input type="checkbox" class="done" data-id="فاز-5B-ضبط-صدا-و-تبدیل-به-متن" aria-label="انجام شد"><a href="#فاز-5B-ضبط-صدا-و-تبدیل-به-متن">فاز 5B — ضبط صدا و تبدیل به متن</a></li><li><input type="checkbox" class="done" data-id="فاز-5C-استخراج-ساختاریافته-و-تأیید" aria-label="انجام شد"><a href="#فاز-5C-استخراج-ساختاریافته-و-تأیید">فاز 5C — استخراج ساختاریافته و تأیید</a></li><li><input type="checkbox" class="done" data-id="فاز-5D-ارزیابی-دقت" aria-label="انجام شد"><a href="#فاز-5D-ارزیابی-دقت">فاز 5D — ارزیابی دقت</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-6-چاپ-و-رندر-هفته-13">فاز 6 — چاپ و رندر (هفته 13)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-6-موتور-رندر-چاپ-تصویر-و-متن-آگهی" aria-label="انجام شد"><a href="#فاز-6-موتور-رندر-چاپ-تصویر-و-متن-آگهی">فاز 6 — موتور رندر، چاپ، تصویر و متن آگهی</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-7-مرکز-انتشار-هفته-1416">فاز 7 — مرکز انتشار (هفته 14–16)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-7A-هستهی-مرکز-انتشار" aria-label="انجام شد"><a href="#فاز-7A-هستهی-مرکز-انتشار">فاز 7A — هسته‌ی مرکز انتشار</a></li><li><input type="checkbox" class="done" data-id="فاز-7B-تلگرام-و-بله" aria-label="انجام شد"><a href="#فاز-7B-تلگرام-و-بله">فاز 7B — تلگرام و بله</a></li><li><input type="checkbox" class="done" data-id="فاز-7C-ایتا-و-روبیکا" aria-label="انجام شد"><a href="#فاز-7C-ایتا-و-روبیکا">فاز 7C — ایتا و روبیکا</a></li><li><input type="checkbox" class="done" data-id="فاز-7D-اینستاگرام" aria-label="انجام شد"><a href="#فاز-7D-اینستاگرام">فاز 7D — اینستاگرام</a></li><li><input type="checkbox" class="done" data-id="فاز-7E-دیوار-و-شیپور" aria-label="انجام شد"><a href="#فاز-7E-دیوار-و-شیپور">فاز 7E — دیوار و شیپور</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-8-حسابداری-هفته-1718">فاز 8 — حسابداری (هفته 17–18)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-8A-معامله-کمیسیون-دفتر" aria-label="انجام شد"><a href="#فاز-8A-معامله-کمیسیون-دفتر">فاز 8A — معامله، کمیسیون، دفتر</a></li><li><input type="checkbox" class="done" data-id="فاز-8B-گزارشها-و-تسویه-مشاور" aria-label="انجام شد"><a href="#فاز-8B-گزارشها-و-تسویه-مشاور">فاز 8B — گزارش‌ها و تسویه مشاور</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-9-ایجنت-هوش-مصنوعی-هفته-1920">فاز 9 — ایجنت هوش مصنوعی (هفته 19–20)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-9A-ابزارها-سیاست-و-امنیت-ایجنت" aria-label="انجام شد"><a href="#فاز-9A-ابزارها-سیاست-و-امنیت-ایجنت">فاز 9A — ابزارها، سیاست و امنیت ایجنت</a></li><li><input type="checkbox" class="done" data-id="فاز-9B-رابط-گفتگو-صدا-و-پیشنهاد-فعال" aria-label="انجام شد"><a href="#فاز-9B-رابط-گفتگو-صدا-و-پیشنهاد-فعال">فاز 9B — رابط گفتگو، صدا و پیشنهاد فعال</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-10-امنیت-استقرار-مستندات-هفته-2122">فاز 10 — امنیت، استقرار، مستندات (هفته 21–22)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-10A-امنیت-و-کارایی" aria-label="انجام شد"><a href="#فاز-10A-امنیت-و-کارایی">فاز 10A — امنیت و کارایی</a></li><li><input type="checkbox" class="done" data-id="فاز-10B-استقرار-مانیتورینگ-مستندات-UAT" aria-label="انجام شد"><a href="#فاز-10B-استقرار-مانیتورینگ-مستندات-UAT">فاز 10B — استقرار، مانیتورینگ، مستندات، UAT</a></li></ul></div><div class="toc-group"><ul><li><input type="checkbox" class="done" data-id="فاز-11-اختیاری-پلن-و-اشتراک-SaaS" aria-label="انجام شد"><a href="#فاز-11-اختیاری-پلن-و-اشتراک-SaaS">فاز 11 (اختیاری) — پلن و اشتراک SaaS</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#پیوستها">پیوست‌ها</a></p><ul><li><a href="#پیوست-A-پرامپت-بازبینی-بعد-از-هر-فاز">پیوست A — پرامپت بازبینی بعد از هر فاز</a></li><li><a href="#پیوست-B-پرامپت-رفع-اشکال">پیوست B — پرامپت رفع اشکال</a></li><li><a href="#پیوست-C-پرامپت-هندآف-ادامه-در-جلسه-جدید">پیوست C — پرامپت هندآف (ادامه در جلسه جدید)</a></li><li><a href="#پیوست-D-قیچیکردن-دامنه-اگر-ددلاین-فشرده-شد">پیوست D — قیچی‌کردن دامنه اگر ددلاین فشرده شد</a></li><li><a href="#پیوست-E-چکلیست-تحویل-نهایی">پیوست E — چک‌لیست تحویل نهایی</a></li></ul></div>
+  </aside>
+  <main>
+    <details class="toc-mobile"><summary>فهرست</summary><div class="toc-group"><p class="toc-h">مقدمه</p><ul><li><a href="#۱-خلاصه-محصول">۱. خلاصه محصول</a></li><li><a href="#۲-تصمیمهای-معماری-فرضها">۲. تصمیم‌های معماری (فرض‌ها)</a></li><li><a href="#۳-ریسکها-و-واقعیتهایی-که-باید-از-اول-بدانید">۳. ریسک‌ها و واقعیت‌هایی که باید از اول بدانید</a></li><li><a href="#۴-زمانبندی">۴. زمان‌بندی</a></li><li><a href="#۵-روش-استفاده">۵. روش استفاده</a></li><li><a href="#۶-قرارداد-گیت-و-کامیت-الزامی-برای-ایجنت">۶. قرارداد گیت و کامیت (الزامی برای ایجنت)</a></li><li><a href="#۷-بلوک-زمینه-مشترک-بالای-هر-پرامپت-بچسبانید">۷. بلوک زمینه مشترک (بالای هر پرامپت بچسبانید)</a></li><li><a href="#۸-پرامپت-راهاندازی-codebase-memory-mcp-یکبار-بعد-از-0A">۸. پرامپت راه‌اندازی codebase-memory-mcp (یک‌بار، بعد از 0A)</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-0-پایه-هفته-12">فاز 0 — پایه (هفته 1–2)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-0A-ریپو-زیرساخت-Spec-Kit" aria-label="انجام شد"><a href="#فاز-0A-ریپو-زیرساخت-Spec-Kit">فاز 0A — ریپو، زیرساخت، Spec Kit</a></li><li><input type="checkbox" class="done" data-id="فاز-0B-دیزاینسیستم-Apple-style-و-RTL" aria-label="انجام شد"><a href="#فاز-0B-دیزاینسیستم-Apple-style-و-RTL">فاز 0B — دیزاین‌سیستم Apple-style و RTL</a></li><li><input type="checkbox" class="done" data-id="فاز-0C-هویت-کاربر-آژانس-نقشها-Audit" aria-label="انجام شد"><a href="#فاز-0C-هویت-کاربر-آژانس-نقشها-Audit">فاز 0C — هویت کاربر، آژانس، نقش‌ها، Audit</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-1-مدیریت-فایلها-هفته-35">فاز 1 — مدیریت فایل‌ها (هفته 3–5)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-1A-مدل-داده-فایل" aria-label="انجام شد"><a href="#فاز-1A-مدل-داده-فایل">فاز 1A — مدل داده فایل</a></li><li><input type="checkbox" class="done" data-id="فاز-1B-صفحات-CRUD-فایل" aria-label="انجام شد"><a href="#فاز-1B-صفحات-CRUD-فایل">فاز 1B — صفحات CRUD فایل</a></li><li><input type="checkbox" class="done" data-id="فاز-1C-رسانه-عکس-ویدئو-سند" aria-label="انجام شد"><a href="#فاز-1C-رسانه-عکس-ویدئو-سند">فاز 1C — رسانه (عکس، ویدئو، سند)</a></li><li><input type="checkbox" class="done" data-id="فاز-1D-جستجو-فیلتر-نقشه-ایمپورتاکسپورت" aria-label="انجام شد"><a href="#فاز-1D-جستجو-فیلتر-نقشه-ایمپورتاکسپورت">فاز 1D — جستجو، فیلتر، نقشه، ایمپورت/اکسپورت</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-2-مخاطبین-درخواستها-و-CRM-هفته-67">فاز 2 — مخاطبین، درخواست‌ها و CRM (هفته 6–7)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-2A-مخاطبین-و-درخواستها" aria-label="انجام شد"><a href="#فاز-2A-مخاطبین-و-درخواستها">فاز 2A — مخاطبین و درخواست‌ها</a></li><li><input type="checkbox" class="done" data-id="فاز-2B-تایملاین-بازدید-وظایف" aria-label="انجام شد"><a href="#فاز-2B-تایملاین-بازدید-وظایف">فاز 2B — تایم‌لاین، بازدید، وظایف</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-3-موتور-تطبیق-و-داشبورد-هفته-89">فاز 3 — موتور تطبیق و داشبورد (هفته 8–9)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-3A-موتور-امتیازدهی" aria-label="انجام شد"><a href="#فاز-3A-موتور-امتیازدهی">فاز 3A — موتور امتیازدهی</a></li><li><input type="checkbox" class="done" data-id="فاز-3B-رکورد-تطبیق-و-تریگرها" aria-label="انجام شد"><a href="#فاز-3B-رکورد-تطبیق-و-تریگرها">فاز 3B — رکورد تطبیق و تریگرها</a></li><li><input type="checkbox" class="done" data-id="فاز-3C-داشبورد-هوشمند-و-بلادرنگ" aria-label="انجام شد"><a href="#فاز-3C-داشبورد-هوشمند-و-بلادرنگ">فاز 3C — داشبورد هوشمند و بلادرنگ</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-4-پیامک-و-اشتراک-عمومی-هفته-10">فاز 4 — پیامک و اشتراک عمومی (هفته 10)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-4A-زیرساخت-پیامک" aria-label="انجام شد"><a href="#فاز-4A-زیرساخت-پیامک">فاز 4A — زیرساخت پیامک</a></li><li><input type="checkbox" class="done" data-id="فاز-4B-ارسال-خودکار-رضایت-فرم-اشتراک-عمومی" aria-label="انجام شد"><a href="#فاز-4B-ارسال-خودکار-رضایت-فرم-اشتراک-عمومی">فاز 4B — ارسال خودکار، رضایت، فرم اشتراک عمومی</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-5-صدا-و-ثبت-هوشمند-هفته-1112-نقطه-MVP">فاز 5 — صدا و ثبت هوشمند (هفته 11–12) — نقطه MVP</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-5A-لایهی-پروایدر-هوش-مصنوعی" aria-label="انجام شد"><a href="#فاز-5A-لایهی-پروایدر-هوش-مصنوعی">فاز 5A — لایه‌ی پروایدر هوش مصنوعی</a></li><li><input type="checkbox" class="done" data-id="فاز-5B-ضبط-صدا-و-تبدیل-به-متن" aria-label="انجام شد"><a href="#فاز-5B-ضبط-صدا-و-تبدیل-به-متن">فاز 5B — ضبط صدا و تبدیل به متن</a></li><li><input type="checkbox" class="done" data-id="فاز-5C-استخراج-ساختاریافته-و-تأیید" aria-label="انجام شد"><a href="#فاز-5C-استخراج-ساختاریافته-و-تأیید">فاز 5C — استخراج ساختاریافته و تأیید</a></li><li><input type="checkbox" class="done" data-id="فاز-5D-ارزیابی-دقت" aria-label="انجام شد"><a href="#فاز-5D-ارزیابی-دقت">فاز 5D — ارزیابی دقت</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-6-چاپ-و-رندر-هفته-13">فاز 6 — چاپ و رندر (هفته 13)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-6-موتور-رندر-چاپ-تصویر-و-متن-آگهی" aria-label="انجام شد"><a href="#فاز-6-موتور-رندر-چاپ-تصویر-و-متن-آگهی">فاز 6 — موتور رندر، چاپ، تصویر و متن آگهی</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-7-مرکز-انتشار-هفته-1416">فاز 7 — مرکز انتشار (هفته 14–16)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-7A-هستهی-مرکز-انتشار" aria-label="انجام شد"><a href="#فاز-7A-هستهی-مرکز-انتشار">فاز 7A — هسته‌ی مرکز انتشار</a></li><li><input type="checkbox" class="done" data-id="فاز-7B-تلگرام-و-بله" aria-label="انجام شد"><a href="#فاز-7B-تلگرام-و-بله">فاز 7B — تلگرام و بله</a></li><li><input type="checkbox" class="done" data-id="فاز-7C-ایتا-و-روبیکا" aria-label="انجام شد"><a href="#فاز-7C-ایتا-و-روبیکا">فاز 7C — ایتا و روبیکا</a></li><li><input type="checkbox" class="done" data-id="فاز-7D-اینستاگرام" aria-label="انجام شد"><a href="#فاز-7D-اینستاگرام">فاز 7D — اینستاگرام</a></li><li><input type="checkbox" class="done" data-id="فاز-7E-دیوار-و-شیپور" aria-label="انجام شد"><a href="#فاز-7E-دیوار-و-شیپور">فاز 7E — دیوار و شیپور</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-8-حسابداری-هفته-1718">فاز 8 — حسابداری (هفته 17–18)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-8A-معامله-کمیسیون-دفتر" aria-label="انجام شد"><a href="#فاز-8A-معامله-کمیسیون-دفتر">فاز 8A — معامله، کمیسیون، دفتر</a></li><li><input type="checkbox" class="done" data-id="فاز-8B-گزارشها-و-تسویه-مشاور" aria-label="انجام شد"><a href="#فاز-8B-گزارشها-و-تسویه-مشاور">فاز 8B — گزارش‌ها و تسویه مشاور</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-9-ایجنت-هوش-مصنوعی-هفته-1920">فاز 9 — ایجنت هوش مصنوعی (هفته 19–20)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-9A-ابزارها-سیاست-و-امنیت-ایجنت" aria-label="انجام شد"><a href="#فاز-9A-ابزارها-سیاست-و-امنیت-ایجنت">فاز 9A — ابزارها، سیاست و امنیت ایجنت</a></li><li><input type="checkbox" class="done" data-id="فاز-9B-رابط-گفتگو-صدا-و-پیشنهاد-فعال" aria-label="انجام شد"><a href="#فاز-9B-رابط-گفتگو-صدا-و-پیشنهاد-فعال">فاز 9B — رابط گفتگو، صدا و پیشنهاد فعال</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#فاز-10-امنیت-استقرار-مستندات-هفته-2122">فاز 10 — امنیت، استقرار، مستندات (هفته 21–22)</a></p><ul><li><input type="checkbox" class="done" data-id="فاز-10A-امنیت-و-کارایی" aria-label="انجام شد"><a href="#فاز-10A-امنیت-و-کارایی">فاز 10A — امنیت و کارایی</a></li><li><input type="checkbox" class="done" data-id="فاز-10B-استقرار-مانیتورینگ-مستندات-UAT" aria-label="انجام شد"><a href="#فاز-10B-استقرار-مانیتورینگ-مستندات-UAT">فاز 10B — استقرار، مانیتورینگ، مستندات، UAT</a></li></ul></div><div class="toc-group"><ul><li><input type="checkbox" class="done" data-id="فاز-11-اختیاری-پلن-و-اشتراک-SaaS" aria-label="انجام شد"><a href="#فاز-11-اختیاری-پلن-و-اشتراک-SaaS">فاز 11 (اختیاری) — پلن و اشتراک SaaS</a></li></ul></div><div class="toc-group"><p class="toc-h"><a href="#پیوستها">پیوست‌ها</a></p><ul><li><a href="#پیوست-A-پرامپت-بازبینی-بعد-از-هر-فاز">پیوست A — پرامپت بازبینی بعد از هر فاز</a></li><li><a href="#پیوست-B-پرامپت-رفع-اشکال">پیوست B — پرامپت رفع اشکال</a></li><li><a href="#پیوست-C-پرامپت-هندآف-ادامه-در-جلسه-جدید">پیوست C — پرامپت هندآف (ادامه در جلسه جدید)</a></li><li><a href="#پیوست-D-قیچیکردن-دامنه-اگر-ددلاین-فشرده-شد">پیوست D — قیچی‌کردن دامنه اگر ددلاین فشرده شد</a></li><li><a href="#پیوست-E-چکلیست-تحویل-نهایی">پیوست E — چک‌لیست تحویل نهایی</a></li></ul></div></details>
+    <h1 id="آرا-املاک-Ara-Amlak-نقشه-راه-و-پرامپتهای-فازبندیشده">آرا املاک (Ara Amlak) — نقشه راه و پرامپت‌های فازبندی‌شده</h1>
+<p class="subtitle">۳۲ پرامپت آماده · ۱۱ فاز · ۲۲ هفته + بافر · github.com/T3RON/AraAmlak</p>
+<p><strong>نسخه ۱.۱ · شهریور ۱۴۰۵ · ریپو: <code>github.com/T3RON/AraAmlak</code></strong></p>
+<p>این سند از صفر تا تحویل نهایی، پروژه را به فاز و زیرفاز شکسته است. برای هر فاز (یا زیرفاز) یک پرامپت آماده دارید که مستقیم به ایجنت کدنویس داده می‌شود. هر پرامپت طوری نوشته شده که با یک بار اجرا، همان فاز کامل و قابل‌تست تحویل شود.</p>
+<hr />
+<h2 id="۱-خلاصه-محصول">۱. خلاصه محصول</h2>
+<p><strong>آرا املاک</strong> (نام انگلیسی: Ara Amlak، پکیج: <code>ara_amlak</code>) یک وب‌اپ <strong>چندآژانسی</strong> برای مشاوران املاک ایران است:</p>
+<ul>
+<li>ثبت «فایل» (ملک برای فروش، رهن و اجاره، مغازه، ویلا، زمین و …) با <strong>صدا</strong>؛ تحویل به یک ایجنت هوش مصنوعی (Gemini یا هر پروایدر سفارشی) که کارها را مدیریت می‌کند.</li>
+<li>مدیریت فایل‌ها، مخاطبین و درخواست‌های مراجعه‌کنندگان (اشتراک).</li>
+<li><strong>تطبیق خودکار</strong> فایل‌ها با درخواست‌ها، اعلان به مشاور در داشبورد و <strong>پیامک خودکار</strong> به مراجعه‌کننده.</li>
+<li>انتشار روی دیوار، شیپور، کانال تلگرام، بله، روبیکا، ایتا، اینستاگرام.</li>
+<li>چاپ فایل و پوستر، حسابداری آژانس (کمیسیون، رسید، هزینه، گزارش).</li>
+<li>رابط کاربری RTL و فارسی، الهام‌گرفته از Apple Human Interface Guidelines.</li>
+</ul>
+<hr />
+<h2 id="۲-تصمیمهای-معماری-فرضها">۲. تصمیم‌های معماری (فرض‌ها)</h2>
+<p>این‌ها را فرض گرفته‌ام؛ اگر با نیاز شما نمی‌خواند، قبل از شروع فاز ۰ عوض کنید.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>موضوع</th>
+<th>تصمیم</th>
+<th>دلیل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مدل استقرار</td>
+<td>چندآژانسی (multi-tenant) با ستون <code>agency</code> روی همه مدل‌ها</td>
+<td>اگر بعداً بخواهید به چند آژانس بفروشید، بازنویسی لازم نمی‌شود</td>
+</tr>
+<tr>
+<td>فرانت</td>
+<td>Django templates + HTMX + Alpine.js + Tailwind (بدون SPA)</td>
+<td>«تحت وب با دیجنگو»؛ سرعت توسعه؛ ایجنت‌ها با آن خطای کمتری دارند</td>
+</tr>
+<tr>
+<td>دیتابیس</td>
+<td>PostgreSQL 16 + PostGIS + pg_trgm + unaccent</td>
+<td>نزدیکی جغرافیایی، جستجوی فازی محله و آدرس فارسی</td>
+</tr>
+<tr>
+<td>کارهای پس‌زمینه</td>
+<td>Celery + Redis (+ Beat)</td>
+<td>تطبیق، پیامک، انتشار، رندر، AI</td>
+</tr>
+<tr>
+<td>بلادرنگ</td>
+<td>Django Channels</td>
+<td>اعلان تطبیق جدید در داشبورد</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>لایه Provider: Gemini و Custom (سازگار با OpenAI API)</td>
+<td>مستقل از یک تأمین‌کننده</td>
+</tr>
+<tr>
+<td>رندر PDF/PNG</td>
+<td>Playwright (Chromium)</td>
+<td>شکل‌دهی درست حروف فارسی و RTL</td>
+</tr>
+<tr>
+<td>پول</td>
+<td>عدد صحیح به <strong>تومان</strong></td>
+<td>حذف خطای اعشار</td>
+</tr>
+<tr>
+<td>تاریخ</td>
+<td>ذخیره Gregorian/UTC، نمایش جلالی</td>
+<td>استاندارد و امن</td>
+</tr>
+<tr>
+<td>ایجنت AI</td>
+<td>هرگز بدون تأیید انسان چیزی را عمومی نمی‌کند</td>
+<td>ثبت/انتشار اشتباه هزینه واقعی دارد</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="۳-ریسکها-و-واقعیتهایی-که-باید-از-اول-بدانید">۳. ریسک‌ها و واقعیت‌هایی که باید از اول بدانید</h2>
+<p><strong>۳.۱ دیوار و شیپور.</strong> دیوار پلتفرم توسعه‌دهندگان دارد ولی دسترسی و دامنه آن محدود و شرطی است. برای شیپور API عمومی انتشار آگهی سراغ ندارم. من وضعیت فعلی این دو را تأیید نکرده‌ام، پس در فاز 7E یک «اکتشاف» اجباری گذاشته‌ام. معماری طوری است که هر کانال یکی از سه حالت را دارد: API رسمی، حالت کمکی (بسته آماده آگهی + کپی + ثبت لینک)، یا غیرفعال. اسکرپینگ و ربات مرورگر برای این سایت‌ها در طرح نیست، چون ریسک مسدود شدن حساب مشاور را دارد.</p>
+<p><strong>۳.۲ دسترسی شبکه.</strong> تلگرام و اینستاگرام از داخل ایران فیلتر هستند و API جمنای هم از آی‌پی ایران معمولاً در دسترس نیست. از طرف دیگر پنل‌های پیامک ایرانی، بله، روبیکا و ایتا از خارج ایران ممکن است مشکل داشته باشند. پس هر آداپتر «پروکسی خروجی» قابل‌تنظیم دارد و اگر سرور در ایران است، AI را می‌توانید روی پروایدر سفارشی (داخل یا با گیت‌وی) بگذارید. محل هاست را زود تصمیم بگیرید.</p>
+<p><strong>۳.۳ پیامک.</strong> ارسال خودکار فقط با <strong>رضایت ثبت‌شده</strong> مراجعه‌کننده، با راه لغو، در ساعات مجاز و با سقف روزانه. این‌ها در فاز 4B ساخته می‌شود. نوع خط (خدماتی/تبلیغاتی) و قوانین آن را با پنل پیامک خود چک کنید.</p>
+<p><strong>۳.۴ دقت تبدیل صدا.</strong> اعداد گفتاری («دو میلیارد و هفتصد»)، نام محله‌ها و اصطلاحات ملکی مستعد اشتباه‌اند. به همین دلیل نتیجه صوتی همیشه اول «پیش‌نویس» می‌شود و مشاور تأیید می‌کند (فاز 5C)، و یک مجموعه ارزیابی (5D) دقت را اندازه می‌گیرد.</p>
+<p><strong>۳.۵ حریم خصوصی.</strong> شماره مالک و اسناد ملک داده حساس‌اند: نقاب‌گذاری بر اساس نقش، ثبت هر «نمایش شماره»، اسناد خصوصی با لینک امضاشده، و حذف اطلاعات مالک از همه خروجی‌های عمومی.</p>
+<p><strong>۳.۶ امنیت ایجنت.</strong> متن توضیحات فایل‌ها و پیام‌های مشتری «داده» است نه «دستور». در فاز 9A دفاع در برابر prompt injection و سیاست تأیید اقدام‌ها پیاده می‌شود.</p>
+<hr />
+<h2 id="۴-زمانبندی">۴. زمان‌بندی</h2>
+<p>چون تاریخ دقیق ددلاین را نگفته‌اید، <strong>۲۲ هفته + ۱ هفته بافر</strong> فرض کرده‌ام (حدود ۵.۵ ماه) با یک ایجنت که پشت سر هم کار می‌کند و شما بازبینی می‌کنید. اگر تاریخ مشخص دارید، بدهید تا فشرده یا بازتر کنم؛ فهرست «قیچی‌کردن دامنه» در پیوست D است.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>فاز</th>
+<th>عنوان</th>
+<th>هفته</th>
+<th>خروجی قابل‌نمایش</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>پایه: زیرساخت، طراحی، احراز هویت</td>
+<td>1–2</td>
+<td>ورود و آژانس، دیزاین‌سیستم Apple-style</td>
+</tr>
+<tr>
+<td>0A+</td>
+<td>راه‌اندازی codebase-memory-mcp (بخش ۸)</td>
+<td>1</td>
+<td>گراف دانش کد و ابزارهای MCP برای همه ایجنت‌ها</td>
+</tr>
+<tr>
+<td>1</td>
+<td>مدیریت فایل‌ها</td>
+<td>3–5</td>
+<td>ثبت و جستجوی کامل فایل با عکس و نقشه</td>
+</tr>
+<tr>
+<td>2</td>
+<td>مخاطبین، درخواست‌ها، CRM</td>
+<td>6–7</td>
+<td>ثبت نیازمندی مراجعه‌کننده، وظایف، تایم‌لاین</td>
+</tr>
+<tr>
+<td>3</td>
+<td>موتور تطبیق و داشبورد</td>
+<td>8–9</td>
+<td>صندوق تطبیق بلادرنگ</td>
+</tr>
+<tr>
+<td>4</td>
+<td>پیامک و اشتراک عمومی</td>
+<td>10</td>
+<td>پیامک خودکار تطبیق، فرم عمومی با OTP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>صدا و ثبت هوشمند</td>
+<td>11–12</td>
+<td><strong>ثبت فایل با صدا (نقطه MVP)</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>چاپ و رندر</td>
+<td>13</td>
+<td>برگه A4، پوستر، تصویر شبکه اجتماعی</td>
+</tr>
+<tr>
+<td>7</td>
+<td>مرکز انتشار</td>
+<td>14–16</td>
+<td>انتشار روی کانال‌ها</td>
+</tr>
+<tr>
+<td>8</td>
+<td>حسابداری</td>
+<td>17–18</td>
+<td>کمیسیون، رسید، گزارش</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ایجنت هوش مصنوعی</td>
+<td>19–20</td>
+<td>دستور متنی/صوتی برای همه کارها</td>
+</tr>
+<tr>
+<td>10</td>
+<td>امنیت، استقرار، مستندات</td>
+<td>21–22</td>
+<td>نسخه تحویلی</td>
+</tr>
+<tr>
+<td>—</td>
+<td>بافر و UAT</td>
+<td>23</td>
+<td>رفع مشکلات آزمون کاربران</td>
+</tr>
+<tr>
+<td>11</td>
+<td>(اختیاری) پلن و اشتراک SaaS</td>
+<td>بعد از تحویل</td>
+<td>فروش به چند آژانس</td>
+</tr>
+</tbody>
+</table></div>
+<p>نقطه <strong>MVP قابل‌فروش</strong> پایان فاز 5 (هفته ۱۲) است.</p>
+<hr />
+<h2 id="۵-روش-استفاده">۵. روش استفاده</h2>
+<ol>
+<li>پرامپت «بلوک زمینه مشترک» (بخش ۷) را بالای هر پرامپت فاز بچسبانید. ایجنت در جلسه جدید خودش چیزی از پروژه نمی‌داند.</li>
+<li>هر پرامپت دو بخش <strong>Specify</strong> (چه چیزی و چرا) و <strong>Plan</strong> (قیود فنی) دارد. <strong>کار با Spec Kit اجباری است:</strong> بخش Specify را به <code>/speckit.specify</code> و بخش Plan را به <code>/speckit.plan</code> بدهید، بعد <code>/speckit.tasks</code> و <code>/speckit.implement</code>. اگر نسخه Spec Kit شما دستورها را بدون پیشوند دارد (<code>/specify</code> و …) همان‌ها را بزنید. اگر ایجنت دستور اسلش ندارد، کل پرامپت را یک‌جا بدهید؛ بلوک زمینه به او می‌گوید همان مراحل را دستی طی کند و مستندات را در <code>specs/</code> بنویسد.</li>
+<li>بعد از هر فاز پرامپت <strong>بازبینی</strong> (پیوست A) را بدهید. اگر خطا بود پرامپت <strong>رفع اشکال</strong> (پیوست B).</li>
+<li>ایجنت خودش در طول کار کامیت و پوش می‌کند (بخش ۶). بعد از تأیید هر زیرفاز، مرج و تگ بزنید: <code>phase-1A-done</code>.</li>
+<li>اگر جلسه ایجنت طولانی و کند شد، پرامپت <strong>هندآف</strong> (پیوست C) را بدهید و در جلسه تازه ادامه دهید.</li>
+<li><strong>بعد از پایان و مرج 0A</strong>، پرامپت بخش ۸ (راه‌اندازی codebase-memory-mcp) را یک‌بار اجرا کنید، قبل از 0B. از آن به بعد ایجنت‌ها برای پیدا کردن کد از گراف استفاده می‌کنند.</li>
+<li>پرامپت‌ها را به ترتیب بدهید؛ هر فاز روی خروجی قبلی ساخته می‌شود. پیش‌نیاز هر فاز بالای آن نوشته شده.</li>
+</ol>
+<hr />
+<h2 id="۶-قرارداد-گیت-و-کامیت-الزامی-برای-ایجنت">۶. قرارداد گیت و کامیت (الزامی برای ایجنت)</h2>
+<p>ریپو: <code>https://github.com/T3RON/AraAmlak.git</code></p>
+<p><strong>۶.۱ شاخه‌ها.</strong> <code>main</code> همیشه سالم و قابل استقرار. برای هر زیرفاز یک شاخه: <code>phase/0a-scaffold</code>، <code>phase/1b-listing-crud</code>، <code>phase/7e-divar-sheypoor</code>. بعد از تأیید شما مرج در <code>main</code> (ترجیحاً با PR) و تگ <code>phase-1A-done</code>. روی <code>main</code> هرگز force-push نشود.</p>
+<p><strong>۶.۲ دانه‌بندی کامیت.</strong> یک کامیت = یک تغییر منطقی کامل که تست‌هایش سبز است. نه «کامیت آخر همه‌چیز»، نه کامیت‌های نیمه‌کاره که پروژه را می‌شکنند. مدل + migration + تست همان مدل در یک کامیت؛ اما مدل و UI در دو کامیت جدا.</p>
+<p><strong>۶.۳ قالب Conventional Commits.</strong></p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+
+&lt;body — اختیاری، چرایی تغییر&gt;
+
+&lt;footer — اختیاری&gt;
+</code></pre></div>
+<ul>
+<li><code>type</code> یکی از: <code>feat</code>، <code>fix</code>، <code>docs</code>، <code>style</code>، <code>refactor</code>، <code>perf</code>، <code>test</code>، <code>build</code>، <code>ci</code>، <code>chore</code>، <code>revert</code>.</li>
+<li><code>scope</code> = نام اپ یا حوزه: <code>core</code>، <code>accounts</code>، <code>agencies</code>، <code>listings</code>، <code>crm</code>، <code>matching</code>، <code>messaging</code>، <code>ai</code>، <code>publishing</code>، <code>rendering</code>، <code>accounting</code>، <code>dashboard</code>، <code>ui</code>، <code>infra</code>، <code>deps</code>، <code>specs</code>.</li>
+<li><code>subject</code>: انگلیسی، حالت امری، حرف کوچک، بدون نقطه پایان، حداکثر ۷۲ کاراکتر. (توضیح فارسی در body آزاد است.)</li>
+<li>تغییر ناسازگار: <code>feat(listings)!: …</code> به‌علاوه فوتر <code>BREAKING CHANGE: …</code>.</li>
+<li>فوتر فاز روی هر کامیت: <code>Phase: 1B</code>.</li>
+</ul>
+<p><strong>۶.۴ نمونه‌ها.</strong></p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre class="ltr"><code class="language-text">feat(listings): add listing model with deal and property types
+fix(matching): stop duplicate match records on concurrent updates
+test(messaging): cover quiet-hours delay and daily cap
+refactor(ai): extract provider interface from gemini adapter
+docs(specs): record phase 3 matching scoring decisions
+chore(deps): pin playwright to 1.49
+ci: run migration check on pull requests
+feat(publishing)!: replace channel token field with encrypted store
+
+BREAKING CHANGE: existing channel tokens must be re-entered.
+Phase: 7A
+</code></pre></div>
+<p><strong>۶.۵ اجبار ماشینی.</strong> یک hook روی <code>commit-msg</code> قالب را چک کند (مثلاً <code>gitlint</code> از طریق pre-commit)، و CI روی PR همه پیام‌های کامیت را اعتبارسنجی کند. کامیتی که قالب را نداشته باشد باید رد شود، نه اینکه دستی اصلاح شود.</p>
+<p><strong>۶.۶ ایمنی.</strong> <code>.env</code>، کلیدها، فایل‌های رسانه و دیتابیس محلی در <code>.gitignore</code>. قبل از هر پوش، ایجنت diff را برای اسرار چک کند. اگر کلیدی اشتباهی کامیت شد: همان کلید را باطل و جایگزین کنید، فقط پاک کردن از تاریخچه کافی نیست.</p>
+<hr />
+<h2 id="۷-بلوک-زمینه-مشترک-بالای-هر-پرامپت-بچسبانید">۷. بلوک زمینه مشترک (بالای هر پرامپت بچسبانید)</h2>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">زمینه پروژه «آرا املاک / Ara Amlak» (CONTEXT)
+
+محصول: وب‌اپ چندآژانسی (multi-tenant) برای مشاوران املاک ایران. «فایل» = هر ملک ثبت‌شده برای فروش/رهن و اجاره/... ؛ «درخواست» = نیازمندی یک مراجعه‌کننده.
+ریپو: https://github.com/T3RON/AraAmlak.git (شاخه اصلی main)
+
+استک ثابت (بدون گزارش و دلیل عوض نکن):
+Django 5.2 LTS یا جدیدتر، DRF (فقط API داخلی و ابزارهای ایجنت)، Django templates + HTMX + Alpine.js + Tailwind، PostgreSQL 16 + PostGIS + pg_trgm + unaccent، Redis، Celery + Beat، Django Channels (Daphne)، Playwright برای رندر PDF/PNG، pytest-django + factory_boy، ruff، Docker Compose.
+
+اپ‌ها: core, accounts, agencies, listings, crm, matching, messaging, ai, publishing, rendering, accounting, dashboard.
+
+قراردادهای الزامی:
+1. زبان پیش‌فرض fa، RTL کامل، جلالی در UI (django-jalali یا معادل)، ذخیره در DB به Gregorian/UTC، ارقام فارسی در نمایش، TIME_ZONE=Asia/Tehran.
+2. پول: BigInteger به تومان. نمایش: «۲ میلیارد و ۷۰۰ میلیون تومان».
+3. هر مدل داده‌ای ستون agency دارد و manager پیش‌فرض بر اساس آژانس فیلتر می‌کند. برای هر مدل tenant-scoped تست ایزولاسیون بنویس.
+4. منطق کسب‌وکار در لایه service؛ view نازک؛ هر کار بیرونی یا طولانی (SMS, AI, انتشار, رندر, ایمپورت) فقط در Celery.
+5. UI طبق اسکیل «Apple Design» (HIG): سلسله‌مراتب واضح، فضای منفی زیاد، فونت Vazirmatn، گوشه‌گرد، materials/blur ملایم، انیمیشن کوتاه (احترام به prefers-reduced-motion)، dark mode، دسترس‌پذیری AA، موبایل‌اول.
+6. اسرار (API key و token) فقط رمزنگاری‌شده در DB و هرگز در لاگ یا کد.
+7. هر تغییر اسکیما = migration + تست. داده واقعی یا شماره واقعی در seed و تست نگذار.
+8. مستندات رسمی هر سرویس بیرونی (SMS, بله, ایتا, روبیکا, تلگرام, اینستاگرام, Gemini) را همین الان از وب بخوان؛ endpoint و نام پارامتر را از حافظه حدس نزن. اگر چیزی در مستندات نبود یا نامطمئنی، در گزارش بنویس، حدس نزن.
+9. (بعد از راه‌اندازی بخش ۸) اگر ابزارهای codebase-memory-mcp در دسترس‌اند: برای پیدا کردن کد، callerها و دامنه اثر تغییر اول از ابزارهای گراف (search_graph، trace_path، get_architecture، get_code_snippet، detect_changes) استفاده کن، نه grep و خواندن دسته‌ای فایل. قبل از ویرایش خود فایل را بخوان. ادعای «کد مرده» یا «هیچ‌جا استفاده نشده» را با خواندن مستقیم منبع تأیید کن.
+
+روال کار — Spec Kit (اجباری):
+این پرامپت را مستقیم کد نزن. اول با Spec Kit این مراحل را طی کن: specify → clarify (فقط ابهام واقعی؛ اگر جواب در همین پرامپت هست نپرس) → plan → tasks → analyze → implement. اگر دستورهای اسلش در دسترس است (/speckit.specify یا /specify و …) همان‌ها را اجرا کن، وگرنه همان مراحل را دستی طی کن و خروجی هر مرحله را در specs/&lt;شماره-زیرفاز&gt;/ بنویس. constitution پروژه بالادست همه تصمیم‌هاست؛ اگر چیزی از این پرامپت با آن تعارض داشت، قبل از کد زدن بپرس. فایل‌های spec، plan و tasks را هم کامیت کن.
+
+گیت (اجباری):
+- روی شاخه زیرفاز کار کن: phase/&lt;شماره-زیرفاز&gt;-&lt;توضیح-کوتاه&gt; (مثلاً phase/1b-listing-crud) که از main تازه گرفته شده.
+- هر تسک از tasks.md که تمام شد، همان لحظه کامیت کن؛ منتظر پایان فاز نمان. هر کامیت باید پروژه را سالم نگه دارد و تست‌هایش سبز باشد.
+- پیام کامیت دقیقاً طبق Conventional Commits: &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+  type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+  scope: نام اپ یا حوزه (core, accounts, agencies, listings, crm, matching, messaging, ai, publishing, rendering, accounting, dashboard, ui, infra, deps, specs)
+  subject: انگلیسی، امری، حرف کوچک، بدون نقطه، حداکثر ۷۲ کاراکتر. توضیح فارسی در body آزاد است.
+  تغییر ناسازگار: علامت ! بعد از scope و فوتر BREAKING CHANGE.
+  روی هر کامیت فوتر Phase: &lt;شماره-زیرفاز&gt; بگذار.
+- در پایان هر تسک push کن (git push -u origin &lt;شاخه&gt;). روی main مستقیم کامیت یا force-push نکن.
+- قبل از هر پوش diff را برای اسرار (.env، کلید، توکن) چک کن.
+
+پایان کار، گزارش کوتاه بده: ۱) چه ساخته شد ۲) خروجی تست و lint ۳) فهرست کامیت‌ها (git log --oneline) و نام شاخه ۴) مواردی که ناقص ماند یا حدس زدی ۵) دستور اجرای دمو.
+هیچ چیز خارج از محدوده همین پرامپت را تغییر نده و refactor بی‌ربط نکن.
+</code></pre></div>
+<hr />
+<h2 id="۸-پرامپت-راهاندازی-codebase-memory-mcp-یکبار-بعد-از-0A">۸. پرامپت راه‌اندازی codebase-memory-mcp (یک‌بار، بعد از 0A)</h2>
+<p><a href="https://github.com/DeusData/codebase-memory-mcp">codebase-memory-mcp</a> کد پروژه را به یک <strong>گراف دانش</strong> (توابع، کلاس‌ها، زنجیره فراخوانی، روت‌ها) تبدیل می‌کند و از طریق MCP در اختیار ایجنت می‌گذارد. ایجنت به‌جای خواندن ده‌ها فایل، با یک query ساختاری جواب می‌گیرد؛ در پروژه‌ای به این بزرگی هم توکن کمتری مصرف می‌شود و هم ایجنت کمتر «جای کد» را اشتباه می‌گیرد. طبق README رسمی: کاملاً محلی، بدون API key، بدون telemetry، یک باینری واحد، و <code>install</code> ایجنت‌های نصب‌شده را خودکار پیکربندی می‌کند (فهرست پشتیبانی‌شده‌ها شامل IBM Bob، Gemini CLI، Claude Code، Codex، Cursor و … است).</p>
+<p>نکات مهم که در پرامپت لحاظ شده:</p>
+<ul>
+<li><strong>نصب یک‌بار برای همه ایجنت‌ها.</strong> همه سشن‌های فعال باید دقیقاً یک نسخه از باینری را ببینند؛ آپدیت فقط از راه install script انجام می‌شود.</li>
+<li><strong>آرتیفکت گراف کامیت نشود.</strong> <code>.codebase-memory/graph.db.zst</code> با هر index بازنویسی می‌شود و چون ما هر تسک را کامیت می‌کنیم، تاریخچه گیت حجیم می‌شد (README خودش گزارش یک تیم با حدود ۶ گیگابایت را می‌دهد). پس در <code>.gitignore</code> می‌رود.</li>
+<li><strong>گراف جایگزین خواندن کد نیست.</strong> تحلیل ایستا ارجاع‌های رشته‌ای جنگو (نام URL، نام تسک Celery، signalها) را معمولاً نمی‌بیند، پس ادعای «کد مرده» همیشه با خواندن مستقیم تأیید می‌شود.</li>
+<li>نصب‌کننده فایل‌های کانفیگ ایجنت‌ها را تغییر می‌دهد؛ پرامپت از ایجنت می‌خواهد دقیقاً بگوید چه چیزی عوض شد.</li>
+</ul>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">[بلوک زمینه مشترک را بالا بچسبان]
+
+## هدف
+نصب codebase-memory-mcp، اتصال به ایجنت‌های من، ایندکس ریپوی «آرا املاک»، و ثبت قواعد استفاده در پروژه، تا همه فازهای بعد با جستجوی ساختاری کار کنند.
+ابتدا README رسمی و جاری را بخوان: https://github.com/DeusData/codebase-memory-mcp
+دستور نصب و نام تنظیمات را از همان بخوان، نه از حافظه.
+
+## بخش Specify (چه چیزی و چرا)
+- ابزار محلی و بدون API key نصب شود و همه ایجنت‌های من از همان یک نصب استفاده کنند.
+- بعد از restart ایجنت، سرور MCP با ابزارهایش (search_graph، trace_path، get_architecture، get_code_snippet، detect_changes، query_graph، search_code، manage_adr، index_status، …) قابل مشاهده باشد.
+- ریپوی آرا املاک ایندکس شود و با تغییر فایل‌ها خودکار همگام بماند، بدون اینکه چیز اضافه‌ای وارد گیت شود.
+- ایجنت‌ها طبق قواعد مشخص (پایین) از گراف استفاده کنند.
+- گراف تعاملی محلی برای من قابل باز شدن باشد.
+
+## بخش Plan (قیود فنی)
+مرحله ۱: نصب امن
+- macOS/Linux: install.sh را اول در فایل دانلود کن، سریع مرورش کن، بعد اجرا کن (نه curl | bash کورکورانه).
+- Windows: install.ps1 را با Invoke-WebRequest دانلود کن، مرور کن، Unblock-File بزن و اجرا کن. اگر Microsoft Defender هشدار Wacatac.B!ml داد، README آن را false positive شناخته‌شده می‌داند؛ ولی SHA-256 فایل را با checksums.txt همان release چک کن و آنتی‌ویروس را غیرفعال نکن. اگر checksum نخواند، متوقف شو و به من بگو.
+- قبل و بعد از نصب فهرست فایل‌های کانفیگ ایجنت‌ها را بگیر (مثلاً ~/.claude.json، ~/.gemini/settings.json، ~/.bob/…) و دقیقاً بگو چه چیزی اضافه یا عوض شد. هیچ فایل کانفیگ دیگری را دستی تغییر نده.
+- نصب‌کننده ایجنت‌های نصب‌شده را خودکار پیدا می‌کند. اگر ایجنت من در فهرست خودکار نبود یا کانفیگ نشد، فقط طبق بخش Manual MCP Configuration همان README مسیر مطلق باینری را در کانفیگ MCP همان ایجنت اضافه کن.
+- ایجنت را restart کن و با /mcp (یا معادل ایجنت) تأیید کن سرور codebase-memory-mcp با ابزارهایش دیده می‌شود. برای فهرست دقیق ابزارها: codebase-memory-mcp cli &lt;tool&gt; --help.
+
+مرحله ۲: تنظیمات
+- codebase-memory-mcp config set auto_index true (auto_watch به‌صورت پیش‌فرض روشن است؛ مقدارش را با config list تأیید کن).
+- سخت‌سازی اختیاری: متغیر CBM_ALLOWED_ROOT را روی پوشه‌ای بگذار که پروژه‌های من در آن هستند، تا index_repository فقط داخل همان مسیر کار کند.
+
+مرحله ۳: پروژه (روی شاخه chore/code-intelligence از main تازه)
+- index_repository با مسیر مطلق ریپو؛ سپس list_projects و index_status و نام دقیق پروژه در گراف را یادداشت کن.
+- فایل .cbmignore در ریشه: staticfiles/، media/، node_modules/، htmlcov/، static/vendor/، *.min.js، *.min.css (قواعد .gitignore خودش اعمال می‌شود؛ چیز دیگری اضافه نکن).
+- در .gitignore این خط را بگذار (اگر نیست): .codebase-memory/ . آرتیفکت گراف را کامیت نکن (دلیلش در README بخش Team-Shared Graph Artifact است).
+- فایل‌هایی که نصب‌کننده داخل ریپو ساخته (مثلاً AGENTS.md یا .mcp.json) را بررسی کن. فایلی که مسیر مطلق باینری روی همین ماشین دارد کامیت نشود؛ فایل بی‌خطر و بدون اسرار کامیت شود.
+- با manage_adr یک ADR اولیه بنویس (بخش‌های PURPOSE، STACK، ARCHITECTURE، PATTERNS، TRADEOFFS، PHILOSOPHY) فقط از تصمیم‌هایی که واقعاً در constitution و بلوک زمینه آمده؛ چیزی اختراع نکن.
+- docs/code-intelligence.md بنویس: نام پروژه در گراف، دستورهای پرکاربرد، باز کردن UI با codebase-memory-mcp --ui=true --port=9749 و آدرس http://localhost:9749، و قواعد زیر.
+- قواعد استفاده را (کوتاه) هم داخل docs و هم داخل فایل دستورالعمل ایجنت (مثلاً AGENTS.md) بگذار:
+  1. شروع هر تسک: get_architecture یا search_graph برای پیدا کردن محل کد؛ get_code_snippet به‌جای خواندن کل فایل.
+  2. قبل از تغییر امضای تابع یا مدل: trace_path (direction=inbound) برای دیدن callerها.
+  3. قبل از commit: detect_changes برای دیدن دامنه اثر؛ تست اپ‌های اثرپذیر را اجرا کن.
+  4. قبل از اعتماد به نتیجه: index_status؛ اگر کهنه بود دوباره index_repository.
+  5. ادعای «کد مرده» یا «بی‌استفاده» فقط با تأیید مستقیم منبع؛ تحلیل ایستا ارجاع‌های رشته‌ای (نام URL، نام تسک Celery، signal، template tag، getattr) را معمولاً نمی‌بیند. اگر ابزار check_index_coverage موجود است برای مسیرهایی که ادعا روی آن‌هاست بزن.
+  6. تصمیم معماری مهم جدید → manage_adr با mode=set_sections.
+  7. گراف جایگزین خواندن کد نیست: قبل از ویرایش، خود فایل را بخوان.
+- کامیت‌ها طبق Conventional Commits، مثلاً:
+  chore(infra): add cbmignore and ignore graph artifact
+  docs(specs): add code intelligence usage guide
+  با فوتر Phase: 0A ؛ push و ساخت PR.
+
+## تعریف انجام‌شده
+- list_projects پروژه را با تعداد node/edge نشان دهد و index_status سالم باشد.
+- یک query واقعی روی اسکلت 0A جواب درست بدهد (مثلاً search_graph با name_pattern برای view مربوط به /health، و trace_path برای آن).
+- این query کد مرده اجرا و نتیجه همراه توضیح محدودیت‌هایش گزارش شود:
+  MATCH (f:Function) WHERE NOT EXISTS { (f)&lt;-[:CALLS]-() } RETURN f.name LIMIT 20
+- .codebase-memory/ در گیت دیده نمی‌شود (git status و git ls-files را نشان بده).
+- گزارش پایانی شامل: نسخه نصب‌شده، ایجنت‌های کانفیگ‌شده، فهرست دقیق فایل‌های کانفیگ که تغییر کردند، و نتیجه تست‌های بالا.
+</code></pre></div>
+<hr />
+<h1 id="فاز-0-پایه-هفته-12">فاز 0 — پایه (هفته 1–2)</h1>
+<p>هدف: ریپوی آماده، زیرساخت، طراحی و هویت کاربر تا از فاز 1 فقط روی محصول کار کنید.</p>
+<h2 id="فاز-0A-ریپو-زیرساخت-Spec-Kit">فاز 0A — ریپو، زیرساخت، Spec Kit</h2>
+<p class="meta"><strong>هفته:</strong> 1 · <strong>پیش‌نیاز:</strong> ندارد</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+اسکلت پروژه «آرا املاک» با زیرساخت کامل توسعه، راه‌اندازی Spec Kit، و اتصال و اولین پوش به ریپوی گیت‌هاب.
+
+## بخش Specify (چه چیزی و چرا)
+- توسعه‌دهنده با یک دستور (make up) کل سیستم را بالا بیاورد: web، db، redis، celery worker، celery beat، channels.
+- صفحه /health (JSON: وضعیت db، redis، celery) و یک صفحه اصلی ساده با نام «آرا املاک»، متن فارسی و RTL درست.
+- کل پروژه روی https://github.com/T3RON/AraAmlak.git باشد و قالب کامیت به‌صورت ماشینی اجبار شود.
+
+## بخش Plan (قیود فنی)
+- نام پروژه: Ara Amlak (آرا املاک)؛ پکیج پایتون ara_amlak؛ نام‌های داخلی (Docker image، compose project، DB) همین باشد.
+- ساختار: config/ (settings: base، dev، prod، test)، apps/ (یک اپ خالی برای هر نام در بلوک زمینه)، docker/، docker-compose.yml، Makefile (up, down, test, lint, migrate, shell, seed).
+- PostgreSQL 16 با PostGIS؛ migration اولیه extensionهای postgis, pg_trgm, unaccent را فعال کند.
+- django-environ + فایل .env.example کامل؛ LANGUAGE_CODE=fa، TIME_ZONE=Asia/Tehran، USE_TZ=True.
+- Celery + Beat، Channels با Redis layer، اجرای ASGI با Daphne.
+- ruff، pre-commit، pytest-django با یک تست دود.
+- Spec Kit: `specify init` را اجرا کن. constitution را بر اساس قراردادهای بلوک زمینه بنویس (تست‌محور، tenant isolation، امنیت اسرار، RTL و جلالی، Apple design، service layer، Celery برای کارهای بیرونی، Conventional Commits). پوشه specs/ به تفکیک زیرفاز بساز و خروجی specify/plan/tasks همین زیرفاز را داخلش بگذار.
+- گیت:
+  - `git init`، شاخه پیش‌فرض main، remote origin = https://github.com/T3RON/AraAmlak.git. اگر ریپو خالی نیست اول pull/rebase کن و تاریخچه موجود را پاک نکن.
+  - .gitignore کامل پایتون/جنگو/داکر/نود: .env، *.sqlite3، media/، staticfiles/، __pycache__، .venv، .DS_Store، فایل‌های IDE، و .codebase-memory/ (آرتیفکت گراف ابزار code intelligence که بخش ۸ نصب می‌کند و نباید کامیت شود).
+  - اجبار قالب کامیت: gitlint (یا commitlint) روی hook مرحله commit-msg در pre-commit، با فهرست typeها و scopeهای بلوک زمینه و سقف ۷۲ کاراکتر برای subject.
+  - .gitmessage به‌عنوان قالب commit.template + فایل CONTRIBUTING.md که قرارداد شاخه، کامیت و PR را توضیح دهد.
+  - GitHub Actions: workflow ci (lint + test + makemigrations --check) روی push و pull_request؛ به‌علاوه یک job که پیام کامیت‌های PR را اعتبارسنجی کند.
+  - کار همین زیرفاز روی شاخه phase/0a-scaffold با چند کامیت منطقی جداگانه (ساختار، داکر، CI، Spec Kit، health)، سپس push شاخه به origin و ساخت PR به main.
+
+## تعریف انجام‌شده
+- make up سالم بالا بیاید؛ make test و make lint سبز؛ CI روی گیت‌هاب سبز.
+- شاخه phase/0a-scaffold روی origin موجود و PR باز باشد؛ یک کامیت با پیام غلط عمداً تست شود و hook آن را رد کند.
+- README فارسی: معرفی آرا املاک، راه‌اندازی، ساختار پروژه، اجرای تست، قرارداد کامیت.
+</code></pre></div>
+<h2 id="فاز-0B-دیزاینسیستم-Apple-style-و-RTL">فاز 0B — دیزاین‌سیستم Apple-style و RTL</h2>
+<p class="meta"><strong>هفته:</strong> 1–2 · <strong>پیش‌نیاز:</strong> 0A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+یک دیزاین‌سیستم کامل فارسی/RTL با حس Apple که همه فازهای بعد فقط از آن استفاده کنند.
+
+## بخش Specify (چه چیزی و چرا)
+- لایوت اپ: سایدبار جمع‌شونده (دسکتاپ)، tab bar پایین (موبایل)، هدر با جستجوی سراسری (فعلاً placeholder که با ⌘K/Ctrl+K باز شود)، دکمه شناور میکروفون (فعلاً placeholder).
+- کامپوننت‌ها: button (اصلی/ثانویه/خنثی/خطرناک)، input، textarea، select، combobox جستجودار، segmented control، toggle، checkbox/radio، card، sheet و modal، toast، table، badge، tabs، empty state، skeleton، pagination، date picker جلالی، ورودی مبلغ (با نمایش به حروف)، ورودی موبایل ایران، ورودی متراژ.
+- صفحه /design-system (فقط dev) که همه کامپوننت‌ها را در حالت light/dark و موبایل/دسکتاپ نشان دهد.
+
+## بخش Plan (قیود فنی)
+- Tailwind با design tokens: رنگ‌ها (خنثی + یک رنگ اصلی + semantic)، فاصله‌ها بر پایه 4/8، radius بین 12 تا 20، سایه‌های ملایم، مقیاس تایپوگرافی. فونت Vazirmatn به‌صورت self-host.
+- کامپوننت‌ها با template tag یا include (مثلاً django-cotton)؛ تعامل سمت سرور با HTMX (sheet/modal)، حالت محلی با Alpine.
+- آیکون‌ها: مجموعه خطی یکدست (Lucide یا Phosphor).
+- انیمیشن 150–250ms با احترام به prefers-reduced-motion؛ focus ring واضح؛ کنتراست AA.
+- template filterها: ارقام فارسی، مبلغ به حروف، تاریخ جلالی نسبی («۳ روز پیش»).
+- تست ساده رندر برای template tagها.
+
+## تعریف انجام‌شده
+- /design-system کامل در light/dark و موبایل/دسکتاپ.
+- Lighthouse accessibility بالای 95 روی /design-system.
+- هیچ استایل inline پراکنده؛ همه چیز از tokens.
+</code></pre></div>
+<h2 id="فاز-0C-هویت-کاربر-آژانس-نقشها-Audit">فاز 0C — هویت کاربر، آژانس، نقش‌ها، Audit</h2>
+<p class="meta"><strong>هفته:</strong> 2 · <strong>پیش‌نیاز:</strong> 0A، 0B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+ورود امن، ساخت آژانس، نقش‌ها و ایزولاسیون کامل داده‌ی هر آژانس.
+
+## بخش Specify (چه چیزی و چرا)
+- ورود با شماره موبایل + کد یکبارمصرف (OTP). فعلاً ارسال از طریق یک interface پیامک با backend کنسول؛ پنل واقعی در فاز 4 وصل می‌شود.
+- ثبت‌نام: ساخت آژانس (نام، شهر، تلفن، آدرس) و کاربر مالک.
+- نقش‌ها: مالک آژانس، مشاور، حسابدار، منشی. ماتریس دسترسی مشخص (مثلاً حسابدار فقط بخش مالی؛ منشی بدون دیدن شماره مالک).
+- دعوت عضو با لینک یکبارمصرف و انتخاب نقش؛ غیرفعال‌سازی عضو.
+- پروفایل کاربر و تنظیمات آژانس (لوگو، رنگ برند، ساعت کاری).
+- لاگ ممیزی: چه کسی، چه چیزی، کی، از کجا؛ صفحه نمایش لاگ برای مالک.
+
+## بخش Plan (قیود فنی)
+- Custom User با phone به‌عنوان USERNAME_FIELD (نرمال‌سازی به +98 و فرمت یکتا).
+- مدل‌ها: Agency، Membership(role)، AuditLog (شامل diff JSON).
+- TenantManager + middleware که request.agency را می‌گذارد. یک registry از مدل‌های tenant-scoped بساز تا تست‌ها روی همه اجرا شود.
+- ماتریس مجوزها در یک فایل مرکزی + mixin/decorator برای view؛ هیچ if نقش پراکنده.
+- محدودیت نرخ OTP با Redis (مثلاً 5 درخواست در ساعت و فاصله 60 ثانیه)؛ کد OTP هش‌شده ذخیره شود و انقضا داشته باشد.
+- تست‌ها: ایزولاسیون (کاربر آژانس A هرگز داده B را نمی‌بیند، پارامتری روی همه مدل‌های registry)، ماتریس مجوز، محدودیت OTP.
+
+## تعریف انجام‌شده
+- سناریوی کامل: ثبت‌نام، ساخت آژانس، دعوت مشاور، ورود، محدود شدن با نقش.
+- تست ایزولاسیون سبز و در CI اجباری.
+</code></pre></div>
+<hr />
+<h1 id="فاز-1-مدیریت-فایلها-هفته-35">فاز 1 — مدیریت فایل‌ها (هفته 3–5)</h1>
+<p>هدف: قلب سیستم. مشاور بتواند فایل را کامل ثبت، ببیند، جستجو و مدیریت کند.</p>
+<h2 id="فاز-1A-مدل-داده-فایل">فاز 1A — مدل داده فایل</h2>
+<p class="meta"><strong>هفته:</strong> 3 · <strong>پیش‌نیاز:</strong> فاز 0</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+مدل داده‌ی کامل فایل ملکی، جغرافیا و مخاطب پایه، با migration و ادمین و تست.
+
+## بخش Specify (چه چیزی و چرا)
+- انواع معامله: فروش، رهن و اجاره (ودیعه + اجاره ماهانه)، رهن کامل، معاوضه، مشارکت در ساخت، پیش‌فروش.
+- انواع ملک: آپارتمان، ویلایی/خانه، مغازه، دفتر/اداری، زمین، باغ/باغ‌ویلا، صنعتی/انبار.
+- مشخصات: شهر، محله، آدرس متنی، موقعیت روی نقشه (اختیاری)، متراژ بنا، متراژ زمین، اتاق، طبقه، کل طبقات، تعداد واحد در طبقه، سال ساخت، جهت، نوع سند، امکانات (آسانسور، پارکینگ، انباری، بالکن، …)، قیمت کل / ودیعه / اجاره، قابل‌مذاکره، شرایط (تخلیه، مالک ساکن، …)، توضیحات، مالک، مشاور مسئول، فایل اختصاصی تا تاریخ، تاریخ انقضای فایل، منبع فایل.
+- وضعیت‌ها: پیش‌نویس، فعال، رزرو، در مذاکره، بسته‌شده (فروخته/اجاره‌شده)، منقضی، کنارگذاشته‌شده؛ با تاریخچه تغییر وضعیت.
+- کد یکتای خوانا برای هر فایل در هر آژانس (مثلاً F-1405-0001).
+- مخاطب پایه (Contact) برای مالک: نام، شماره‌ها، نوع. جزئیات CRM در فاز 2 اضافه می‌شود.
+
+## بخش Plan (قیود فنی)
+- مدل‌ها: City، Neighborhood (با aliases برای تطبیق گفتاری)، NeighborhoodAdjacency (جدول ویرایش‌پذیر همجواری)، Feature (M2M)، Listing، ListingStatusHistory، crm.Contact + ContactPhone (نرمال‌شده).
+- location با PostGIS Point (nullable)، ایندکس GiST. ایندکس GIN trigram روی آدرس و عنوان. ایندکس مرکب (agency, status, deal_type, property_type).
+- CheckConstraint: فروش باید قیمت کل داشته باشد؛ رهن/اجاره باید ودیعه یا اجاره داشته باشد؛ طبقه ≤ کل طبقات؛ مقادیر منفی ممنوع.
+- soft delete. تولید کد فایل با شمارنده امن (بدون race).
+- داده اولیه: فقط دستور import برای CSV شهر/محله؛ چند ردیف نمونه بگذار و دیتاست کامل را جعل نکن.
+- ادمین Django برای همه مدل‌ها؛ factory برای همه مدل‌ها؛ تست مدل و constraint.
+
+## تعریف انجام‌شده
+- migrationها تمیز؛ ادمین کار می‌کند؛ تست constraintها سبز؛ تست ایزولاسیون برای مدل‌های جدید در registry.
+</code></pre></div>
+<h2 id="فاز-1B-صفحات-CRUD-فایل">فاز 1B — صفحات CRUD فایل</h2>
+<p class="meta"><strong>هفته:</strong> 3–4 · <strong>پیش‌نیاز:</strong> 1A، 0B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+رابط کاربری کامل ثبت، مشاهده و ویرایش فایل با کیفیت Apple-style.
+
+## بخش Specify (چه چیزی و چرا)
+- لیست فایل‌ها: نمای جدولی و نمای کارت (toggle)، وضعیت با badge رنگی، تغییر سریع وضعیت.
+- جزئیات فایل: تب‌های اطلاعات، رسانه (placeholder)، تاریخچه، بازدیدها (placeholder)، تطبیق‌ها (placeholder)، انتشار (placeholder)، مالی (placeholder).
+- فرم ایجاد/ویرایش مرحله‌ای (3 مرحله: اصلی، مشخصات، قیمت و مالک) با اعتبارسنجی فارسی و ذخیره پیش‌نویس.
+- «ثبت سریع» برای موبایل با حداقل فیلدها.
+- نمایش قیمت به عدد و حروف؛ انتخاب محله با combobox و جستجوی فازی.
+- حذف نرم و بازیابی.
+- شماره مالک طبق نقش نقاب‌گذاری شود؛ کلیک «نمایش شماره» یک رکورد AuditLog بسازد.
+
+## بخش Plan (قیود فنی)
+- class-based view + service layer؛ پاسخ‌های partial با HTMX؛ فرم‌ها با Django Forms.
+- استفاده از کامپوننت‌های فاز 0B؛ هیچ کامپوننت تکراری نساز.
+- بررسی N+1 با assertNumQueries روی list و detail.
+- تست view برای هر نقش (مجاز/ممنوع) و تست ایزولاسیون.
+
+## تعریف انجام‌شده
+- ثبت، ویرایش، تغییر وضعیت و حذف از UI روی موبایل و دسکتاپ.
+- تست‌های نقش و نقاب شماره سبز.
+</code></pre></div>
+<h2 id="فاز-1C-رسانه-عکس-ویدئو-سند">فاز 1C — رسانه (عکس، ویدئو، سند)</h2>
+<p class="meta"><strong>هفته:</strong> 4 · <strong>پیش‌نیاز:</strong> 1B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+مدیریت رسانه‌ی فایل: آپلود، پردازش، ترتیب و اسناد خصوصی.
+
+## بخش Specify (چه چیزی و چرا)
+- آپلود چندتایی عکس و ویدئو با drag &amp; drop و دوربین موبایل، نوار پیشرفت.
+- مرتب‌سازی با کشیدن، انتخاب عکس اصلی، حذف، توضیح کوتاه هر عکس.
+- تولید خودکار thumbnail و نسخه وب (webp).
+- اسناد خصوصی (مثلاً سند ملک، کارت ملی مالک) جدا از رسانه عمومی، فقط برای نقش مجاز.
+- محدودیت حجم و نوع؛ پیام خطای واضح.
+
+## بخش Plan (قیود فنی)
+- مدل Media (نوع: photo, video, document؛ is_private؛ order).
+- django-storages با S3-compatible (MinIO در dev)؛ پردازش Pillow در Celery؛ حذف EXIF/GPS از عکس‌های عمومی.
+- اعتبارسنجی MIME واقعی (نه فقط پسوند)؛ اسناد خصوصی فقط با signed URL کوتاه‌مدت.
+- واترمارک روی اصل عکس نگذار؛ واترمارک در فاز 6 هنگام رندر اعمال می‌شود.
+- تست آپلود، نوع نامعتبر، دسترسی اسناد خصوصی، حذف EXIF.
+
+## تعریف انجام‌شده
+- آپلود از موبایل کار کند؛ سند خصوصی برای نقش غیرمجاز 403 بدهد؛ تست‌ها سبز.
+</code></pre></div>
+<h2 id="فاز-1D-جستجو-فیلتر-نقشه-ایمپورتاکسپورت">فاز 1D — جستجو، فیلتر، نقشه، ایمپورت/اکسپورت</h2>
+<p class="meta"><strong>هفته:</strong> 5 · <strong>پیش‌نیاز:</strong> 1B، 1C</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+پیدا کردن سریع فایل، نقشه و ورود فایل‌های قدیمی از Excel.
+
+## بخش Specify (چه چیزی و چرا)
+- جستجوی سریع روی کد، آدرس، محله و شماره مالک (با نرمال‌سازی فارسی: ی/ک عربی، ارقام).
+- فیلتر پیشرفته (نوع معامله، ملک، محله، بازه قیمت/متراژ/اتاق، وضعیت، مشاور، امکانات) و «نماهای ذخیره‌شده».
+- مرتب‌سازی، صفحه‌بندی بی‌نهایت.
+- انتخاب موقعیت روی نقشه در فرم؛ نمای نقشه لیست با خوشه‌بندی مارکرها.
+- ایمپورت Excel/CSV: آپلود، نگاشت ستون‌ها، پیش‌نمایش با گزارش خطای هر ردیف، اجرا در پس‌زمینه با نوار پیشرفت.
+- اکسپورت لیست فیلترشده.
+- هشدار فایل تکراری هنگام ثبت (همان مالک با آدرس یا متراژ مشابه).
+
+## بخش Plan (قیود فنی)
+- pg_trgm + unaccent؛ یک تابع normalize_fa مشترک (ی/ک، ارقام، فاصله) در core که بعداً AI و تطبیق هم استفاده کنند.
+- django-filter؛ Leaflet + OSM؛ tile provider در تنظیمات قابل تعویض (مثلاً نشان یا بلد).
+- ایمپورت با openpyxl در Celery؛ یک مدل ImportJob با وضعیت و گزارش خطا.
+- dedupe با similarity روی آدرس + قیود عددی.
+- تست: جستجوی فارسی با املاهای مختلف، ایمپورت با فایل خراب، dedupe.
+
+## تعریف انجام‌شده
+- جستجو روی 10 هزار فایل seed زیر 300ms.
+- ایمپورت یک فایل 1000 ردیفی با گزارش خطا کار کند.
+</code></pre></div>
+<hr />
+<h1 id="فاز-2-مخاطبین-درخواستها-و-CRM-هفته-67">فاز 2 — مخاطبین، درخواست‌ها و CRM (هفته 6–7)</h1>
+<p>هدف: نیازمندی مراجعه‌کنندگان ساختاریافته ثبت شود، چون مبنای تطبیق است.</p>
+<h2 id="فاز-2A-مخاطبین-و-درخواستها">فاز 2A — مخاطبین و درخواست‌ها</h2>
+<p class="meta"><strong>هفته:</strong> 6 · <strong>پیش‌نیاز:</strong> فاز 1</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+ثبت مخاطب و «درخواست» (نیازمندی) ساختاریافته و قابل تطبیق، همراه با رضایت پیامک.
+
+## بخش Specify (چه چیزی و چرا)
+- مخاطب: مالک، مراجعه‌کننده، سرمایه‌گذار، همکار؛ چند شماره؛ ادغام مخاطبین تکراری (بر اساس شماره).
+- درخواست:
+  - نوع معامله (یکی) و نوع ملک (چندتا).
+  - محدوده جغرافیایی: چند محله یا شعاع روی نقشه.
+  - بازه متراژ.
+  - بودجه: خرید = سقف قیمت؛ رهن/اجاره = سقف ودیعه و سقف اجاره (و امکان «ودیعه قابل‌تبدیل»).
+  - حداقل اتاق، طبقه؛ امکانات با دو سطح «الزامی» و «ترجیحی»؛ حداکثر سن بنا؛ توضیحات آزاد.
+  - اولویت، مهلت اعتبار (پیش‌فرض 60 روز)، وضعیت (فعال، متوقف، تأمین‌شده، منقضی).
+- رضایت دریافت پیامک: ثبت زمان، منبع (حضوری/فرم عمومی/تلفنی) و نسخه متن رضایت؛ امکان لغو.
+- لیست، جزئیات و فرم ایجاد/ویرایش با همان کیفیت فایل‌ها، شامل ثبت سریع موبایل.
+
+## بخش Plan (قیود فنی)
+- مدل‌ها: Request، RequestNeighborhood (M2M)، RequestFeature (با flag must/nice)، ConsentRecord(contact, channel, granted_at, source, text_version, revoked_at).
+- معیارها فیلد صریح باشند؛ JSON خام برای معیارها ممنوع (تطبیق باید SQL-friendly باشد).
+- شماره‌ها نرمال‌شده و ایندکس‌شده؛ unique per agency.
+- سرویس merge_contacts با تست.
+- تست مدل، view، ایزولاسیون و constraintها.
+
+## تعریف انجام‌شده
+- ثبت درخواست کامل از UI؛ رضایت ثبت و لغو شود؛ ادغام مخاطب تکراری کار کند.
+</code></pre></div>
+<h2 id="فاز-2B-تایملاین-بازدید-وظایف">فاز 2B — تایم‌لاین، بازدید، وظایف</h2>
+<p class="meta"><strong>هفته:</strong> 7 · <strong>پیش‌نیاز:</strong> 2A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+حافظه‌ی رابطه با مشتری و یادآوری کارها.
+
+## بخش Specify (چه چیزی و چرا)
+- تایم‌لاین تعامل روی هر مخاطب، فایل و درخواست: تماس، پیامک، یادداشت، بازدید، تغییر وضعیت.
+- ثبت بازدید (visit): فایل ↔ مخاطب، تاریخ/ساعت جلالی، نتیجه (علاقه‌مند، رد، فکر می‌کند)، یادداشت.
+- وظایف و یادآوری با موعد، اولویت و نسبت‌دادن به مشاور؛ صفحه «امروز من».
+- مدل اعلان درون‌برنامه‌ای (فعلاً لیست ساده با بج؛ بلادرنگ در فاز 3).
+
+## بخش Plan (قیود فنی)
+- Interaction با FKهای صریح nullable (contact, listing, request) و یک CheckConstraint که حداقل یکی پر باشد؛ ContentType عمومی ممنوع.
+- Visit، Task، Notification.
+- Celery Beat برای یادآوری‌های سررسیدشده.
+- تست: بازدید، وظیفه سررسیدشده، اعلان، ایزولاسیون.
+
+## تعریف انجام‌شده
+- از صفحه فایل و مخاطب بتوان بازدید و وظیفه ثبت کرد؛ یادآوری سررسید اعلان بسازد.
+</code></pre></div>
+<hr />
+<h1 id="فاز-3-موتور-تطبیق-و-داشبورد-هفته-89">فاز 3 — موتور تطبیق و داشبورد (هفته 8–9)</h1>
+<p>هدف: هر فایل جدید خودکار با درخواست‌ها سنجیده شود و مشاور در داشبورد ببیند.</p>
+<h2 id="فاز-3A-موتور-امتیازدهی">فاز 3A — موتور امتیازدهی</h2>
+<p class="meta"><strong>هفته:</strong> 8 · <strong>پیش‌نیاز:</strong> فاز 2</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+یک موتور تطبیق خالص، قابل‌تست و قابل‌توضیح بین فایل و درخواست.
+
+## بخش Specify (چه چیزی و چرا)
+- تابع match(listing, request) خروجی بدهد: امتیاز 0 تا 100، سطح (exact، strong، near، none) و فهرست «دلایل» (هر معیار: met / near / miss + توضیح فارسی مثل «بودجه ۵٪ بالاتر از سقف»).
+- شرط‌های سخت: نوع معامله و دسته ملک باید بخواند.
+- امتیاز نرم با وزن‌های قابل‌تنظیم برای هر آژانس؛ پیش‌فرض: مکان 30، بودجه 30، متراژ 15، اتاق/نوع 10، امکانات 15.
+- «نزدیک» یعنی خارج از معیار ولی در تلورانس قابل‌تنظیم: بودجه تا +10٪، متراژ ±10٪، محله همجوار یا فاصله تا X کیلومتر.
+- رهن/اجاره: مقایسه با معادل‌سازی ودیعه و اجاره با نرخ تبدیل قابل‌تنظیم آژانس (پیش‌فرض یک مقدار متعارف که در تنظیمات قابل ویرایش است؛ عدد را hardcode نکن).
+- امکانات «الزامی» که فایل ندارد → حذف یا سطح پایین‌تر (تنظیم آژانس).
+
+## بخش Plan (قیود فنی)
+- ماژول matching/engine.py بدون وابستگی به ORM (dataclass ورودی/خروجی).
+- pre-filter در SQL (deal_type، property_type، بودجه با حاشیه، محله یا ST_DWithin) برای کم کردن کاندیدا.
+- همجواری محله از جدول NeighborhoodAdjacency (ویرایش‌پذیر) و در صورت داشتن نقطه، از فاصله.
+- تست‌های پارامتری با حداقل 40 سناریو (جدول ورودی/خروجی مورد انتظار، شامل رهن/اجاره).
+- تست خاصیتی (اختیاری با hypothesis): بالا رفتن بودجه هرگز امتیاز را کم نکند.
+- بنچمارک: یک فایل جدید در برابر 10 هزار درخواست زیر 2 ثانیه.
+
+## تعریف انجام‌شده
+- همه تست‌ها سبز؛ گزارش بنچمارک؛ مستند قواعد امتیازدهی در docs/matching.md.
+</code></pre></div>
+<h2 id="فاز-3B-رکورد-تطبیق-و-تریگرها">فاز 3B — رکورد تطبیق و تریگرها</h2>
+<p class="meta"><strong>هفته:</strong> 8–9 · <strong>پیش‌نیاز:</strong> 3A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+اجرای خودکار و پایدار تطبیق و نگهداری نتایج.
+
+## بخش Specify (چه چیزی و چرا)
+- MatchRecord: (فایل، درخواست، امتیاز، سطح، دلایل، وضعیت: جدید، دیده‌شده، رد‌شده، تماس‌گرفته‌شده، اطلاع‌رسانی‌شده، منجر به معامله).
+- تریگرها:
+  - ایجاد یا ویرایش مهم فایل (قیمت، وضعیت، محله، متراژ).
+  - ایجاد یا ویرایش درخواست.
+  - اجرای کامل شبانه.
+- بسته‌شدن یا انقضای فایل، تطبیق‌های باز آن را «منقضی» کند.
+- کاهش قیمت فایل → رویداد «کاهش قیمت» برای درخواست‌هایی که قبلاً near بودند.
+- هرگز دو رکورد برای یک جفت (فایل، درخواست) نسازد و اعلان تکراری ندهد.
+
+## بخش Plan (قیود فنی)
+- signal → Celery task با debounce (قفل Redis) و batch.
+- UniqueConstraint(listing, request)؛ ایمن‌سازی با transaction و select_for_update.
+- مدل MatchEvent برای تاریخچه.
+- لاگ ساختاریافته تعداد کاندیدا، مدت و تعداد رکورد جدید.
+- تست: idempotency، تغییر قیمت، بسته‌شدن فایل، ایزولاسیون tenant (فایل آژانس A هرگز با درخواست B تطبیق نخورد).
+
+## تعریف انجام‌شده
+- ثبت فایل جدید در دمو بعد از چند ثانیه MatchRecord درست بسازد؛ اجرای دوباره چیزی را دوبل نکند.
+</code></pre></div>
+<h2 id="فاز-3C-داشبورد-هوشمند-و-بلادرنگ">فاز 3C — داشبورد هوشمند و بلادرنگ</h2>
+<p class="meta"><strong>هفته:</strong> 9 · <strong>پیش‌نیاز:</strong> 3B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+صفحه اصلی حرفه‌ای که مشاور هر روز با آن کار می‌کند.
+
+## بخش Specify (چه چیزی و چرا)
+- KPI: فایل‌های فعال، درخواست‌های فعال، تطبیق‌های جدید، بازدیدهای امروز، معاملات این ماه.
+- «صندوق تطبیق»: کارت هر تطبیق با فایل، مراجعه‌کننده، امتیاز، دلایل رنگ‌بندی‌شده و اقدام‌ها (تماس، پیامک، رد، ثبت بازدید). فیلتر بر اساس مشاور و سطح.
+- فید فعالیت، فایل‌های نزدیک به انقضا، وظایف امروز، نمودارهای ساده روند.
+- اعلان بلادرنگ (toast و بج) هنگام تطبیق جدید.
+- طراحی Apple-style، موبایل‌اول؛ حالت خالی و حالت بارگذاری برای هر بخش.
+
+## بخش Plan (قیود فنی)
+- Channels: گروه به‌ازای آژانس و کاربر؛ fallback به polling با HTMX اگر WebSocket قطع شد.
+- نمودار سبک (SVG یا Chart.js)؛ کش کوتاه KPIها.
+- تست consumer با channels.testing؛ تست تعداد کوئری صفحه داشبورد.
+
+## تعریف انجام‌شده
+- ثبت فایل مطابق در تب دیگر، بدون رفرش اعلان و کارت جدید ایجاد کند.
+- صفحه اصلی p95 زیر 500ms روی داده seed.
+</code></pre></div>
+<hr />
+<h1 id="فاز-4-پیامک-و-اشتراک-عمومی-هفته-10">فاز 4 — پیامک و اشتراک عمومی (هفته 10)</h1>
+<p>هدف: مراجعه‌کننده وقتی فایل مناسب پیدا شد، خودکار (و قانونمند) پیامک بگیرد.</p>
+<h2 id="فاز-4A-زیرساخت-پیامک">فاز 4A — زیرساخت پیامک</h2>
+<p class="meta"><strong>هفته:</strong> 10 · <strong>پیش‌نیاز:</strong> فاز 3</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+اتصال به پنل پیامک، قالب‌ها و لاگ ارسال.
+
+## بخش Specify (چه چیزی و چرا)
+- تنظیمات پنل هر آژانس: انتخاب ارائه‌دهنده، کلید API، شماره خط، تست اتصال، نمایش اعتبار باقی‌مانده.
+- قالب‌های پیامک با متغیر ({نام}، {نام_آژانس}، {تلفن_آژانس}، {کد_فایل}، {نوع_ملک}، {محله}) و پیش‌نمایش با شمارنده کاراکتر و تعداد بخش پیامک (فارسی حد کاراکتر کمتری دارد).
+- ارسال دستی به مخاطب از صفحه او.
+- لاگ ارسال: وضعیت (صف، ارسال‌شده، تحویل‌شده، ناموفق)، هزینه، زمان.
+
+## بخش Plan (قیود فنی)
+- interface SMSProvider: send, status, balance (و send_bulk اگر ارائه‌دهنده دارد).
+- حداقل دو آداپتر واقعی از ارائه‌دهندگان ایرانی رایج (مثلاً کاوه‌نگار و ملی‌پیامک؛ مستندات رسمی را بخوان) + Console/Fake برای dev و تست.
+- همیشه ارسال از Celery با retry و backoff؛ مدل SMSMessage با state machine.
+- کلیدها رمزنگاری‌شده؛ در لاگ فقط ۴ رقم آخر شماره.
+- تست با mock HTTP؛ تست state machine؛ تست شمارش بخش‌های پیامک فارسی.
+- این فاز پیامک OTP فاز 0C را هم به ارائه‌دهنده واقعی وصل کند (با fallback).
+
+## تعریف انجام‌شده
+- ارسال آزمایشی واقعی با یک پنل تست موفق؛ لاگ و وضعیت تحویل ثبت شود.
+</code></pre></div>
+<h2 id="فاز-4B-ارسال-خودکار-رضایت-فرم-اشتراک-عمومی">فاز 4B — ارسال خودکار، رضایت، فرم اشتراک عمومی</h2>
+<p class="meta"><strong>هفته:</strong> 10 · <strong>پیش‌نیاز:</strong> 4A، 3B، 2A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+پیامک خودکار تطبیق با حفاظ‌های لازم، و فرم عمومی اشتراک که مراجعه‌کننده خودش نیازمندی‌اش را ثبت کند.
+
+## بخش Specify (چه چیزی و چرا)
+- قانون ارسال خودکار: برای تطبیق‌های exact و strong خودکار پیامک برود («فایل مناسب برای شما ثبت شد؛ لطفاً به مشاور املاک {نام} مراجعه کنید. تلفن …»)؛ برای near فقط به مشاور اعلان برود و با تأیید او ارسال شود.
+- تنظیمات آژانس: روشن/خاموش، آستانه امتیاز، ساعت مجاز (مثلاً 9 تا 20)، سقف روزانه به ازای هر مخاطب، متن قالب.
+- هیچ‌وقت برای یک جفت (فایل، درخواست) دو بار نفرستد؛ خارج از ساعت مجاز تا اولین ساعت مجاز به تأخیر بیفتد؛ اگر رضایت نبود یا لغو شده بود نفرستد.
+- لغو عضویت: کد لغو در متن یا لینک کوتاه امضاشده که رضایت را ابطال و درخواست را متوقف کند.
+- فرم عمومی هر آژانس (لینک و QR): مراجعه‌کننده مشخصات و نیازمندی را وارد می‌کند، شماره را با OTP تأیید می‌کند، تیک رضایت می‌زند؛ درخواست با منبع «فرم عمومی» ساخته می‌شود.
+- پیامک تمدید قبل از انقضای درخواست («هنوز نیاز دارید؟» با لینک تمدید/توقف).
+
+## بخش Plan (قیود فنی)
+- pipeline: MatchRecord → NotificationPolicy service → SMSMessage. سیاست در یک تابع خالص تا تست‌پذیر باشد.
+- زمان‌ها با Asia/Tehran؛ تأخیر با Celery eta.
+- توکن لغو/تمدید با امضای Django signing و انقضا.
+- فرم عمومی: CSRF، rate limit روی IP و شماره، honeypot، هیچ اطلاعاتی از فایل‌ها یا آژانس‌های دیگر لو نرود؛ صفحه RTL و Apple-style.
+- تست سناریویی: ساعت شب، سقف روزانه، تکراری، رضایت لغو‌شده، near نیازمند تأیید، لینک لغو، فرم عمومی با OTP اشتباه.
+
+## تعریف انجام‌شده
+- سناریوی کامل دمو: ثبت درخواست از فرم عمومی، ثبت فایل مطابق، دریافت پیامک (با Fake)، لغو با لینک و عدم دریافت پیام بعدی.
+</code></pre></div>
+<hr />
+<h1 id="فاز-5-صدا-و-ثبت-هوشمند-هفته-1112-نقطه-MVP">فاز 5 — صدا و ثبت هوشمند (هفته 11–12) — نقطه MVP</h1>
+<p>هدف: مشاور حرف بزند و پیش‌نویس فایل یا درخواست آماده شود.</p>
+<h2 id="فاز-5A-لایهی-پروایدر-هوش-مصنوعی">فاز 5A — لایه‌ی پروایدر هوش مصنوعی</h2>
+<p class="meta"><strong>هفته:</strong> 11 · <strong>پیش‌نیاز:</strong> فاز 0C</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+یک لایه‌ی یکپارچه برای مدل‌های زبانی و تبدیل صدا که جمنای و پروایدر سفارشی را پشتیبانی کند.
+
+## بخش Specify (چه چیزی و چرا)
+- تنظیمات آژانس: انتخاب پروایدر: «Gemini» یا «سفارشی» (base_url، api_key، مدل سازگار با OpenAI API)؛ تست اتصال؛ انتخاب مدل برای متن و برای صدا؛ سقف مصرف روزانه؛ نمایش مصرف تقریبی.
+- خطای اتصال یا سقف مصرف پیام واضح و کاربرپسند بدهد.
+
+## بخش Plan (قیود فنی)
+- interface LLMProvider: generate(messages, tools=None, response_schema=None)، و SpeechToText جدا: transcribe(audio).
+- آداپتر Gemini با SDK رسمی جاری (مستندات نسخه فعلی را بخوان؛ نام مدل‌ها را hardcode نکن، از تنظیمات).
+- آداپتر OpenAI-compatible با httpx (chat، tools، JSON schema، و endpoint transcriptions اگر وجود دارد).
+- پروکسی خروجی قابل‌تنظیم برای هر پروایدر؛ timeout و retry؛ پشتیبانی streaming.
+- مدل LLMCallLog (توکن، تأخیر، هزینه تقریبی، وضعیت) بدون ذخیره‌ی متن حساس، مگر با حالت debug صریح.
+- کلیدها رمزنگاری‌شده؛ FakeProvider برای تست؛ contract test مشترک که هر آداپتر باید پاس کند.
+
+## تعریف انجام‌شده
+- با کلید واقعی هر دو پروایدر یک تست دود موفق؛ CI با FakeProvider سبز.
+</code></pre></div>
+<h2 id="فاز-5B-ضبط-صدا-و-تبدیل-به-متن">فاز 5B — ضبط صدا و تبدیل به متن</h2>
+<p class="meta"><strong>هفته:</strong> 11–12 · <strong>پیش‌نیاز:</strong> 5A، 0B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+تجربه‌ی ضبط صدای روان روی موبایل و دسکتاپ و دریافت متن قابل‌ویرایش.
+
+## بخش Specify (چه چیزی و چرا)
+- دکمه شناور میکروفون در همه صفحات و داخل فرم جدید فایل؛ ضبط با نمایش موج، توقف، ادامه، لغو؛ سقف 3 دقیقه.
+- آپلود و پردازش ناهمزمان با نمایش وضعیت؛ نمایش متن پیاده‌شده قابل ویرایش.
+- نگهداری فایل صوتی اختیاری (پیش‌فرض: حذف خودکار بعد از 30 روز؛ قابل‌تنظیم).
+- مدیریت مجوز میکروفون و خطاهای کاربرپسند. حتماً روی Safari iOS و Chrome Android کار کند.
+
+## بخش Plan (قیود فنی)
+- ماژول JS کوچک (Alpine) با MediaRecorder و انتخاب خودکار فرمت پشتیبانی‌شده (webm/opus یا mp4/aac).
+- مدل VoiceNote؛ endpoint آپلود؛ Celery task که با ffmpeg به mono 16k تبدیل و از SpeechToText رد می‌کند.
+- ارتباط VoiceNote با تایم‌لاین.
+- تست با فایل‌های صوتی نمونه‌ی کوچک (fixture) و FakeSTT؛ تست حذف زمان‌بندی‌شده.
+
+## تعریف انجام‌شده
+- روی موبایل واقعی ضبط، پردازش و نمایش متن انجام شود؛ گزارش سازگاری مرورگرها.
+</code></pre></div>
+<h2 id="فاز-5C-استخراج-ساختاریافته-و-تأیید">فاز 5C — استخراج ساختاریافته و تأیید</h2>
+<p class="meta"><strong>هفته:</strong> 12 · <strong>پیش‌نیاز:</strong> 5B، فاز 1 و 2</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+تبدیل متن گفتاری به پیش‌نویس «فایل جدید» یا «درخواست جدید» با تأیید انسانی.
+
+## بخش Specify (چه چیزی و چرا)
+- تشخیص نیت: فایل جدید، درخواست جدید، یا نامشخص (بپرسد).
+- خروجی ساختاریافته مطابق مدل‌های فاز 1 و 2 + اطمینان هر فیلد + فیلدهای ناقص + فرض‌های به‌کاررفته.
+- صفحه تأیید: فرم پیش‌پر شده، فیلدهای مشکوک و ناقص هایلایت نارنجی، متن پیاده‌شده کنار فرم، سؤال تکمیلی («قیمت را نگفتید»)، تأیید با یک ضربه یا گفتن «تأیید».
+- هیچ چیز بدون تأیید انسان ذخیره نمی‌شود؛ اول پیش‌نویس (Draft).
+- نرمال‌سازی فارسی:
+  - اعداد گفتاری («دو میلیارد و هفتصد» → 2,700,000,000 تومان؛ «سیصد متری»؛ «طبقه سوم از پنج»).
+  - اصطلاحات («تک‌واحدی»، «سند تک‌برگ»، «رهن کامل»، «نقلی»، «سرقفلی»).
+  - محله با gazetteer و aliases و fuzzy match؛ اگر مبهم بود چند گزینه پیشنهاد شود.
+
+## بخش Plan (قیود فنی)
+- پرامپت‌ها نسخه‌دار در prompts/؛ JSON schema از روی مدل‌ها تولید شود.
+- اعتبارسنجی قطعی بعد از LLM (Pydantic): بازه‌های منطقی (متراژ، طبقه ≤ کل)، تناقض‌ها (رهن با قیمت فروش) → علامت‌گذاری.
+- مقدار نگفته‌شده = null، هرگز حدس نزن.
+- مدل Draft (JSON + وضعیت + ارجاع به VoiceNote)؛ تبدیل Draft به Listing/Request از همان سرویس‌های فاز 1 و 2.
+- تست واحد نرمال‌سازی اعداد فارسی (حداقل 50 مورد)؛ تست کل جریان با FakeProvider.
+
+## تعریف انجام‌شده
+- دمو: «یه آپارتمان صد و بیست متری سه خوابه توی سعادت‌آباد برای فروش دارم، دو میلیارد و هفتصد» ← پیش‌نویس درست و آماده تأیید.
+</code></pre></div>
+<h2 id="فاز-5D-ارزیابی-دقت">فاز 5D — ارزیابی دقت</h2>
+<p class="meta"><strong>هفته:</strong> 12 · <strong>پیش‌نیاز:</strong> 5C</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+اندازه‌گیری و بهبود دقت استخراج با مجموعه ارزیابی.
+
+## بخش Specify (چه چیزی و چرا)
+- مجموعه golden با حداقل 60 جمله گفتاری فارسی واقع‌گرایانه (فروش، رهن و اجاره، مغازه، ویلا، زمین، درخواست مشتری) با خروجی صحیح دستی. ایجنت نمونه‌ی اولیه را می‌سازد؛ شما بعداً حداقل 20 نمونه واقعی جایگزین کنید.
+- دستور `manage.py eval_intake`: دقت هر فیلد، نرخ «اعتماد کاذب» (مطمئن ولی غلط)، هزینه و تأخیر را گزارش دهد.
+- صفحه ادمین برای مشاهده و مقایسه اجراها.
+- آستانه: دقت فیلدهای کلیدی (نوع معامله، نوع ملک، متراژ، قیمت) حداقل 90٪ روی golden با پروایدر انتخابی. اگر کمتر بود، پرامپت و نرمال‌سازی را بهبود بده و تغییرات را گزارش کن.
+
+## بخش Plan (قیود فنی)
+- golden.jsonl در ریپو؛ حالت text-only و audio (اگر فایل صوتی موجود بود).
+- مدل LLMEvalRun؛ CI فقط با FakeProvider؛ اجرای واقعی دستی.
+- هیچ جمله‌ای از golden را داخل پرامپت few-shot نگذار (نشت ارزیابی).
+
+## تعریف انجام‌شده
+- گزارش دقت اولیه و نهایی؛ رسیدن به آستانه یا توضیح شفاف چرایی نرسیدن.
+</code></pre></div>
+<hr />
+<h1 id="فاز-6-چاپ-و-رندر-هفته-13">فاز 6 — چاپ و رندر (هفته 13)</h1>
+<p>هدف: خروجی آماده‌ی چاپ و انتشار از هر فایل.</p>
+<h2 id="فاز-6-موتور-رندر-چاپ-تصویر-و-متن-آگهی">فاز 6 — موتور رندر، چاپ، تصویر و متن آگهی</h2>
+<p class="meta"><strong>هفته:</strong> 13 · <strong>پیش‌نیاز:</strong> فاز 1، 5A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+تولید خودکار برگه چاپی، پوستر، تصویر شبکه اجتماعی و متن آگهی از روی فایل.
+
+## بخش Specify (چه چیزی و چرا)
+- خروجی‌ها:
+  1. برگه فایل A4: مشخصات، عکس‌ها، QR، لوگو و شماره آژانس.
+  2. پوستر ویترین A3: عکس اصلی، قیمت درشت، QR.
+  3. کارت خلاصه‌ی چندفایل روی یک برگه (برای دادن به مراجعه‌کننده).
+  4. تصویر شبکه اجتماعی: 1080×1350 (پست)، 1080×1920 (استوری)، 1080×1080.
+  5. متن آگهی با AI در چند لحن (رسمی، کوتاه، مناسب دیوار) قابل ویرایش.
+- قالب برند هر آژانس: رنگ، لوگو، متن پایین، واترمارک.
+- دکمه چاپ و دانلود PDF/PNG از صفحه فایل؛ تاریخچه رندرها.
+- خروجی‌های عمومی هرگز اطلاعات مالک را ندارند؛ فقط برگه «داخلی» با مجوز نقش می‌تواند داشته باشد.
+
+## بخش Plan (قیود فنی)
+- RenderService با Playwright Chromium (HTML/CSS با Vazirmatn → PDF و PNG) در صف Celery جدا با concurrency محدود.
+- قالب‌ها Django template + CSS چاپ (@page)؛ QR با segno؛ واترمارک هنگام رندر روی نسخه وب عکس.
+- متن آگهی: LLMProvider با قاعده‌ی «فقط از داده‌های فایل استفاده کن؛ ویژگی یا ادعای ساختگی ننویس»؛ خروجی قابل ویرایش و با ثبت نسخه.
+- ذخیره خروجی در storage با لینک امضاشده.
+- تست: رندر هر سه قالب اصلی و مقایسه تصویری با تلورانس، فارسی و RTL و ارقام درست، نبود شماره مالک در خروجی عمومی.
+
+## تعریف انجام‌شده
+- از یک فایل، PDF A4 و پوستر A3 و تصویر پست در کمتر از 15 ثانیه؛ ظاهر تمیز و صحیح روی چاپ‌گر یا پیش‌نمایش.
+</code></pre></div>
+<hr />
+<h1 id="فاز-7-مرکز-انتشار-هفته-1416">فاز 7 — مرکز انتشار (هفته 14–16)</h1>
+<p>هدف: با یک کلیک (یا یک دستور صوتی) فایل روی کانال‌ها منتشر شود.</p>
+<h2 id="فاز-7A-هستهی-مرکز-انتشار">فاز 7A — هسته‌ی مرکز انتشار</h2>
+<p class="meta"><strong>هفته:</strong> 14 · <strong>پیش‌نیاز:</strong> فاز 6</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+معماری آداپتر انتشار، صف، لاگ و حالت کمکی، مستقل از هر کانال.
+
+## بخش Specify (چه چیزی و چرا)
+- «کانال» هر آژانس: نوع، حساب/توکن، وضعیت اتصال، راهنمای اتصال، تست اتصال.
+- «انتشار» فایل روی یک یا چند کانال: انتخاب قالب متن و تصویر، پیش‌نمایش دقیق آنچه منتشر می‌شود، زمان‌بندی، وضعیت (صف، ارسال‌شده، ناموفق، نیازمند اقدام دستی)، لینک انتشار، تلاش مجدد، ویرایش، حذف/به‌روزرسانی (مثلاً وقتی فایل «فروخته شد» می‌شود).
+- جلوگیری از انتشار تکراری.
+- قانون: انتشار عمومی فقط با اقدام صریح کاربر یا قانون خودکاری که خودش فعال کرده.
+- حالت کمکی برای کانال‌هایی که API ندارند: «بسته آماده انتشار» (متن، عکس‌ها، راهنمای گام‌به‌گام) با دکمه‌ی کپی و دانلود، و ثبت دستی لینک آگهی.
+
+## بخش Plan (قیود فنی)
+- interface Publisher: capabilities() (edit، delete، schedule، حداکثر رسانه، طول متن)، validate(listing)، publish()، update()، unpublish()، status().
+- مدل‌ها: Channel، Publication، PublicationAttempt. همه ارسال‌ها در Celery با retry و rate limit به‌ازای هر کانال.
+- پروکسی خروجی قابل‌تنظیم برای هر کانال.
+- idempotency key برای هر انتشار.
+- FakePublisher و contract test مشترک.
+- رویداد «وضعیت فایل عوض شد» → پیشنهاد به‌روزرسانی/حذف انتشارهای مرتبط (نه اجرای خودکار بی‌صدا).
+
+## تعریف انجام‌شده
+- با FakePublisher و حالت کمکی، چرخه‌ی کامل انتشار، شکست، تلاش مجدد و حذف تست شود.
+</code></pre></div>
+<h2 id="فاز-7B-تلگرام-و-بله">فاز 7B — تلگرام و بله</h2>
+<p class="meta"><strong>هفته:</strong> 15 · <strong>پیش‌نیاز:</strong> 7A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+انتشار در کانال تلگرام و بله.
+
+## بخش Specify (چه چیزی و چرا)
+- انتشار آلبوم عکس + کپشن؛ ویرایش کپشن و حذف پیام هنگام تغییر وضعیت فایل.
+- راهنمای اتصال داخل UI: ساخت ربات، افزودن ربات به‌عنوان ادمین کانال، وارد کردن توکن و شناسه کانال، «ارسال پیام آزمایشی».
+
+## بخش Plan (قیود فنی)
+- Bot API رسمی هر دو (مستندات رسمی را بخوان؛ بله شبیه تلگرام است ولی تفاوت‌ها را از مستندات تأیید کن، حدس نزن).
+- عملیات: ارسال عکس/آلبوم، ویرایش کپشن، حذف پیام؛ محدودیت طول کپشن و rate limit؛ پروکسی برای تلگرام.
+- تست با mock HTTP؛ تست تقسیم متن بلند؛ ذخیره message_id برای ویرایش/حذف.
+
+## تعریف انجام‌شده
+- انتشار، ویرایش و حذف روی یک کانال تست واقعی هر دو پیام‌رسان.
+</code></pre></div>
+<h2 id="فاز-7C-ایتا-و-روبیکا">فاز 7C — ایتا و روبیکا</h2>
+<p class="meta"><strong>هفته:</strong> 15–16 · <strong>پیش‌نیاز:</strong> 7A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+انتشار در کانال ایتا و روبیکا.
+
+## بخش Specify (چه چیزی و چرا)
+- همان قابلیت‌های 7B تا جایی که API رسمی پشتیبانی می‌کند.
+- برای عملیاتی که API ندارد، قابلیت در capabilities غیرفعال و حالت کمکی جایگزین شود، بدون خطای مبهم.
+
+## بخش Plan (قیود فنی)
+- مستندات رسمی ربات/API هر پلتفرم را بخوان و در docs/publishing/ خلاصه‌ی قابلیت‌های واقعی را بنویس.
+- آداپتر مستقل برای هر کدام؛ تست با mock؛ راهنمای اتصال در UI.
+
+## تعریف انجام‌شده
+- انتشار واقعی روی هر دو یا گزارش شفاف از محدودیت‌های API و فعال‌بودن حالت کمکی.
+</code></pre></div>
+<h2 id="فاز-7D-اینستاگرام">فاز 7D — اینستاگرام</h2>
+<p class="meta"><strong>هفته:</strong> 16 · <strong>پیش‌نیاز:</strong> 7A، 6</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+انتشار پست تک‌عکس/کاروسل و استوری در حساب Business/Creator آژانس.
+
+## بخش Specify (چه چیزی و چرا)
+- اتصال حساب با OAuth و نمایش وضعیت و انقضای توکن؛ انتشار پست، کاروسل و استوری؛ زمان‌بندی.
+- اگر اتصال ممکن یا مجاز نبود: حالت کمکی (دانلود تصویر با ابعاد درست + کپشن آماده + هشتگ‌های پیشنهادی).
+
+## بخش Plan (قیود فنی)
+- Instagram Graph API (Content Publishing) طبق مستندات رسمی جاری؛ پیش‌نیازها (حساب Business مرتبط با Page، App Review، توکن بلندمدت و تمدید) را در docs بنویس.
+- تصاویر باید روی URL عمومی HTTPS باشند → endpoint رسانه‌ی عمومی با لینک امضاشده و انقضای کوتاه.
+- محدودیت‌ها و خطاهای API را از مستندات بخوان و در capabilities بگذار؛ عدد حدسی ننویس.
+- تست با mock؛ تست تمدید توکن.
+
+## تعریف انجام‌شده
+- انتشار واقعی روی حساب تست یا مستندسازی روشن اینکه چه چیزی برای فعال شدن لازم است.
+</code></pre></div>
+<h2 id="فاز-7E-دیوار-و-شیپور">فاز 7E — دیوار و شیپور</h2>
+<p class="meta"><strong>هفته:</strong> 16 · <strong>پیش‌نیاز:</strong> 7A، 6</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+اکتشاف رسمی و ساخت بهترین مسیر ممکن برای دیوار و شیپور.
+
+## بخش Specify (چه چیزی و چرا)
+1. اکتشاف: وضعیت فعلی پلتفرم توسعه‌دهندگان/API رسمی هر دو سایت، شرایط دریافت دسترسی، دامنه دسته‌بندی‌ها و قابلیت‌ها (ساخت، ویرایش، حذف، تمدید). گزارش مکتوب در docs/publishing/divar-sheypoor-discovery.md با لینک منابع رسمی.
+2. اگر API رسمی قابل‌استفاده وجود دارد: آداپتر کامل (OAuth یا کلید) با نگاشت فیلدهای فایل به فرم آگهی هر دسته‌بندی.
+3. در غیر این صورت: حالت کمکی حرفه‌ای:
+   - «بسته آماده آگهی» متناسب با فیلدهای دسته‌بندی (اجاره/فروش آپارتمان، مغازه، ویلا، زمین …).
+   - جدول نگاشت فیلد↔فرم آگهی با دکمه‌ی کپی هر فیلد.
+   - دانلود عکس‌ها (zip)، ثبت لینک آگهی و یادآوری تمدید/انقضا.
+- در محدوده‌ی این فاز نیست: اسکرپینگ، ربات مرورگر و دور زدن captcha یا سیستم‌های ضدربات (ریسک مسدود شدن حساب مشاور و نقض قوانین سایت).
+
+## بخش Plan (قیود فنی)
+- ابتدا فقط اکتشاف و گزارش را انجام بده و نتیجه را در گزارش پایانی بیاور؛ سپس بر اساس نتیجه یکی از مسیرهای 2 یا 3 را پیاده‌سازی کن.
+- از همان interface Publisher فاز 7A استفاده کن.
+- تست: تولید بسته آگهی برای هر دسته‌بندی، نگاشت فیلدها، یادآوری تمدید.
+
+## تعریف انجام‌شده
+- گزارش اکتشاف کامل و مسیر انتخاب‌شده کار کند و با UI مرکز انتشار یکپارچه باشد.
+</code></pre></div>
+<hr />
+<h1 id="فاز-8-حسابداری-هفته-1718">فاز 8 — حسابداری (هفته 17–18)</h1>
+<p>هدف: حساب و کتاب آژانس، از معامله تا گزارش.</p>
+<h2 id="فاز-8A-معامله-کمیسیون-دفتر">فاز 8A — معامله، کمیسیون، دفتر</h2>
+<p class="meta"><strong>هفته:</strong> 17 · <strong>پیش‌نیاز:</strong> فاز 1، 2</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+ثبت معامله، محاسبه کمیسیون و دفتر حسابداری ساده اما دقیق.
+
+## بخش Specify (چه چیزی و چرا)
+- ثبت معامله از یک فایل و مراجعه‌کننده: نوع، مبلغ نهایی، تاریخ جلالی، طرفین، مشاوران و سهم هرکدام.
+- محاسبه کمیسیون با «نرخ‌نامه» قابل‌تنظیم آژانس (درصدی، ثابت، بر اساس اجاره یک ماه؛ سهم هر طرف؛ مالیات ارزش‌افزوده اختیاری). نرخ‌ها را hardcode نکن؛ آژانس خودش وارد می‌کند.
+- حساب‌ها (صندوق، بانک‌ها)، رسید دریافت و پرداخت با شماره ترتیبی و چاپ PDF (با موتور فاز 6).
+- هزینه‌های آژانس با دسته‌بندی (اجاره دفتر، تبلیغات، پیامک، …) و امکان نسبت‌دادن هزینه به یک فایل.
+- مطالبات و بدهی‌ها و وضعیت تسویه.
+- دسترسی فقط برای مالک و حسابدار.
+
+## بخش Plan (قیود فنی)
+- دفتر دوطرفه ساده: JournalEntry + JournalLine با constraint «جمع بدهکار = جمع بستانکار».
+- مبالغ BigInteger؛ درصدها Decimal با قاعده گرد کردن مستند و تست‌شده.
+- تغییرناپذیری: اصلاح فقط با سند معکوس؛ قفل دوره ماهانه (بستن ماه).
+- همه عملیات در AuditLog؛ transaction اتمیک.
+- تست: تراز همیشه صفر، گرد کردن، سهم مشاورها جمعاً 100٪، قفل ماه، مجوز نقش.
+
+## تعریف انجام‌شده
+- سناریو: معامله ← کمیسیون ← رسید دریافت ← تسویه؛ تراز آزمایشی درست.
+</code></pre></div>
+<h2 id="فاز-8B-گزارشها-و-تسویه-مشاور">فاز 8B — گزارش‌ها و تسویه مشاور</h2>
+<p class="meta"><strong>هفته:</strong> 18 · <strong>پیش‌نیاز:</strong> 8A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+گزارش‌های مالی و پرداخت سهم مشاورها.
+
+## بخش Specify (چه چیزی و چرا)
+- گزارش‌ها: درآمد کمیسیون ماهانه (کل و به تفکیک مشاور)، هزینه‌ها، سود و زیان ساده، مطالبات باز، تراز آزمایشی؛ فیلتر بازه جلالی.
+- سهم مشاور (payout): محاسبه، تسویه با رسید، تاریخچه.
+- اکسپورت Excel و PDF؛ داشبورد مالی با نمودار.
+
+## بخش Plan (قیود فنی)
+- aggregateهای سطح DB؛ کش برای گزارش‌های سنگین؛ openpyxl.
+- تست: جمع هر گزارش با دفتر می‌خواند؛ تست بازه‌های مرزی ماه جلالی (سال کبیسه).
+
+## تعریف انجام‌شده
+- گزارش‌ها با داده seed درست و سریع؛ اکسپورت باز شود و با UI یکی باشد.
+</code></pre></div>
+<hr />
+<h1 id="فاز-9-ایجنت-هوش-مصنوعی-هفته-1920">فاز 9 — ایجنت هوش مصنوعی (هفته 19–20)</h1>
+<p>هدف: همه‌ی قابلیت‌های سیستم با دستور متنی یا صوتی قابل انجام باشد، با کنترل انسانی.</p>
+<h2 id="فاز-9A-ابزارها-سیاست-و-امنیت-ایجنت">فاز 9A — ابزارها، سیاست و امنیت ایجنت</h2>
+<p class="meta"><strong>هفته:</strong> 19 · <strong>پیش‌نیاز:</strong> فازهای 1 تا 8، 5A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+یک ایجنت tool-calling که از همان سرویس‌های موجود استفاده کند و هرگز بدون کنترل، اقدام عمومی یا برگشت‌ناپذیر نکند.
+
+## بخش Specify (چه چیزی و چرا)
+- ابزارها (هر کدام روی سرویس موجود، بدون منطق تکراری):
+  - جستجوی فایل و درخواست («دو خوابه اجاره در سعادت‌آباد تا ۵ میلیارد ودیعه»).
+  - ساخت/ویرایش فایل و درخواست (از مسیر پیش‌نویس + تأیید).
+  - اجرای تطبیق و نمایش نتیجه.
+  - ارسال پیامک، انتشار روی کانال، ساخت پوستر/چاپ.
+  - ثبت معامله و رسید، خلاصه وضعیت روز.
+- سیاست اقدام:
+  - ابزار فقط‌خواندنی: مستقیم اجرا شود.
+  - ابزار نوشتنی: «کارت اقدام پیشنهادی» بسازد تا کاربر تأیید کند.
+  - ابزار خروجی (پیامک و انتشار): همیشه تأیید صریح، مگر قانون خودکار فعال‌شده توسط خود کاربر.
+- محدودیت نرخ؛ همه اقدام‌ها در AuditLog، نسبت‌داده به کاربر انسانی با برچسب «توسط دستیار».
+
+## بخش Plan (قیود فنی)
+- Tool registry با اسکیمای JSON و اعتبارسنجی Pydantic؛ اجرای هر ابزار با کاربر و آژانس فعلی و بررسی نقش (ایجنت هرگز بیش از خود کاربر دسترسی ندارد).
+- دفاع در برابر prompt injection:
+  - محتوای فایل‌ها، یادداشت‌ها، پیام‌ها و متن پیاده‌شده صوت فقط «داده» است و با delimiter مشخص داده می‌شود؛ هیچ دستوری از داخل آن اجرا نمی‌شود.
+  - ابزار خروجی بدون تأیید کاربر واقعی اجرا نمی‌شود.
+- سقف گام (مثلاً 8 tool call در هر نوبت) و بودجه توکن؛ idempotency key برای ابزارهای نوشتنی.
+- تست‌ها: ایزولاسیون tenant، تلاش injection داخل توضیح فایل («پیامک بفرست به همه…»)، ابزار ممنوع برای نقش، ابزار خروجی بدون تأیید، سقف گام.
+
+## تعریف انجام‌شده
+- همه تست‌های امنیتی سبز؛ مستند docs/agent-safety.md با سیاست و مدل تهدید.
+</code></pre></div>
+<h2 id="فاز-9B-رابط-گفتگو-صدا-و-پیشنهاد-فعال">فاز 9B — رابط گفتگو، صدا و پیشنهاد فعال</h2>
+<p class="meta"><strong>هفته:</strong> 20 · <strong>پیش‌نیاز:</strong> 9A، 5B</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+تجربه‌ی روان دستیار در UI.
+
+## بخش Specify (چه چیزی و چرا)
+- پنل دستیار (sheet روی موبایل، کناری روی دسکتاپ) با چت و ورودی صوتی؛ نمایش مرحله‌ای کارها (streaming)؛ کارت‌های اقدام با تأیید، ویرایش و رد؛ تاریخچه گفتگو؛ پیشنهادهای سریع.
+- حافظه کوتاه‌مدت گفتگو («همون فایل رو بزن دیوار»).
+- پیشنهاد فعال: «۳ تطبیق جدید برای آقای X؛ پیامک شود؟»؛ خلاصه شروع روز.
+- کارهای چندمرحله‌ای در پس‌زمینه (Celery) با اعلان پایان.
+
+## بخش Plan (قیود فنی)
+- SSE یا Channels برای streaming؛ مدل‌های Conversation، Message، ToolCall، ProposedAction.
+- خلاصه‌سازی تاریخچه برای صرفه‌جویی توکن.
+- ارزیابی: 30 سناریوی دستور فارسی با golden مثل 5D و آستانه پذیرش.
+- تست E2E با FakeProvider اسکریپتی.
+
+## تعریف انجام‌شده
+- دمو: «فایل‌های اجاره‌ی سعادت‌آباد رو بیار، بهترین رو برای کانال بله آماده کن» ← جستجو، پوستر، پیش‌نمایش انتشار و کارت تأیید.
+</code></pre></div>
+<hr />
+<h1 id="فاز-10-امنیت-استقرار-مستندات-هفته-2122">فاز 10 — امنیت، استقرار، مستندات (هفته 21–22)</h1>
+<h2 id="فاز-10A-امنیت-و-کارایی">فاز 10A — امنیت و کارایی</h2>
+<p class="meta"><strong>هفته:</strong> 21 · <strong>پیش‌نیاز:</strong> فاز 9</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+سخت‌سازی و اندازه‌گیری کارایی قبل از انتشار.
+
+## بخش Specify (چه چیزی و چرا)
+- مرور OWASP Top 10 روی کل پروژه؛ `check --deploy` بدون هشدار؛ CSP، HSTS، کوکی امن، rate limit روی ورود و OTP و فرم عمومی؛ اسکن سبک با ZAP baseline.
+- fuzz ایزولاسیون: همه URLهای پروژه با کاربر آژانس دیگر تست شود و هیچ داده‌ای نشت نکند.
+- ماتریس مجوز نقش‌ها کامل تست شود.
+- بررسی نشت PII در لاگ‌ها و پاسخ خطاها؛ بازبینی رمزنگاری اسرار.
+- کارایی: رفع N+1، ایندکس‌های لازم؛ تست بار با Locust (50 کاربر هم‌زمان، 20 هزار فایل، 10 هزار درخواست).
+- هدف‌ها: p95 صفحات اصلی زیر 500ms؛ تطبیق بعد از ثبت فایل زیر 5 ثانیه.
+
+## بخش Plan (قیود فنی)
+- گزارش مکتوب docs/security-review.md و docs/performance-report.md.
+- تست‌های نفوذ خودکار به CI اضافه شوند.
+
+## تعریف انجام‌شده
+- بدون یافته بحرانی باز؛ اهداف کارایی تأیید؛ گزارش‌ها تحویل.
+</code></pre></div>
+<h2 id="فاز-10B-استقرار-مانیتورینگ-مستندات-UAT">فاز 10B — استقرار، مانیتورینگ، مستندات، UAT</h2>
+<p class="meta"><strong>هفته:</strong> 22 · <strong>پیش‌نیاز:</strong> 10A</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+نسخه‌ی قابل استقرار، قابل پشتیبانی و آماده آزمون کاربران.
+
+## بخش Specify (چه چیزی و چرا)
+- استقرار production با Docker Compose: Nginx + TLS + Daphne، صف‌های جدا برای worker (default، ai، render، publish)، سقف حافظه Playwright.
+- پشتیبان‌گیری خودکار (pg_dump + media) با **تست بازیابی** مستند.
+- مانیتورینگ: health check، لاگ ساختاریافته، هشدار خطا (Sentry اختیاری)؛ چک‌لیست migration بدون downtime.
+- مستندات: راهنمای کاربر فارسی (با تصویر)، راهنمای مدیر آژانس، runbook فنی (خطاهای رایج، راه‌اندازی مجدد، بازیابی).
+- Onboarding wizard برای آژانس جدید (پنل پیامک، کانال‌ها، رنگ برند، ایمپورت فایل‌ها).
+- seed دمو و سناریوی UAT برای 10 مشاور آزمایشی.
+
+## بخش Plan (قیود فنی)
+- اسکریپت deploy و rollback؛ .env.example نهایی؛ مستند تنظیم پروکسی خروجی برای تلگرام/اینستاگرام/Gemini.
+- تست بازیابی روی یک سرور تمیز و گزارش زمان.
+
+## تعریف انجام‌شده
+- استقرار روی سرور تمیز فقط با README؛ بازیابی پشتیبان موفق؛ سناریوی UAT اجرا و نتایج ثبت شده.
+</code></pre></div>
+<hr />
+<h1 id="فاز-11-اختیاری-پلن-و-اشتراک-SaaS">فاز 11 (اختیاری) — پلن و اشتراک SaaS</h1>
+<p>بعد از تحویل و فقط اگر بخواهید به چند آژانس بفروشید.</p>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">## هدف
+تبدیل محصول به سرویس قابل فروش.
+
+## بخش Specify (چه چیزی و چرا)
+- پلن‌ها و سقف‌ها (تعداد کاربر، فایل، پیامک، مصرف AI، کانال‌های انتشار)، دوره آزمایشی، تمدید، غیرفعال‌سازی نرم در صورت عدم پرداخت.
+- پرداخت آنلاین با درگاه ایرانی (طبق مستندات رسمی درگاه انتخابی)، صورتحساب و تاریخچه پرداخت.
+- پنل سوپرادمین: مدیریت آژانس‌ها، پلن‌ها، مصرف، پشتیبانی (impersonation با ثبت در AuditLog و رضایت).
+- صفحه معرفی محصول.
+
+## بخش Plan (قیود فنی)
+- مدل Plan، Subscription، Invoice، UsageCounter؛ اعمال سقف در service layer (نه فقط UI).
+- تست: رسیدن به سقف، ارتقای پلن، پرداخت ناموفق، ایزولاسیون سوپرادمین.
+
+## تعریف انجام‌شده
+- ثبت‌نام آژانس جدید تا پرداخت و شروع کار بدون دخالت دستی.
+</code></pre></div>
+<hr />
+<h1 id="پیوستها">پیوست‌ها</h1>
+<h2 id="پیوست-A-پرامپت-بازبینی-بعد-از-هر-فاز">پیوست A — پرامپت بازبینی بعد از هر فاز</h2>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">[نقش: بازبین مستقل. کد نمی‌نویسی مگر برای رفع یافته‌ی بحرانی و فقط پس از تأیید من.]
+
+فاز {شماره فاز} را بازبینی کن.
+
+1. مواد Specify و «تعریف انجام‌شده» همین فاز را با کد واقعی مقایسه کن. برای هر ماده ✅ / ⚠️ / ❌ بده و مسیر فایل شاهد را بنویس.
+2. اجرا کن و خروجی را بیاور: make lint، make test، makemigrations --check، و check --deploy با تنظیمات prod.
+3. سناریوی دمو را قدم‌به‌قدم اجرا کن و نتیجه را بنویس.
+4. جست‌وجو کن: TODO/FIXME، کد مرده، کوئری بدون فیلتر آژانس، N+1، لاگ‌شدن داده حساس، اسرار در کد، کارهای بیرونی خارج از Celery، منطق کسب‌وکار داخل view.
+5. گیت: خروجی git log --oneline این شاخه را بیاور و بگو آیا هر کامیت قالب Conventional Commits را دارد، دانه‌بندی منطقی است (نه یک کامیت غول، نه کامیت شکسته)، و فایل‌های specs/ همین زیرفاز کامیت شده‌اند. هر کامیت غیراستاندارد را با پیام درستش پیشنهاد بده.
+6. مطمئن شو هیچ فایل حساسی (env، کلید، مدیا، دیتابیس) وارد ریپو نشده: git ls-files را چک کن.
+   اگر ابزارهای codebase-memory-mcp نصب است: detect_changes را روی diff این شاخه اجرا کن و بگو کدام بخش‌های خارج از این زیرفاز تحت تأثیر قرار گرفته‌اند؛ هر مورد خارج از محدوده را با دلیل فهرست کن.
+7. تطابق UI با دیزاین‌سیستم: RTL، جلالی، ارقام فارسی، موبایل، dark mode.
+8. خروجی: جدول یافته‌ها با شدت (بحرانی / مهم / جزئی) و پیشنهاد اصلاح. سپس منتظر تأیید من بمان.
+</code></pre></div>
+<h2 id="پیوست-B-پرامپت-رفع-اشکال">پیوست B — پرامپت رفع اشکال</h2>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">[بلوک زمینه مشترک را بالا بچسبان]
+
+باگ در فاز {شماره}:
+
+- نشانه (چه می‌بینم): …
+- مراحل بازتولید: …
+- انتظار: …
+- واقعیت: …
+- لاگ یا traceback: …
+
+روش کار:
+1. اول بازتولید کن و یک تست ناموفق (failing test) بنویس که باگ را نشان دهد.
+2. علت ریشه‌ای را پیدا کن و بنویس (نه فقط نشانه). اگر codebase-memory-mcp نصب است، با search_graph و trace_path مسیر فراخوانی تا محل خطا را دربیاور و callerهای تابع معیوب را هم چک کن.
+3. کمترین تغییر ممکن برای رفع را بده؛ refactor بی‌ربط ممنوع.
+4. تست ناموفق حالا سبز شود؛ کل مجموعه تست و lint را اجرا کن.
+5. اگر رفع تغییر رفتار یا اسکیما دارد صریح بگو.
+6. کامیت کن با قالب fix(&lt;scope&gt;): &lt;subject&gt; و فوتر Phase: &lt;شماره زیرفاز&gt;؛ تست بازتولید را در همان کامیت بگذار. سپس push کن.
+7. اگر بعد از 3 تلاش حل نشد، متوقف شو و فرضیه‌ها، آنچه رد شد و آنچه لازم است را گزارش بده.
+</code></pre></div>
+<h2 id="پیوست-C-پرامپت-هندآف-ادامه-در-جلسه-جدید">پیوست C — پرامپت هندآف (ادامه در جلسه جدید)</h2>
+<div class="prompt"><div class="prompt-bar"><span>متن قابل کپی</span><button type="button" class="copy">کپی</button></div><pre><code class="language-text">کار را برای ادامه در یک جلسه‌ی تازه آماده کن. فایل docs/HANDOFF.md را بنویس (یا به‌روز کن) با این بخش‌ها:
+1. فاز و زیرفاز جاری و درصد پیشرفت واقعی.
+2. آنچه کامل و تست‌شده است (با مسیر فایل).
+3. آنچه نیمه‌کاره است و دقیقاً کجا رها شد.
+4. تصمیم‌های گرفته‌شده و دلیل‌ها؛ چیزهایی که امتحان کردی و جواب نداد.
+5. تله‌ها و نکته‌های محیطی (نسخه‌ها، دستورها، env).
+6. وضعیت گیت: نام شاخه، آخرین کامیت‌ها، آیا پوش شده، PR باز دارد یا نه، و اینکه کدام فایل‌ها هنوز stage نشده‌اند.
+7. قدم‌های بعدی به ترتیب.
+8. دستورهای اجرا و تست.
+9. اگر codebase-memory-mcp نصب است: نام پروژه در گراف و وضعیت index_status را بنویس و تصمیم‌های معماری تازه را با manage_adr (set_sections) در ADR ثبت کن؛ HANDOFF.md فقط به آن ارجاع بدهد.
+کوتاه و دقیق بنویس؛ حدس و واقعیت را جدا کن.
+</code></pre></div>
+<h2 id="پیوست-D-قیچیکردن-دامنه-اگر-ددلاین-فشرده-شد">پیوست D — قیچی‌کردن دامنه اگر ددلاین فشرده شد</h2>
+<p>به ترتیب اولویت حذف یا سبک‌کردن (از راحت‌ترین شروع کنید):</p>
+<ol>
+<li>فاز 11 (SaaS) را حذف کنید (اصلاً در طرح اصلی نیست).</li>
+<li>7E: فقط حالت کمکی برای دیوار و شیپور، بدون تلاش برای API.</li>
+<li>7C و 7D: بعد از تحویل اول.</li>
+<li>9B: فقط چت ساده بدون پیشنهاد فعال و کارهای پس‌زمینه.</li>
+<li>8B: فقط گزارش کمیسیون ماهانه و اکسپورت Excel.</li>
+<li>6: فقط A4 و تصویر پست.</li>
+<li>1D: بدون ایمپورت Excel (اگر فایل قدیمی ندارید).</li>
+</ol>
+<p>هسته‌ای که نباید قیچی شود: فازهای 0 تا 5، 7A، 7B و 9A.</p>
+<h2 id="پیوست-E-چکلیست-تحویل-نهایی">پیوست E — چک‌لیست تحویل نهایی</h2>
+<ul>
+<li class="check"><input type="checkbox"> همه تگ‌های فاز در گیت و CI سبز؛ main سالم و قابل استقرار</li>
+<li class="check"><input type="checkbox"> همه کامیت‌ها طبق Conventional Commits و hook مرحله commit-msg فعال است</li>
+<li class="check"><input type="checkbox"> تاریخچه ریپو بدون فایل حساس (env، کلید، مدیا، دیتابیس) و بدون آرتیفکت <code>.codebase-memory/</code></li>
+<li class="check"><input type="checkbox"> ADR در codebase-memory-mcp با معماری نهایی به‌روز است و index تازه است</li>
+<li class="check"><input type="checkbox"> تست ایزولاسیون tenant و ماتریس مجوز سبز</li>
+<li class="check"><input type="checkbox"> دمو کامل: صدا ← پیش‌نویس ← تأیید ← تطبیق ← پیامک ← انتشار ← پوستر ← معامله ← گزارش</li>
+<li class="check"><input type="checkbox"> پیامک: رضایت، ساعت مجاز، سقف روزانه، لغو</li>
+<li class="check"><input type="checkbox"> هیچ اطلاعات مالک در خروجی عمومی نیست</li>
+<li class="check"><input type="checkbox"> ایجنت: هیچ اقدام خروجی بدون تأیید انجام نمی‌شود</li>
+<li class="check"><input type="checkbox"> بازیابی پشتیبان روی سرور تمیز آزموده شده</li>
+<li class="check"><input type="checkbox"> گزارش دقت 5D و آستانه‌ها ثبت شده</li>
+<li class="check"><input type="checkbox"> مستندات کاربر و runbook تحویل شده</li>
+<li class="check"><input type="checkbox"> وضعیت واقعی هر کانال انتشار (رسمی/کمکی) برای کاربر شفاف است</li>
+</ul>
+  </main>
+</div>
+<script>
+(function () {
+  // copy buttons
+  function fallbackCopy(t) {
+    var a = document.createElement('textarea');
+    a.value = t; a.style.position = 'fixed'; a.style.opacity = '0';
+    document.body.appendChild(a); a.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(a);
+  }
+  document.querySelectorAll('.prompt').forEach(function (box) {
+    var btn = box.querySelector('.copy');
+    btn.addEventListener('click', function () {
+      var t = box.querySelector('code').textContent;
+      var done = function () {
+        btn.textContent = 'کپی شد'; btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = 'کپی'; btn.classList.remove('ok'); }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(t).then(done, function () { fallbackCopy(t); done(); });
+      } else { fallbackCopy(t); done(); }
+    });
+  });
+
+  // phase progress, kept in the browser only
+  var KEY = 'ra-roadmap-done';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  var boxes = document.querySelectorAll('input.done');
+  var total = 31;
+  function refresh() {
+    var ids = {};
+    boxes.forEach(function (b) {
+      if (b.checked) ids[b.dataset.id] = 1;
+      b.closest('li').classList.toggle('is-done', b.checked);
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) {}
+    var n = Object.keys(ids).length;
+    var p = document.getElementById('progress');
+    p.textContent = n + ' از ' + total + ' زیرفاز انجام شده';
+  }
+  boxes.forEach(function (b) {
+    // both TOC copies share ids, keep them in sync
+    b.checked = !!saved[b.dataset.id];
+    b.addEventListener('change', function () {
+      boxes.forEach(function (o) { if (o.dataset.id === b.dataset.id) o.checked = b.checked; });
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}دعوت عضو جدید — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:520px;">
+  <nav class="breadcrumb">
+    <a href="{% url 'accounts:invite-list' %}">دعوت‌نامه‌ها</a>
+    <span> / </span>
+    <span>دعوت جدید</span>
+  </nav>
+
+  <div class="card">
+    <h1 style="font-size:1.25rem;font-weight:700;margin-bottom:1.25rem;">دعوت عضو جدید به آژانس</h1>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="phone">شماره موبایل (اختیاری)</label>
+        <input type="tel" id="phone" name="phone" class="form-control"
+               placeholder="09XXXXXXXXX — برای دعوت عمومی خالی بگذارید" dir="ltr">
+        <p class="form-hint">اگر خالی باشد، هر کسی با لینک می‌تواند عضو شود.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="role">نقش</label>
+        <select id="role" name="role" class="form-control">
+          {% for value, label in roles %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">ساخت لینک دعوت</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from .models import Agency, AgencyMember, Branch
+from .models import Agency, AgencyMember, Branch, Invitation
 
 # Use GISModelAdmin only when GDAL is available
 try:
@@ -34,3 +34,13 @@ class AgencyMemberAdmin(admin.ModelAdmin):
     list_filter = ["agency", "role"]
     search_fields = ["user__phone", "user__full_name"]
     readonly_fields = ["joined_at", "created_at", "updated_at"]
+
+
+@admin.register(Invitation)
+class InvitationAdmin(admin.ModelAdmin):
+    list_display = [
+        "id", "agency", "invited_by", "phone", "role", "is_used", "expires_at", "created_at",
+    ]
+    list_filter = ["agency", "role", "is_used"]
+    search_fields = ["phone", "agency__name"]
+    readonly_fields = ["token", "is_used", "used_by", "used_at", "created_at", "updated_at"]

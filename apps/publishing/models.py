@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.fields import EncryptedCharField
 from apps.core.models import AgencyOwned
 
-
 # ─── Choices ──────────────────────────────────────────────────────────────────
 
 

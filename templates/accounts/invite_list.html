@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}دعوت‌نامه‌ها — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:760px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <h1 class="page-title">دعوت‌نامه‌ها</h1>
+    <a href="{% url 'accounts:invite-create' %}" class="btn btn-primary">+ دعوت جدید</a>
+  </div>
+
+  {% if invites %}
+  <div style="display:grid;gap:.75rem;">
+    {% for inv in invites %}
+    <div class="card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span class="badge {% if inv.is_used %}badge-gray{% elif inv.is_valid %}badge-green{% else %}badge-red{% endif %}"
+            style="flex-shrink:0;min-width:5rem;text-align:center;">
+        {% if inv.is_used %}استفاده شد{% elif inv.is_valid %}فعال{% else %}منقضی{% endif %}
+      </span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:.9rem;">{{ inv.phone|default:"دعوت عمومی" }}</div>
+        <div style="font-size:.8rem;color:var(--text-muted);">
+          نقش: {{ inv.get_role_display }}
+          · ایجاد: {{ inv.created_at|date:"Y/m/d" }}
+          · انقضا: {{ inv.expires_at|date:"Y/m/d H:i" }}
+          {% if inv.used_by %} · استفاده‌کننده: {{ inv.used_by }}{% endif %}
+        </div>
+      </div>
+      {% if inv.is_valid %}
+      <button type="button" class="btn btn-ghost"
+              onclick="navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}{% url 'accounts:invite-accept' inv.token %}').then(()=>this.textContent='کپی شد ✓')"
+              style="flex-shrink:0;font-size:.8rem;">
+        کپی لینک
+      </button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:2.5rem 1rem;">
+    <p class="text-muted">هنوز دعوت‌نامه‌ای ارسال نشده است.</p>
+    <a href="{% url 'accounts:invite-create' %}" class="btn btn-primary" style="margin-top:1rem;">+ دعوت اول را بفرست</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

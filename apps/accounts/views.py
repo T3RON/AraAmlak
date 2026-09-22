@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model, login, logout
 from django.shortcuts import redirect, render
 
 from apps.accounts.otp import send_otp, verify_otp
+from apps.core.models import AuditAction, AuditLog
 
 User = get_user_model()
 
@@ -40,6 +41,12 @@ def otp_verify_view(request):
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             del request.session["otp_phone"]
             request.session.pop("debug_otp_code", None)
+            AuditLog.log(
+                actor=user,
+                agency=getattr(user, "agency", None),
+                action=AuditAction.LOGIN,
+                request=request,
+            )
             messages.success(request, f"خوش آمدید، {user.get_short_name()}!")
             return redirect("dashboard:home")
         messages.error(request, "کد نادرست یا منقضی شده است.")
@@ -53,5 +60,12 @@ def otp_verify_view(request):
 
 def logout_view(request):
     """Log out and redirect to login."""
+    if request.user.is_authenticated:
+        AuditLog.log(
+            actor=request.user,
+            agency=getattr(request.user, "agency", None),
+            action=AuditAction.LOGOUT,
+            request=request,
+        )
     logout(request)
     return redirect("accounts:login")
