@@ -183,6 +183,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/30"),
         "options": {"expires": 60 * 20},
     },
+    "messaging-send-renewal-reminders": {
+        "task": "apps.messaging.tasks.send_renewal_reminders",
+        "schedule": crontab(hour="9", minute="0"),
+        "options": {"expires": 60 * 30},
+    },
 }
 
 # ─── Logging ──────────────────────────────────────────────────────────────────

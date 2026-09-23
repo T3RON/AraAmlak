@@ -17,6 +17,8 @@ urlpatterns = [
     path("matching/", include("apps.matching.urls")),
     # Publishing (انتشار به پورتال)
     path("publishing/", include("apps.publishing.urls")),
+    # Messaging (پیامک — فرم عمومی، لغو، تمدید)
+    path("messaging/", include("apps.messaging.urls")),
     # App views (dashboard, health, home)
     path("", include("apps.core.urls")),
     path("", include("apps.dashboard.urls")),

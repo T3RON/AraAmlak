@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}ثبت نیازمندی — {{ agency.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 px-4">
+  <div class="text-center mb-8">
+    {% if agency.logo %}
+      <img src="{{ agency.logo.url }}" alt="{{ agency.name }}" class="h-14 mx-auto mb-3 rounded-xl">
+    {% endif %}
+    <h1 class="text-2xl font-bold">{{ agency.name }}</h1>
+    <p class="text-muted-foreground mt-1">{% trans "نیازمندی خود را ثبت کنید" %}</p>
+  </div>
+
+  <form method="post" class="space-y-4 bg-white rounded-2xl shadow-sm border p-6">
+    {% csrf_token %}
+    <input type="hidden" name="step" value="1">
+
+    {# Honeypot field — hidden from humans #}
+    <div class="hidden">
+      <label for="website">Website</label>
+      <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "نام و نام خانوادگی" %} <span class="text-red-500">*</span></label>
+      <input type="text" name="name" required
+             class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="علی محمدی">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "شماره موبایل" %} <span class="text-red-500">*</span></label>
+      <input type="tel" name="phone" required dir="ltr"
+             class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="09121234567">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "نوع معامله" %}</label>
+      <select name="deal_type" class="w-full border rounded-lg px-3 py-2 text-sm">
+        <option value="">{% trans "انتخاب کنید" %}</option>
+        {% for val, label in deal_types %}
+          <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "نوع ملک" %}</label>
+      <div class="flex flex-wrap gap-2">
+        {% for val, label in property_types %}
+          <label class="flex items-center gap-1 text-sm">
+            <input type="checkbox" name="property_types" value="{{ val }}"> {{ label }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "حداقل متراژ (م‌م)" %}</label>
+        <input type="number" name="min_area" min="0"
+               class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="70">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "حداکثر متراژ (م‌م)" %}</label>
+        <input type="number" name="max_area" min="0"
+               class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="150">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "حداقل بودجه (تومان)" %}</label>
+        <input type="number" name="min_budget" min="0"
+               class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="1000000000">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">{% trans "حداکثر بودجه (تومان)" %}</label>
+        <input type="number" name="max_budget" min="0"
+               class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="3000000000">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "توضیحات (اختیاری)" %}</label>
+      <textarea name="notes" rows="2"
+                class="w-full border rounded-lg px-3 py-2 text-sm resize-none"
+                placeholder="هر نکته‌ای که باید بدانیم..."></textarea>
+    </div>
+
+    <div class="flex items-start gap-2 pt-1">
+      <input type="checkbox" name="consent" id="consent" value="1" required
+             class="mt-1 accent-primary">
+      <label for="consent" class="text-sm text-muted-foreground leading-snug">
+        {% trans "رضایت می‌دهم که آژانس" %} <strong>{{ agency.name }}</strong>
+        {% trans "در صورت یافتن ملک مناسب، از طریق پیامک با من در ارتباط باشد. می‌توانم هر زمان لغو عضویت کنم." %}
+      </label>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-primary text-white font-semibold py-2.5 rounded-xl hover:opacity-90 transition">
+      {% trans "ارسال کد تأیید" %}
+    </button>
+  </form>
+</div>
+{% endblock %}

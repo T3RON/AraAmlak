@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}تأیید شماره — {{ agency.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto mt-10 px-4">
+  <div class="text-center mb-8">
+    <h1 class="text-xl font-bold">{% trans "تأیید شماره موبایل" %}</h1>
+    <p class="text-muted-foreground mt-1 text-sm">
+      {% trans "کد ۶ رقمی به شماره" %} <span dir="ltr">{{ phone_masked }}</span> {% trans "ارسال شد." %}
+    </p>
+  </div>
+
+  <form method="post" class="bg-white rounded-2xl shadow-sm border p-6 space-y-4">
+    {% csrf_token %}
+    <input type="hidden" name="step" value="2">
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div>
+      <label class="block text-sm font-medium mb-1">{% trans "کد تأیید" %}</label>
+      <input type="text" name="otp_code" required maxlength="6" dir="ltr" autofocus
+             class="w-full border rounded-lg px-3 py-2 text-center text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="۱۲۳۴۵۶" inputmode="numeric">
+    </div>
+
+    <button type="submit"
+            class="w-full bg-primary text-white font-semibold py-2.5 rounded-xl hover:opacity-90 transition">
+      {% trans "تأیید و ثبت" %}
+    </button>
+  </form>
+
+  <p class="text-center text-sm text-muted-foreground mt-4">
+    <a href="{% url 'messaging:public_subscribe' agency_slug=agency.slug %}" class="text-primary">
+      {% trans "ویرایش اطلاعات" %}
+    </a>
+  </p>
+</div>
+{% endblock %}

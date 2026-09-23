@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}ثبت موفق — {{ agency.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto mt-20 px-4 text-center">
+  <div class="text-5xl mb-4">✅</div>
+  <h1 class="text-xl font-bold">{% trans "نیازمندی شما با موفقیت ثبت شد" %}</h1>
+  <p class="text-muted-foreground mt-3 text-sm leading-relaxed">
+    {% blocktrans with name=agency.name %}
+      آژانس {{ name }} به محض یافتن ملک مناسب با شما تماس خواهد گرفت.
+    {% endblocktrans %}
+  </p>
+  <p class="mt-6 text-xs text-muted-foreground">
+    {% trans "برای لغو دریافت پیامک، روی لینک موجود در پیامک‌ها کلیک کنید." %}
+  </p>
+</div>
+{% endblock %}

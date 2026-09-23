@@ -26,4 +26,17 @@ def run_matching_for_request(self, request_id: int) -> dict:
     from apps.matching.services import find_matches
 
     matches = find_matches(crm_request)
+
+    # Phase 4B: trigger notification policy for each new/updated match
+    if matches:
+        from apps.messaging.notification_policy import process_match_notification
+
+        for match in matches:
+            try:
+                process_match_notification(match)
+            except Exception as exc:  # noqa: BLE001
+                logger.error(
+                    "process_match_notification failed for match %s: %s", match.pk, exc
+                )
+
     return {"status": "ok", "request_id": request_id, "match_count": len(matches)}

@@ -1,28 +1,41 @@
 """
 Celery tasks for the accounts app.
 
-SMS sending is a stub in phase 1.
-Real SMS provider integration (with official API docs) is deferred to a later phase.
+Phase 4A: OTP SMS is now sent via the messaging app's provider infrastructure.
+For agencies without a config, the ConsoleSMSProvider is used as fallback.
 """
 
 import logging
+
+from django.core.cache import cache
 
 from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
+_OTP_PREFIX = "otp:"
 
-@shared_task(name="accounts.send_otp_sms")
+
+@shared_task(name="accounts.send_otp_sms", max_retries=3, acks_late=True)
 def send_otp_sms_task(phone: str) -> None:
     """
     Send OTP SMS to the given phone number.
 
-    STUB: In phase 1, this task only logs that it would send an SMS.
-    The actual OTP code is NOT passed to this task — it is read from
-    Redis inside the SMS provider client (to be implemented in a later phase).
-
-    Phase 2 will read official SMS provider API docs and implement this properly.
+    Reads the hashed OTP from Redis (stored by otp.send_otp()) and sends it
+    via the ConsoleSMSProvider (no agency context for OTP — use console/fallback).
     """
-    # Log only last 4 digits — never log the full phone in production
-    logger.info("SMS OTP task triggered for phone ending in ...%s", phone[-4:])
-    # TODO(phase-2): Implement real SMS provider call here
+    from apps.messaging.providers.console import ConsoleSMSProvider
+
+    code = cache.get(f"{_OTP_PREFIX}{phone}")
+    if code is None:
+        logger.warning("send_otp_sms_task: OTP already expired for phone ...%s", phone[-4:])
+        return
+
+    provider = ConsoleSMSProvider()
+    try:
+        body = f"کد تأیید آرا املاک: {code}"
+        provider.send(to=phone, text=body)
+        logger.info("OTP SMS sent for phone ending ...%s", phone[-4:])
+    except Exception as exc:
+        logger.error("OTP SMS send failed for ...%s: %s", phone[-4:], exc)
+        raise
