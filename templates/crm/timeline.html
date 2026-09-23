@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}تایم‌لاین — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">تایم‌لاین تعاملات</h1>
+      <p class="page-sub">{{ page_obj.paginator.count|fa_number }} رویداد</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('interaction-form').classList.toggle('hidden')">+ ثبت رویداد</button>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="filters">
+    <select name="kind" class="form-control" style="width:auto;" onchange="this.form.submit()">
+      <option value="">همه نوع‌ها</option>
+      {% for val, label in kind_choices %}
+        <option value="{{ val }}" {% if val == current_kind %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% if request.GET %}
+      <a href="{% url 'crm:timeline' %}" class="btn" style="color:var(--red)">× پاک‌کردن</a>
+    {% endif %}
+  </form>
+
+  <!-- Quick add -->
+  <form id="interaction-form" method="post" action="{% url 'crm:timeline_add' %}" class="hidden card space-y-3">
+    {% csrf_token %}
+    <input type="hidden" name="back" value="{% url 'crm:timeline' %}">
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <select name="kind" class="form-control" style="flex:1;min-width:140px;">
+        {% for val, label in kind_choices %}
+          <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input name="contact" placeholder="آی‌دی مخاطب" class="form-control" style="width:120px;">
+      <input name="listing" placeholder="آی‌دی فایل" class="form-control" style="width:120px;">
+      <input name="crm_request" placeholder="آی‌دی درخواست" class="form-control" style="width:120px;">
+    </div>
+    <input name="summary" placeholder="خلاصه رویداد…" class="form-control" required>
+    <textarea name="detail" placeholder="جزئیات…" class="form-control" rows="2"></textarea>
+    <button class="btn btn-primary" type="submit">ثبت</button>
+  </form>
+
+  {% if interactions %}
+  <div class="space-y-2">
+    {% for it in interactions %}
+    <div class="list-item" style="display:flex;gap:.75rem;align-items:flex-start;">
+      <span class="badge {% if it.kind == 'call' %}badge-blue{% elif it.kind == 'sms' %}badge-green{% elif it.kind == 'visit' %}badge-purple{% elif it.kind == 'status_change' %}badge-orange{% else %}badge-gray{% endif %}" style="flex:none;">
+        {{ it.get_kind_display }}
+      </span>
+      <div style="flex:1;min-width:0;">
+        <div class="font-medium text-sm">{{ it.summary }}</div>
+        {% if it.detail %}<p class="text-xs text-muted" style="margin-top:.15rem;">{{ it.detail }}</p>{% endif %}
+        <p class="text-xs text-muted" style="margin-top:.25rem;">
+          {{ it.occurred_at|date:"y/m/d H:i" }}
+          {% if it.performed_by %} · {{ it.performed_by.get_full_name }}{% endif %}
+          {% if it.contact %} · <a href="{% url 'crm:update' it.contact.pk %}" class="text-accent">مخاطب</a>{% endif %}
+          {% if it.listing %} · <a href="{% url 'listings:detail' it.listing.pk %}" class="text-accent">فایل</a>{% endif %}
+          {% if it.request %} · <a href="{% url 'crm:update' it.request.pk %}" class="text-accent">درخواست</a>{% endif %}
+        </p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}
+    <span>{{ page_obj.number|fa_number }} / {{ page_obj.paginator.num_pages|fa_number }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🕘</div>
+    <p class="font-medium">هنوز رویدادی ثبت نشده است.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

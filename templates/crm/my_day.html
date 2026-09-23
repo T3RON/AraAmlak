@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}امروز من — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">امروز من</h1>
+      <p class="page-sub">{{ user.get_full_name }}</p>
+    </div>
+    <a href="{% url 'crm:tasks' %}" class="btn">همه وظایف</a>
+  </div>
+
+  <!-- Overdue tasks -->
+  <section class="card">
+    <h2 class="font-bold text-lg" style="color:var(--red);">سررسیدشده</h2>
+    {% if overdue_tasks %}
+    <div class="space-y-2" style="margin-top:.75rem;">
+      {% for task in overdue_tasks %}
+      <div class="list-item" style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;">
+        <div>
+          <span class="font-medium text-sm">{{ task.title }}</span>
+          <p class="text-xs text-muted" style="margin-top:.15rem;">موعد: {{ task.due_at|date:"y/m/d H:i" }}</p>
+        </div>
+        <button class="btn text-xs" style="color:var(--green)"
+                hx-post="{% url 'crm:task_toggle' task.pk %}"
+                hx-target="#task-{{ task.pk }}"
+                hx-swap="none">✓</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted" style="margin-top:.5rem;">وظیفه سررسیدشده‌ای ندارید.</p>
+    {% endif %}
+  </section>
+
+  <!-- Today tasks -->
+  <section class="card">
+    <h2 class="font-bold text-lg">وظایف امروز</h2>
+    {% if today_tasks %}
+    <div class="space-y-2" style="margin-top:.75rem;">
+      {% for task in today_tasks %}
+      <div class="list-item" style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;">
+        <div>
+          <span class="font-medium text-sm">{{ task.title }}</span>
+          <p class="text-xs text-muted" style="margin-top:.15rem;">موعد: {{ task.due_at|date:"y/m/d H:i" }}</p>
+        </div>
+        <button class="btn text-xs" style="color:var(--green)"
+                hx-post="{% url 'crm:task_toggle' task.pk %}"
+                hx-target="#task-{{ task.pk }}"
+                hx-swap="none">✓</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted" style="margin-top:.5rem;">برای امروز وظیفه‌ای ثبت نشده است.</p>
+    {% endif %}
+  </section>
+
+  <!-- Today visits -->
+  <section class="card">
+    <h2 class="font-bold text-lg">بازدیدهای امروز</h2>
+    {% if today_visits %}
+    <div class="space-y-2" style="margin-top:.75rem;">
+      {% for visit in today_visits %}
+      <div class="list-item" style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;">
+        <div>
+          <a href="{% url 'listings:detail' visit.listing.pk %}" class="font-medium text-sm text-accent">{{ visit.listing }}</a>
+          <p class="text-xs text-muted" style="margin-top:.15rem;">{{ visit.contact }} · {{ visit.scheduled_at|date:"H:i" }}</p>
+        </div>
+        <span class="badge {% if visit.status == 'completed' %}badge-green{% else %}badge-blue{% endif %}">
+          {{ visit.get_status_display }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted" style="margin-top:.5rem;">بازدیدی برای امروز ندارید.</p>
+    {% endif %}
+  </section>
+
+  <!-- Recent notifications -->
+  {% if unread_notifications %}
+  <section class="card">
+    <h2 class="font-bold text-lg">اعلان‌های اخیر</h2>
+    <div class="space-y-2" style="margin-top:.75rem;">
+      {% for notif in unread_notifications %}
+      <div class="list-item">
+        <span class="font-medium text-sm">{{ notif.title }}</span>
+        {% if notif.body %}<p class="text-xs text-muted" style="margin-top:.15rem;">{{ notif.body }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div style="margin-top:.75rem;">
+      <form method="post" action="{% url 'crm:notifications_mark_read' %}">
+        {% csrf_token %}
+        <button class="btn text-sm" type="submit">خواندن همه</button>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

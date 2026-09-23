@@ -1,0 +1,26 @@
+<tr id="visit-{{ visit.pk }}" style="vertical-align: top;">
+  <td><a href="{% url 'listings:detail' visit.listing.pk %}" class="text-accent">{{ visit.listing }}</a></td>
+  <td>{{ visit.contact }}</td>
+  <td>{{ visit.scheduled_at|date:"y/m/d H:i" }}</td>
+  <td>
+    <span class="badge {% if visit.status == 'completed' %}badge-green{% elif visit.status == 'cancelled' %}badge-gray{% elif visit.status == 'no_show' %}badge-red{% else %}badge-blue{% endif %}">
+      {{ visit.get_status_display }}
+    </span>
+    {% if visit.outcome and visit.outcome != 'none' %}
+      <div class="text-xs text-muted" style="margin-top:.2rem;">{{ visit.get_outcome_display }}</div>
+    {% endif %}
+  </td>
+  <td>
+    {% if visit.status == 'scheduled' %}
+    <button class="btn btn-primary text-xs"
+            hx-post="{% url 'crm:visit_complete' visit.pk %}"
+            hx-target="#visit-{{ visit.pk }}"
+            hx-swap="outerHTML"
+            onclick="this.disabled = true;">
+      ثبت نتیجه
+    </button>
+    {% else %}
+    <span class="text-xs text-muted">{% if visit.completed_at %}{{ visit.completed_at|date:"y/m/d H:i" }}{% endif %}</span>
+    {% endif %}
+  </td>
+</tr>

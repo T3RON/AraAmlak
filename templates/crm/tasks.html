@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}وظایف — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">وظایف</h1>
+      <p class="page-sub">{{ page_obj.paginator.count|fa_number }} وظیفه</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('task-form').classList.toggle('hidden')">+ ثبت وظیفه</button>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="filters">
+    <select name="status" class="form-control" style="width:auto;" onchange="this.form.submit()">
+      <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>در انتظار</option>
+      <option value="done" {% if current_status == 'done' %}selected{% endif %}>انجام‌شده</option>
+      <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>لغوشده</option>
+    </select>
+  </form>
+
+  <!-- Quick add -->
+  <form id="task-form" method="post" action="{% url 'crm:task_create' %}" class="hidden card space-y-3">
+    {% csrf_token %}
+    <input type="hidden" name="back" value="{% url 'crm:tasks' %}">
+    <input name="title" placeholder="عنوان وظیفه…" class="form-control" required>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <input name="assignee" placeholder="آی‌دی مسئول" class="form-control" style="width:120px;" required>
+      <input name="due_at" type="datetime-local" class="form-control" style="flex:1;min-width:160px;" required>
+      <select name="priority" class="form-control" style="width:auto;">
+        <option value="normal">معمولی</option>
+        <option value="high">بالا</option>
+        <option value="low">کم</option>
+      </select>
+    </div>
+    <textarea name="description" placeholder="توضیحات…" class="form-control" rows="2"></textarea>
+    <button class="btn btn-primary" type="submit">ثبت</button>
+  </form>
+
+  {% if tasks %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>عنوان</th><th>مسئول</th><th>موعد</th><th>اولویت</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+          {% include "crm/partials/task_row.html" %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}
+    <span>{{ page_obj.number|fa_number }} / {{ page_obj.paginator.num_pages|fa_number }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">✅</div>
+    <p class="font-medium">وظیفه‌ای در این حالت وجود ندارد.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

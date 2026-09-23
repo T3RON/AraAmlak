@@ -1,0 +1,30 @@
+<tr id="task-{{ task.pk }}" style="vertical-align: top;">
+  <td>
+    <span class="{% if task.status == 'done' %}line-through text-muted{% endif %}">{{ task.title }}</span>
+    {% if task.description %}<p class="text-xs text-muted" style="margin-top:.15rem;">{{ task.description }}</p>{% endif %}
+  </td>
+  <td class="text-sm">{{ task.assignee.get_full_name }}</td>
+  <td class="text-sm">
+    {{ task.due_at|date:"y/m/d H:i" }}
+    {% if task.status == 'pending' and task.due_at < now %}
+      <span class="badge badge-red" style="margin-right:.25rem;">سررسیده</span>
+    {% endif %}
+  </td>
+  <td>
+    <span class="badge {% if task.priority == 'high' %}badge-orange{% elif task.priority == 'normal' %}badge-blue{% else %}badge-gray{% endif %}">
+      {{ task.get_priority_display }}
+    </span>
+  </td>
+  <td>
+    {% if task.status == 'pending' %}
+    <button class="btn text-xs" style="color:var(--green)"
+            hx-post="{% url 'crm:task_toggle' task.pk %}"
+            hx-target="#task-{{ task.pk }}"
+            hx-swap="outerHTML">
+      ✓ انجام شد
+    </button>
+    {% else %}
+    <span class="badge badge-green">{{ task.get_status_display }}</span>
+    {% endif %}
+  </td>
+</tr>
