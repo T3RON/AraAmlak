@@ -183,6 +183,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/30"),
         "options": {"expires": 60 * 20},
     },
+    "messaging-poll-sms-statuses": {
+        "task": "apps.messaging.tasks.poll_sms_statuses",
+        "schedule": crontab(minute="*/10"),
+        "options": {"expires": 60 * 8},
+    },
 }
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
@@ -235,6 +240,23 @@ SPECTACULAR_SETTINGS = {
 OTP_TTL_SECONDS = 120
 OTP_MAX_ATTEMPTS = 5
 OTP_CODE_LENGTH = 6
+
+# ─── SMS (phase 4A) ───────────────────────────────────────────────────────────
+# Provider names: console | fake | kavenegar | melipayamak
+SMS_DEFAULT_PROVIDER = env("SMS_DEFAULT_PROVIDER", default="console")
+SMS_OTP_PROVIDER = env("SMS_OTP_PROVIDER", default="console")
+SMS_OTP_FALLBACK_PROVIDER = env("SMS_OTP_FALLBACK_PROVIDER", default="")
+SMS_PLATFORM_CREDENTIALS = {
+    "kavenegar": {
+        "api_key": env("KAVENEGAR_API_KEY", default=""),
+        "sender": env("KAVENEGAR_SENDER", default=""),
+    },
+    "melipayamak": {
+        "username": env("MELIPAYAMAK_USERNAME", default=""),
+        "password": env("MELIPAYAMAK_PASSWORD", default=""),
+        "sender": env("MELIPAYAMAK_SENDER", default=""),
+    },
+}
 
 # ─── Encryption ───────────────────────────────────────────────────────────────
 # Fernet key for encrypted fields — must be a valid Fernet key (URL-safe base64, 32 bytes)
