@@ -109,6 +109,53 @@
   <!-- Media section (Phase 1C) -->
   {% include "listings/partials/media_upload.html" with listing=listing media_list=media_list %}
 
+  <!-- Visits (Phase 2B) -->
+  <section class="card">
+    <h2 class="form-section-title">بازدیدها</h2>
+    {% if visits %}
+    <div class="table-wrap" style="margin-top:.75rem;">
+      <table>
+        <thead><tr><th>مراجعه‌کننده</th><th>زمان قرار</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody>
+          {% for v in visits %}
+            {% include "crm/partials/visit_row.html" %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-muted" style="margin-top:.5rem;">هنوز بازدیدی ثبت نشده است.</p>
+    {% endif %}
+  </section>
+
+  <!-- Timeline (Phase 2B) -->
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 class="form-section-title">تایم‌لاین</h2>
+      <a href="{% url 'crm:timeline' %}?listing={{ listing.pk }}" class="text-sm text-accent">همه</a>
+    </div>
+    {% if interactions %}
+    <div class="space-y-2" style="margin-top:.75rem;">
+      {% for it in interactions %}
+      <div class="list-item" style="display:flex;gap:.75rem;align-items:flex-start;">
+        <span class="badge {% if it.kind == 'call' %}badge-blue{% elif it.kind == 'sms' %}badge-green{% elif it.kind == 'visit' %}badge-purple{% elif it.kind == 'status_change' %}badge-orange{% else %}badge-gray{% endif %}" style="flex:none;">
+          {{ it.get_kind_display }}
+        </span>
+        <div style="flex:1;min-width:0;">
+          <div class="font-medium text-sm">{{ it.summary }}</div>
+          <p class="text-xs text-muted" style="margin-top:.15rem;">
+            {{ it.occurred_at|date:"y/m/d H:i" }}
+            {% if it.performed_by %} · {{ it.performed_by.get_full_name }}{% endif %}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted" style="margin-top:.5rem;">رویدادی برای این فایل ثبت نشده است.</p>
+    {% endif %}
+  </section>
+
   <!-- Actions -->
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem;">
     <a href="{% url 'listings:update' listing.pk %}" class="btn btn-primary">ویرایش فایل</a>

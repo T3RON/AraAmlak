@@ -60,10 +60,17 @@ class ListingDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        from apps.crm.services import get_timeline
         from apps.listings.models import Media  # noqa: PLC0415
+
         ctx["media_list"] = Media.objects.filter(
             listing=self.object
         ).order_by("order", "created_at")
+        # Phase 2B: timeline + upcoming visits on the listing detail page.
+        ctx["interactions"] = get_timeline(listing=self.object)[:20]
+        ctx["visits"] = self.object.visits.select_related(
+            "contact", "agent"
+        ).order_by("-scheduled_at")[:10]
         return ctx
 
 
