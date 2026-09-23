@@ -401,3 +401,299 @@ class Request(AgencyOwned):
             from datetime import timedelta
             self.expires_at = timezone.now() + timedelta(days=60)
         super().save(*args, **kwargs)
+
+
+# ─── Interaction / Timeline (تایم‌لاین) ────────────────────────────────────────
+
+
+class InteractionKind(models.TextChoices):
+    CALL = "call", _("تماس")
+    SMS = "sms", _("پیامک")
+    NOTE = "note", _("یادداشت")
+    STATUS_CHANGE = "status_change", _("تغییر وضعیت")
+    VISIT = "visit", _("بازدید")
+    OTHER = "other", _("سایر")
+
+
+class Interaction(AgencyOwned):
+    """
+    A single engagement touch-point on the CRM timeline.
+
+    Attached to at least one of: contact, listing, request (enforced by DB constraint).
+    ContentType/GenericFK is intentionally avoided — explicit nullable FKs keep the
+    timeline SQL-friendly and tenant-safe.
+    """
+
+    kind = models.CharField(
+        _("نوع رویداد"),
+        max_length=20,
+        choices=InteractionKind.choices,
+        default=InteractionKind.NOTE,
+        db_index=True,
+    )
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="interactions",
+        verbose_name=_("مخاطب"),
+    )
+    listing = models.ForeignKey(
+        "listings.Listing",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="interactions",
+        verbose_name=_("فایل"),
+    )
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="interactions",
+        verbose_name=_("درخواست"),
+    )
+    summary = models.CharField(_("خلاصه"), max_length=200)
+    detail = models.TextField(_("جزئیات"), blank=True)
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="crm_interactions",
+        verbose_name=_("ثبت‌کننده"),
+    )
+    occurred_at = models.DateTimeField(_("زمان رویداد"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("تعامل")
+        verbose_name_plural = _("تایم‌لاین تعاملات")
+        ordering = ["-occurred_at"]
+        indexes = [
+            models.Index(fields=["agency", "occurred_at"]),
+            models.Index(fields=["agency", "contact", "occurred_at"]),
+            models.Index(fields=["agency", "listing", "occurred_at"]),
+            models.Index(fields=["agency", "request", "occurred_at"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(contact__isnull=False)
+                    | models.Q(listing__isnull=False)
+                    | models.Q(request__isnull=False)
+                ),
+                name="interaction_has_at_least_one_target",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_kind_display()} — {self.summary} ({self.occurred_at:%Y-%m-%d %H:%M})"
+
+
+# ─── Visit (بازدید) ─────────────────────────────────────────────────────────────
+
+
+class VisitStatus(models.TextChoices):
+    SCHEDULED = "scheduled", _("قرار‌گذاشته")
+    COMPLETED = "completed", _("انجام‌شده")
+    CANCELLED = "cancelled", _("لغوشده")
+    NO_SHOW = "no_show", _("حاضر نشد")
+
+
+class VisitOutcome(models.TextChoices):
+    INTERESTED = "interested", _("علاقه‌مند")
+    REJECTED = "rejected", _("رد کرد")
+    THINKING = "thinking", _("در حال فکر کردن")
+    NONE = "none", _("نامشخص")
+
+
+class Visit(AgencyOwned):
+    """A property visit linking a Listing with a Contact (مراجعه‌کننده)."""
+
+    listing = models.ForeignKey(
+        "listings.Listing",
+        on_delete=models.CASCADE,
+        related_name="visits",
+        verbose_name=_("فایل"),
+    )
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.CASCADE,
+        related_name="visits",
+        verbose_name=_("مراجعه‌کننده"),
+    )
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="visits",
+        verbose_name=_("درخواست مرتبط"),
+    )
+    scheduled_at = models.DateTimeField(_("زمان قرار"), db_index=True)
+    completed_at = models.DateTimeField(_("زمان انجام"), null=True, blank=True)
+    status = models.CharField(
+        _("وضعیت"),
+        max_length=20,
+        choices=VisitStatus.choices,
+        default=VisitStatus.SCHEDULED,
+        db_index=True,
+    )
+    outcome = models.CharField(
+        _("نتیجه"),
+        max_length=20,
+        choices=VisitOutcome.choices,
+        default=VisitOutcome.NONE,
+        blank=True,
+    )
+    note = models.TextField(_("یادداشت"), blank=True)
+    agent = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="conducted_visits",
+        verbose_name=_("مشاور همراه"),
+    )
+
+    class Meta:
+        verbose_name = _("بازدید")
+        verbose_name_plural = _("بازدیدها")
+        ordering = ["-scheduled_at"]
+        indexes = [
+            models.Index(fields=["agency", "status", "scheduled_at"]),
+            models.Index(fields=["agency", "contact", "scheduled_at"]),
+            models.Index(fields=["listing", "scheduled_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"بازدید {self.contact} از {self.listing} ({self.get_status_display()})"
+
+
+# ─── Task (وظیفه / یادآوری) ──────────────────────────────────────────────────────
+
+
+class TaskStatus(models.TextChoices):
+    PENDING = "pending", _("در انتظار")
+    DONE = "done", _("انجام‌شده")
+    CANCELLED = "cancelled", _("لغوشده")
+
+
+class TaskPriority(models.TextChoices):
+    LOW = "low", _("کم")
+    NORMAL = "normal", _("معمولی")
+    HIGH = "high", _("بالا")
+
+
+class Task(AgencyOwned):
+    """A to-do item assigned to a consultant with an optional related object."""
+
+    title = models.CharField(_("عنوان"), max_length=200)
+    description = models.TextField(_("توضیحات"), blank=True)
+    assignee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="crm_tasks",
+        verbose_name=_("مسئول"),
+    )
+    due_at = models.DateTimeField(_("موعد انجام"), db_index=True)
+    priority = models.CharField(
+        _("اولویت"),
+        max_length=10,
+        choices=TaskPriority.choices,
+        default=TaskPriority.NORMAL,
+        db_index=True,
+    )
+    status = models.CharField(
+        _("وضعیت"),
+        max_length=20,
+        choices=TaskStatus.choices,
+        default=TaskStatus.PENDING,
+        db_index=True,
+    )
+    completed_at = models.DateTimeField(_("زمان انجام"), null=True, blank=True)
+    related_contact = models.ForeignKey(
+        Contact,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+        verbose_name=_("مخاطب مرتبط"),
+    )
+    related_listing = models.ForeignKey(
+        "listings.Listing",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+        verbose_name=_("فایل مرتبط"),
+    )
+    related_request = models.ForeignKey(
+        Request,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+        verbose_name=_("درخواست مرتبط"),
+    )
+    reminder_sent_at = models.DateTimeField(
+        _("آخرین یادآوری"),
+        null=True,
+        blank=True,
+        help_text=_("یادآوری سررسید فقط یک‌بار ارسال می‌شود"),
+    )
+
+    class Meta:
+        verbose_name = _("وظیفه")
+        verbose_name_plural = _("وظایف")
+        ordering = ["due_at"]
+        indexes = [
+            models.Index(fields=["assignee", "status", "due_at"]),
+            models.Index(fields=["agency", "status", "due_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.title} — {self.assignee} ({self.get_status_display()})"
+
+
+# ─── Notification (اعلان درون‌برنامه‌ای) ────────────────────────────────────────────
+
+
+class NotificationKind(models.TextChoices):
+    INFO = "info", _("اطلاع")
+    SUCCESS = "success", _("موفق")
+    WARNING = "warning", _("هشدار")
+    ERROR = "error", _("خطا")
+
+
+class Notification(AgencyOwned):
+    """Simple in-app notification (badge + list). Realtime push arrives in Phase 3C."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        verbose_name=_("گیرنده"),
+    )
+    kind = models.CharField(
+        _("نوع"),
+        max_length=10,
+        choices=NotificationKind.choices,
+        default=NotificationKind.INFO,
+    )
+    title = models.CharField(_("عنوان"), max_length=200)
+    body = models.TextField(_("متن"), blank=True)
+    link = models.CharField(_("لینک"), max_length=255, blank=True)
+    is_read = models.BooleanField(_("خوانده‌شده"), default=False, db_index=True)
+    read_at = models.DateTimeField(_("زمان خواندن"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("اعلان")
+        verbose_name_plural = _("اعلان‌ها")
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "is_read", "created_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.title} → {self.user}"
