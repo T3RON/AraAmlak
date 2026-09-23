@@ -11,8 +11,8 @@ urlpatterns = [
     path("auth/", include("apps.accounts.urls")),
     # Listings (فایل ملک)
     path("listings/", include("apps.listings.urls")),
-    # CRM (درخواست)
-    path("crm/requests/", include("apps.crm.urls")),
+    # CRM (درخواست، تایم‌لاین، بازدید، وظایف، اعلان‌ها)
+    path("crm/", include("apps.crm.urls")),
     # Matching (تطبیق فایل با درخواست)
     path("matching/", include("apps.matching.urls")),
     # Publishing (انتشار به پورتال)
