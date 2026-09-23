@@ -1,0 +1,42 @@
+{# HTMX polling partial for import job status #}
+{% load core_tags %}
+
+<div class="card" id="import-status-card"
+     {% if job.status == 'pending' or job.status == 'processing' %}
+     hx-get="{% url 'listings:import_progress' job.pk %}"
+     hx-trigger="every 2s"
+     hx-target="#import-status-card"
+     hx-swap="outerHTML"
+     {% endif %}>
+
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <span class="badge
+      {% if job.status == 'done' %}badge-green
+      {% elif job.status == 'error' %}badge-red
+      {% elif job.status == 'processing' %}badge-orange
+      {% else %}badge-blue{% endif %}"
+      style="font-size:.85rem;padding:.3rem .8rem;">
+      {{ job.get_status_display }}
+    </span>
+
+    <div style="display:flex;gap:1.5rem;font-size:.85rem;">
+      <span>کل: <strong>{{ job.total_rows|fa_number }}</strong></span>
+      <span style="color:var(--green);">موفق: <strong>{{ job.imported_rows|fa_number }}</strong></span>
+      <span style="color:var(--red);">خطا: <strong>{{ job.error_rows|fa_number }}</strong></span>
+    </div>
+
+    {% if job.status == 'pending' or job.status == 'processing' %}
+    <span style="font-size:.8rem;color:var(--muted);">
+      ⏳ در حال پردازش...
+    </span>
+    {% endif %}
+  </div>
+
+  {% if job.status == 'done' %}
+  <div style="margin-top:.75rem;">
+    <a href="{% url 'listings:list' %}" class="btn btn-primary" style="font-size:.85rem;">
+      مشاهده فایل‌های ایمپورت‌شده
+    </a>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,86 @@
+{# Partial: listing cards grid + pagination — used by list.html and HTMX refresh #}
+{% load core_tags %}
+
+{% if listings %}
+<div class="grid-cards">
+  {% for listing in listings %}
+  <a href="{% url 'listings:detail' listing.pk %}" style="text-decoration:none;color:inherit;">
+    <div class="card-sm" style="height:100%;transition:box-shadow .15s;"
+         onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.1)'"
+         onmouseout="this.style.boxShadow=''">
+
+      <!-- Cover image -->
+      {% with cover=listing.media_files.all|first %}
+      {% if cover and cover.thumbnail %}
+      <div style="height:140px;border-radius:8px;overflow:hidden;margin-bottom:.75rem;">
+        <img src="{{ cover.thumbnail.url }}" alt="{{ listing.title|default:listing.code }}"
+             style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      <!-- Header row -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+        <span class="badge
+          {% if listing.status == 'active' %}badge-green
+          {% elif listing.status == 'reserved' %}badge-orange
+          {% elif listing.status == 'sold' %}badge-gray
+          {% elif listing.status == 'expired' %}badge-red
+          {% else %}badge-blue{% endif %}">
+          {{ listing.get_status_display }}
+        </span>
+        <span class="text-xs text-muted">{{ listing.code }}</span>
+      </div>
+
+      <!-- Type -->
+      <p class="font-medium text-sm" style="margin-bottom:.25rem;">
+        {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
+      </p>
+
+      <!-- Location -->
+      {% if listing.city %}
+      <p class="text-xs text-muted" style="margin-bottom:.5rem;">
+        {{ listing.city }}{% if listing.district %} · {{ listing.district }}{% endif %}
+      </p>
+      {% endif %}
+
+      <!-- Specs -->
+      <div style="display:flex;gap:.75rem;font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">
+        {% if listing.area %}<span>{{ listing.area|fa_number }} m²</span>{% endif %}
+        <span>{{ listing.rooms|fa_number }} اتاق</span>
+        {% if listing.floor is not None %}<span>طبقه {{ listing.floor|fa_number }}</span>{% endif %}
+      </div>
+
+      <!-- Price -->
+      <div class="font-medium text-sm">
+        {% if listing.sale_price %}{{ listing.sale_price|toman }}
+        {% elif listing.mortgage_amount or listing.rent_amount %}
+          {% if listing.mortgage_amount %}رهن {{ listing.mortgage_amount|toman }}{% endif %}
+          {% if listing.rent_amount %} · اجاره {{ listing.rent_amount|toman }}{% endif %}
+        {% else %}<span class="text-muted">توافقی</span>{% endif %}
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination" style="margin-top:1rem;">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">قبلی</a>
+  {% endif %}
+  <span>صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}</span>
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">بعدی</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <div class="icon">🏠</div>
+  <p class="font-medium">فایلی یافت نشد.</p>
+  <a href="{% url 'listings:list' %}" class="text-accent" style="display:block;margin-top:.75rem;">پاک‌کردن فیلترها</a>
+</div>
+{% endif %}

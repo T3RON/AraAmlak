@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}نتیجه ایمپورت #{{ job.pk }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;">
+
+  <div class="page-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title">نتیجه ایمپورت</h1>
+      <p class="page-sub">{{ job.original_filename|default:"بدون نام" }}</p>
+    </div>
+    <a href="{% url 'listings:import_list' %}" class="btn btn-ghost">بازگشت</a>
+  </div>
+
+  <!-- Status card with HTMX polling -->
+  <div class="card" style="margin-bottom:1.5rem;"
+       id="import-status-card"
+       {% if job.status == 'pending' or job.status == 'processing' %}
+       hx-get="{% url 'listings:import_progress' job.pk %}"
+       hx-trigger="load, every 2s"
+       hx-target="#import-status-card"
+       hx-swap="outerHTML"
+       {% endif %}>
+    {% include "listings/partials/import_status.html" %}
+  </div>
+
+  <!-- Error report -->
+  {% if job.error_report %}
+  <div class="card">
+    <h2 class="form-section-title">گزارش خطا / هشدار ({{ job.error_report|length|fa_number }} مورد)</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;font-size:.8rem;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--panel);">
+            <th style="padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);">ردیف</th>
+            <th style="padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);">فیلد</th>
+            <th style="padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);">پیام</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for err in job.error_report %}
+          <tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:.4rem .6rem;color:var(--muted);">{{ err.row|fa_number }}</td>
+            <td style="padding:.4rem .6rem;color:var(--muted);">{{ err.field|default:"—" }}</td>
+            <td style="padding:.4rem .6rem;
+              {% if '⚠' in err.message %}color:var(--amber){% else %}color:var(--red){% endif %}">
+              {{ err.message }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

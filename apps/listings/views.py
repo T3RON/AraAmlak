@@ -11,12 +11,13 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.core.models import get_current_agency
-from apps.listings.models import Listing, ListingStatus
+from apps.listings.models import DealType, Listing, ListingStatus, PropertyType
+from apps.listings.search_service import build_listing_queryset
 from apps.listings.services import change_listing_status, create_listing, update_listing
 
 
 class ListingListView(LoginRequiredMixin, ListView):
-    """فهرست فایل‌های ملک آژانس جاری."""
+    """فهرست فایل‌های ملک آژانس جاری — با جستجو و فیلتر (Phase 1D)."""
 
     model = Listing
     template_name = "listings/list.html"
@@ -24,26 +25,22 @@ class ListingListView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        qs = Listing.objects.select_related("assigned_to", "branch").order_by("-created_at")
-        # Filter by status / deal_type / property_type from GET params
-        status = self.request.GET.get("status")
-        deal_type = self.request.GET.get("deal_type")
-        prop_type = self.request.GET.get("property_type")
-        city = self.request.GET.get("city")
-        if status:
-            qs = qs.filter(status=status)
-        if deal_type:
-            qs = qs.filter(deal_type=deal_type)
-        if prop_type:
-            qs = qs.filter(property_type=prop_type)
-        if city:
-            qs = qs.filter(city__icontains=city)
-        return qs
+        return build_listing_queryset(self.request.GET).select_related(
+            "assigned_to", "branch"
+        )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["status_choices"] = ListingStatus.choices
-        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["deal_type_choices"] = DealType.choices
+        ctx["property_type_choices"] = PropertyType.choices
+        # Preserve current filter values for template
+        ctx["current_filters"] = {
+            k: self.request.GET.get(k, "")
+            for k in ("q", "deal_type", "property_type", "status",
+                      "city", "district", "min_area", "max_area",
+                      "min_price", "max_price", "min_rooms", "sort")
+        }
         return ctx
 
 

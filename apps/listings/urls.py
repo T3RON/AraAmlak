@@ -4,7 +4,7 @@ Listings URL configuration.
 
 from django.urls import path
 
-from apps.listings import media_views, views
+from apps.listings import import_views, media_views, views
 
 app_name = "listings"
 
@@ -29,4 +29,8 @@ urlpatterns = [
     ),
     # Signed URL for private documents (no auth required — token IS auth)
     path("media/private/<str:token>/", media_views.media_serve_private, name="media_serve_private"),
+    # Phase 1D — Import
+    path("import/", import_views.import_list_view, name="import_list"),
+    path("import/<int:pk>/", import_views.import_detail_view, name="import_detail"),
+    path("import/<int:pk>/progress/", import_views.import_progress_view, name="import_progress"),
 ]

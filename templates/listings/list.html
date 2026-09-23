@@ -12,92 +12,77 @@
       <h1 class="page-title">فایل‌های ملک</h1>
       <p class="page-sub">{{ page_obj.paginator.count|fa_number }} فایل</p>
     </div>
-    <a href="{% url 'listings:create' %}" class="btn btn-primary">+ ثبت فایل جدید</a>
+    <div style="display:flex;gap:.5rem;">
+      <a href="{% url 'listings:import_list' %}" class="btn btn-ghost">ایمپورت Excel</a>
+      <a href="{% url 'listings:create' %}" class="btn btn-primary">+ ثبت فایل جدید</a>
+    </div>
   </div>
 
-  <!-- Filters -->
-  <form method="get" class="filters">
-    <select name="status" class="form-control" style="width:auto;" onchange="this.form.submit()">
-      <option value="">همه وضعیت‌ها</option>
-      {% for val, label in status_choices %}
-        <option value="{{ val }}" {% if val == current_status %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-    <input type="text" name="city" value="{{ request.GET.city }}" placeholder="شهر"
-           class="form-control" style="width:auto;" />
-    <button type="submit" class="btn btn-ghost">جستجو</button>
-    {% if request.GET %}
-      <a href="{% url 'listings:list' %}" class="btn" style="color:var(--red)">× پاک‌کردن</a>
-    {% endif %}
+  <!-- Search & Filters -->
+  <form method="get" id="filter-form" class="card" style="padding:.75rem 1rem;">
+    <!-- Search bar -->
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+      <input type="text" name="q" value="{{ current_filters.q }}"
+             placeholder="جستجو: کد، آدرس، محله، مالک..."
+             class="form-control" style="flex:1;"
+             hx-get="{% url 'listings:list' %}"
+             hx-target="#listing-results"
+             hx-trigger="keyup changed delay:400ms"
+             hx-include="#filter-form">
+      <button type="submit" class="btn btn-primary">جستجو</button>
+      {% if request.GET %}
+        <a href="{% url 'listings:list' %}" class="btn btn-ghost" style="color:var(--red);">× پاک</a>
+      {% endif %}
+    </div>
+
+    <!-- Filter row -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+      <select name="deal_type" class="form-control" style="width:auto;" onchange="this.form.submit()">
+        <option value="">نوع معامله</option>
+        {% for val, label in deal_type_choices %}
+          <option value="{{ val }}" {% if current_filters.deal_type == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="property_type" class="form-control" style="width:auto;" onchange="this.form.submit()">
+        <option value="">نوع ملک</option>
+        {% for val, label in property_type_choices %}
+          <option value="{{ val }}" {% if current_filters.property_type == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="status" class="form-control" style="width:auto;" onchange="this.form.submit()">
+        <option value="">همه وضعیت‌ها</option>
+        {% for val, label in status_choices %}
+          <option value="{{ val }}" {% if current_filters.status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <input type="text" name="city" value="{{ current_filters.city }}"
+             placeholder="شهر" class="form-control" style="width:100px;">
+      <input type="text" name="district" value="{{ current_filters.district }}"
+             placeholder="محله" class="form-control" style="width:100px;">
+
+      <input type="number" name="min_area" value="{{ current_filters.min_area }}"
+             placeholder="متراژ از" class="form-control" style="width:90px;">
+      <input type="number" name="max_area" value="{{ current_filters.max_area }}"
+             placeholder="تا" class="form-control" style="width:80px;">
+
+      <select name="sort" class="form-control" style="width:auto;" onchange="this.form.submit()">
+        <option value="-created_at" {% if current_filters.sort == '-created_at' or not current_filters.sort %}selected{% endif %}>جدیدترین</option>
+        <option value="created_at" {% if current_filters.sort == 'created_at' %}selected{% endif %}>قدیمی‌ترین</option>
+        <option value="-area" {% if current_filters.sort == '-area' %}selected{% endif %}>متراژ (زیاد→کم)</option>
+        <option value="area" {% if current_filters.sort == 'area' %}selected{% endif %}>متراژ (کم→زیاد)</option>
+        <option value="-price" {% if current_filters.sort == '-price' %}selected{% endif %}>قیمت (زیاد→کم)</option>
+        <option value="price" {% if current_filters.sort == 'price' %}selected{% endif %}>قیمت (کم→زیاد)</option>
+      </select>
+    </div>
   </form>
 
-  <!-- Grid -->
-  {% if listings %}
-  <div class="grid-cards">
-    {% for listing in listings %}
-    <a href="{% url 'listings:detail' listing.pk %}" style="text-decoration:none;color:inherit;">
-      <div class="card-sm" style="height:100%;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
-        <!-- Header row -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
-          <span class="badge
-            {% if listing.status == 'active' %}badge-green
-            {% elif listing.status == 'reserved' %}badge-orange
-            {% elif listing.status == 'sold' %}badge-gray
-            {% elif listing.status == 'expired' %}badge-red
-            {% else %}badge-blue{% endif %}">
-            {{ listing.get_status_display }}
-          </span>
-          <span class="text-xs text-muted">{{ listing.code }}</span>
-        </div>
-        <!-- Type -->
-        <p class="font-medium text-sm" style="margin-bottom:.25rem;">
-          {{ listing.get_property_type_display }} — {{ listing.get_deal_type_display }}
-        </p>
-        <!-- Location -->
-        {% if listing.city %}
-        <p class="text-xs text-muted" style="margin-bottom:.5rem;">
-          {{ listing.city }}{% if listing.district %} · {{ listing.district }}{% endif %}
-        </p>
-        {% endif %}
-        <!-- Specs -->
-        <div style="display:flex;gap:.75rem;font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">
-          {% if listing.area %}<span>{{ listing.area|fa_number }} m²</span>{% endif %}
-          <span>{{ listing.rooms|fa_number }} اتاق</span>
-          {% if listing.floor is not None %}<span>طبقه {{ listing.floor|fa_number }}</span>{% endif %}
-        </div>
-        <!-- Price -->
-        <div class="font-medium text-sm">
-          {% if listing.sale_price %}{{ listing.sale_price|toman }}
-          {% elif listing.mortgage_amount or listing.rent_amount %}
-            {% if listing.mortgage_amount %}رهن {{ listing.mortgage_amount|toman }}{% endif %}
-            {% if listing.rent_amount %} · اجاره {{ listing.rent_amount|toman }}{% endif %}
-          {% else %}<span class="text-muted">توافقی</span>{% endif %}
-        </div>
-      </div>
-    </a>
-    {% endfor %}
+  <!-- Results -->
+  <div id="listing-results">
+    {% include "listings/partials/listing_cards.html" %}
   </div>
-
-  <!-- Pagination -->
-  {% if page_obj.has_other_pages %}
-  <div class="pagination">
-    {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}">قبلی</a>
-    {% endif %}
-    <span>صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}</span>
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.city %}&city={{ request.GET.city }}{% endif %}">بعدی</a>
-    {% endif %}
-  </div>
-  {% endif %}
-
-  {% else %}
-  <div class="empty-state">
-    <div class="icon">🏠</div>
-    <p class="font-medium">هنوز فایلی ثبت نشده است.</p>
-    <a href="{% url 'listings:create' %}" class="text-accent" style="display:block;margin-top:.75rem;">ثبت اولین فایل</a>
-  </div>
-  {% endif %}
 
 </div>
 {% endblock %}

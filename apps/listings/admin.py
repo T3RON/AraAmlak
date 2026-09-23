@@ -5,13 +5,14 @@ Listings Django admin.
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from apps.listings.media_models import Media
 from apps.listings.models import (
     City,
     Feature,
+    ImportJob,
     Listing,
     ListingImage,
     ListingStatusHistory,
+    Media,
     Neighborhood,
     NeighborhoodAdjacency,
 )
@@ -134,5 +135,23 @@ class MediaAdmin(admin.ModelAdmin):
     readonly_fields = (
         "status", "mime_type", "file_size",
         "thumbnail", "webp", "created_at", "updated_at",
+    )
+    ordering = ("-created_at",)
+
+
+# ─── ImportJob (Phase 1D) ─────────────────────────────────────────────────────
+
+
+@admin.register(ImportJob)
+class ImportJobAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk", "agency", "original_filename", "status",
+        "total_rows", "imported_rows", "error_rows", "created_at",
+    )
+    list_filter = ("status", "agency")
+    search_fields = ("original_filename", "agency__name")
+    readonly_fields = (
+        "status", "total_rows", "imported_rows", "error_rows",
+        "error_report", "created_at", "updated_at",
     )
     ordering = ("-created_at",)

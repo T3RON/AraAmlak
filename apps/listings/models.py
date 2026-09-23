@@ -591,3 +591,59 @@ class Media(TimeStampedModel):
         )
         from django.urls import reverse  # noqa: PLC0415
         return reverse("listings:media_serve_private", kwargs={"token": token})
+
+
+# ─── ImportJob (Phase 1D) ─────────────────────────────────────────────────────
+
+
+class ImportJobStatus(models.TextChoices):
+    PENDING = "pending", _("در انتظار")
+    PROCESSING = "processing", _("در حال پردازش")
+    DONE = "done", _("انجام شد")
+    ERROR = "error", _("خطا")
+
+
+class ImportJob(AgencyOwned):
+    """
+    ردیابی ایمپورت Excel/CSV فایل‌های ملک.
+
+    uploaded_file: فایل اصلی آپلود‌شده (Excel یا CSV)
+    status: وضعیت پردازش
+    total_rows / imported_rows / error_rows: آمار
+    error_report: JSON آرایه‌ای از خطاها  [{row, field, message}]
+    created_by: کاربر ایجادکننده
+    """
+
+    uploaded_file = models.FileField(
+        _("فایل آپلود‌شده"),
+        upload_to="imports/%Y/%m/",
+        max_length=500,
+    )
+    original_filename = models.CharField(_("نام فایل اصلی"), max_length=300, blank=True)
+    status = models.CharField(
+        _("وضعیت"),
+        max_length=15,
+        choices=ImportJobStatus.choices,
+        default=ImportJobStatus.PENDING,
+        db_index=True,
+    )
+    total_rows = models.PositiveIntegerField(_("کل ردیف‌ها"), default=0)
+    imported_rows = models.PositiveIntegerField(_("ردیف‌های موفق"), default=0)
+    error_rows = models.PositiveIntegerField(_("ردیف‌های خطا"), default=0)
+    error_report = models.JSONField(_("گزارش خطا"), default=list, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="import_jobs",
+        verbose_name=_("ایجاد توسط"),
+    )
+
+    class Meta:
+        verbose_name = _("ایمپورت")
+        verbose_name_plural = _("ایمپورت‌ها")
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"Import {self.pk} [{self.status}] — {self.agency}"

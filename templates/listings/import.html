@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static core_tags %}
+
+{% block title %}ایمپورت فایل‌های ملک — آرا املاک{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+
+  <div class="page-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title">ایمپورت از Excel / CSV</h1>
+      <p class="page-sub">آپلود فایل و ورود دسته‌ای فایل‌های ملک</p>
+    </div>
+    <a href="{% url 'listings:list' %}" class="btn btn-ghost">بازگشت به فهرست</a>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-error" style="margin-bottom:1rem;">{{ error }}</div>
+  {% endif %}
+
+  <!-- Upload card -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <h2 class="form-section-title">آپلود فایل جدید</h2>
+
+    <!-- Format guide -->
+    <div style="background:var(--panel);border-radius:8px;padding:.75rem 1rem;font-size:.8rem;color:var(--muted);margin-bottom:1rem;line-height:1.8;">
+      <strong>ستون‌های پشتیبانی‌شده (سرستون فارسی یا انگلیسی):</strong><br>
+      نوع معامله · نوع ملک · شهر · محله · آدرس · متراژ · اتاق · طبقه · کل طبقات · سال ساخت ·
+      قیمت فروش · رهن · اجاره · پارکینگ · آسانسور · انباری · نام مالک · توضیحات<br>
+      <strong>فرمت:</strong> xlsx, csv — حداکثر ۱۰ مگابایت
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label class="form-label">انتخاب فایل Excel یا CSV</label>
+          <input type="file" name="file" accept=".xlsx,.xls,.csv" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">شروع ایمپورت</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Recent jobs -->
+  {% if jobs %}
+  <div class="card">
+    <h2 class="form-section-title">ایمپورت‌های اخیر</h2>
+    <div style="display:flex;flex-direction:column;gap:.5rem;">
+      {% for job in jobs %}
+      <a href="{% url 'listings:import_detail' job.pk %}"
+         style="display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:inherit;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ job.original_filename|default:"بدون نام" }}
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);">
+            {{ job.created_at|date:"Y/m/d H:i" }} ·
+            {% if job.total_rows %}{{ job.total_rows|fa_number }} ردیف · {% endif %}
+            موفق: {{ job.imported_rows|fa_number }} · خطا: {{ job.error_rows|fa_number }}
+          </div>
+        </div>
+        <span class="badge
+          {% if job.status == 'done' %}badge-green
+          {% elif job.status == 'error' %}badge-red
+          {% elif job.status == 'processing' %}badge-orange
+          {% else %}badge-blue{% endif %}">
+          {{ job.get_status_display }}
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
