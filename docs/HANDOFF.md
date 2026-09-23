@@ -1,8 +1,8 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فاز 2B — تایم‌لاین، بازدید، وظایف، اعلان‌ها
-**شاخه جاری:** `phase/2b-timeline-visit-tasks`
-**آخرین کامیت:** (پس از کامیت این فایل پر می‌شود)
+**آخرین به‌روزرسانی:** پس از تکمیل فازهای 4A + 4B — زیرساخت پیامک و سیاست اعلان
+**شاخه جاری:** `phase/4ab-sms-notification`
+**آخرین کامیت:** `11e89f5` feat(messaging): Phase 4A+4B
 
 ---
 
@@ -10,7 +10,7 @@
 
 | فاز | موضوع | وضعیت | درصد |
 |-----|--------|--------|------|
-| 0a | زیرساخت (Docker, CI, pre-commit) | ✅ کامل | 100% |
+| 0A | زیرساخت (Docker, CI, pre-commit) | ✅ کامل | 100% |
 | 0B | دیزاین‌سیستم Apple-style | ⚠️ نسبی | 60% |
 | 0C | هویت کاربر، نقش‌ها، AuditLog، دعوت عضو | ✅ کامل | 100% |
 | 1A | مدل داده فایل (City/Neighborhood/Feature) | ✅ کامل | 100% |
@@ -18,42 +18,44 @@
 | 1C | رسانه (آپلود، پردازش، سند خصوصی) | ✅ کامل | 100% |
 | 1D | جستجو، فیلتر، normalize_fa، ImportJob | ✅ کامل | 100% |
 | 2A | مخاطبین، درخواست‌ها، رضایت پیامک | ✅ کامل | 100% |
-| **2B** | **تایم‌لاین، بازدید، وظایف، اعلان‌ها** | **✅ کامل** | **100%** |
+| 2B | تایم‌لاین، بازدید، وظایف، اعلان‌ها | ✅ کامل | 100% |
 | 3 | Matching engine + Dashboard | ✅ کامل | 100% |
-| 4 (roadmap) | پیامک و اشتراک عمومی | ⬜ شروع نشده | 0% |
-| 4 (ما ساختیم) | Publishing به پورتال‌ها | ✅ کامل | 100% |
+| 4 (publishing) | Publishing به پورتال‌ها | ✅ کامل | 100% |
+| **4A** | **زیرساخت پیامک (Kavenegar, MeliPayamak, Console)** | **✅ کامل** | **100%** |
+| **4B** | **ارسال خودکار تطبیق، فرم عمومی، لغو، تمدید** | **✅ کامل** | **100%** |
 | 5–11 | صدا، رندر، انتشار، حسابداری، AI، ... | ⬜ شروع نشده | 0% |
 
 ---
 
 ## ۲. آنچه در این جلسه کامل شد
 
-### فاز 2B — تایم‌لاین، بازدید، وظایف، اعلان
+### فاز 4A — زیرساخت پیامک
 
-- **[`apps/crm/models.py`](../apps/crm/models.py)**
-  - `Interaction` — تایم‌لاین تعاملات: FKهای صریح nullable به contact/listing/request
-    (بدون GenericFK) + `CheckConstraint` حداقل یک هدف، ایندکس‌ها
-  - `Visit` — بازدید فایل ↔ مخاطب با وضعیت و نتیجه
-  - `Task` — وظیفه با assignee، موعد، اولویت، `reminder_sent_at` (گارد یک‌بارمصرف یادآوری)
-  - `Notification` — اعلان درون‌برنامه‌ای (badge + list)
-- **[`apps/crm/services.py`](../apps/crm/services.py)** — `add_interaction`, `get_timeline`,
-  `schedule_visit` (همراه Interaction), `complete_visit`, `create_task`, `complete_task`, `notify`
-- **[`apps/crm/tasks.py`](../apps/crm/tasks.py)** — `send_due_task_reminders` (Beat هر ۳۰ دقیقه، idempotent)
-- **[`apps/crm/views.py`](../apps/crm/views.py)** + **[`apps/crm/urls.py`](../apps/crm/urls.py)** —
-  timeline, visit create/complete (HTMX), tasks list/toggle (HTMX), my-day, notifications
-- **Templates:** `crm/timeline.html`, `crm/tasks.html`, `crm/my_day.html`,
-  `crm/notifications.html`, `crm/partials/visit_row.html`, `crm/partials/task_row.html`
-- **[`templates/base.html`](../templates/base.html)** — badge اعلان + لینک «امروز من»
-  (تگ جدید `unread_notifications_badge` در `core_tags.py`)
-- **[`templates/listings/detail.html`](../templates/listings/detail.html)** — بخش بازدیدها + تایم‌لاین
-- Migration: `crm/0004_interaction_notification_task_visit`
-- **URL mount جابه‌جا شد:** `/crm/requests/` → `/crm/` (نام URLها ثابت ماند، قالب‌ها بی‌تأثیر)
-- تنظیمات: `CELERY_BEAT_SCHEDULE` در base.py، `BASE_DIR` در testing_nogis.py
-- **۲۶ تست** در `tests/test_2b_timeline_visit_tasks.py` (مجموعاً ۲۱۸ تست)
+- **[`apps/messaging/providers/base.py`](../apps/messaging/providers/base.py)** — `SMSProvider` ABC
+- **[`apps/messaging/providers/console.py`](../apps/messaging/providers/console.py)** — dev/test adapter
+- **[`apps/messaging/providers/kavenegar.py`](../apps/messaging/providers/kavenegar.py)** — Kavenegar REST adapter
+- **[`apps/messaging/providers/melipayamak.py`](../apps/messaging/providers/melipayamak.py)** — MeliPayamak REST adapter
+- **[`apps/messaging/models.py`](../apps/messaging/models.py)** — `AgencySMSConfig`, `SMSTemplate`, `SMSMessage` (state machine)
+- **[`apps/messaging/services.py`](../apps/messaging/services.py)** — `enqueue_sms`, `send_sms_message`, `get_provider_for_agency`
+- **[`apps/messaging/tasks.py`](../apps/messaging/tasks.py)** — `send_sms_task` با exponential backoff
+- **[`apps/accounts/tasks.py`](../apps/accounts/tasks.py)** — OTP task حالا ConsoleSMSProvider واقعی را صدا می‌زند
+- Migration: `messaging/0001_initial`
+
+### فاز 4B — ارسال خودکار و فرم عمومی
+
+- **[`apps/messaging/models.py`](../apps/messaging/models.py)** — `AgencySMSPolicy` (ساعت سکوت، سقف روزانه، آستانه امتیاز)، `MatchSMSSent` (dedup)، `make/verify_unsubscribe_token`، `make/verify_renewal_token`
+- **[`apps/messaging/notification_policy.py`](../apps/messaging/notification_policy.py)** — `should_send_sms()` (تابع خالص)، `process_match_notification()`، `handle_unsubscribe()`، `handle_renewal()`، `send_renewal_sms()`
+- **[`apps/messaging/views.py`](../apps/messaging/views.py)** — `PublicSubscribeView` (دو مرحله‌ای: OTP)، `UnsubscribeView`، `RenewalView`
+- **[`apps/messaging/urls.py`](../apps/messaging/urls.py)** — `/messaging/subscribe/<slug>/`، `/messaging/unsubscribe/<token>/`، `/messaging/renew/<token>/<action>/`
+- **[`apps/matching/tasks.py`](../apps/matching/tasks.py)** — پس از یافتن تطبیق‌ها، `process_match_notification` صدا می‌زند
+- Beat task: `send_renewal_reminders` روزانه ساعت ۹
+- Templates: public_subscribe, verify, done, unsubscribe, renewal
+- Migration: `messaging/0002_agencysmspolicy_matchsmssent`
+- **53 تست** در `tests/test_4ab_sms_notification.py` (مجموعاً ۲۷۱ تست)
 
 ---
 
-## ۳. تست‌ها (218 passing — بدون PostGIS)
+## ۳. تست‌ها (271 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -69,26 +71,26 @@
 | `tests/test_2a_contact_consent.py` | 16 |
 | `tests/test_1c_media.py` | 19 |
 | `tests/test_1d_search_import.py` | 38 |
-| `tests/test_2b_timeline_visit_tasks.py` | **26** |
-| **جمع** | **218** |
+| `tests/test_2b_timeline_visit_tasks.py` | 26 |
+| `tests/test_4ab_sms_notification.py` | **53** |
+| **جمع** | **271** |
 
 ---
 
 ## ۴. آنچه نیمه‌کاره است
 
 ### ۴.۱ فازهای بعدی (اولویت‌بندی)
-1. **4A (roadmap)** — زیرساخت پیامک (adapter واقعی SMS: Kavenegar و ...)
-2. **4B (roadmap)** — ارسال خودکار تطبیق، فرم اشتراک عمومی
-3. **5A** — صدا و ثبت هوشمند (MVP اصلی پروژه)
+1. **5A** — صدا و ثبت هوشمند (MVP اصلی پروژه — Whisper/Gemini)
+2. **5B** — پیش‌نویس هوشمند فایل از صدا
+3. **6A** — رندر پوستر (PDF, Pillow)
+4. **7A** — انتشار واقعی به پورتال‌ها
 
 ### ۴.۲ موارد نیمه‌کاره
 - `test_tenant_isolation.py` — تست‌های pre-existing broken
 - `test_health.py` — pre-existing broken
-- **migration معلق accounts** (گروه‌های پیش‌فرض CustomUser) — از قبل وجود داشت، مربوط به 2B نیست
-- ایمپورت xlsx نیاز به `openpyxl` دارد (در `pyproject.toml` نیست — در Docker نصب شود)
-- Media در production نیاز به django-storages + MinIO
-- **فرم سریع بازدید/وظیفه** فعلاً از آی‌دی عددی استفاده می‌کند (در فازهای بعدی combobox واقعی می‌شود)
-- نقش منشی: فیلدهای شماره مالک در views جدید هنوز فیلتر نشده (در فاز 4A/9A با ماتریس نقش کامل انجام می‌شود)
+- پنل مدیریت SMS (AgencySMSConfig) فعلاً فقط از طریق admin
+- OTP در تولید باید از `AgencySMSConfig` آژانس استفاده کند (فعلاً Console)
+- `openpyxl` برای xlsx import نیاز به نصب جداگانه دارد
 
 ---
 
@@ -100,42 +102,44 @@
 | **Django** | 5.2 LTS |
 | **GDAL** | روی Windows نصب نیست |
 | **Fernet key** | `_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4=` |
-| **normalize_fa** | در `apps/core/text.py` — همیشه از همینجا import کنید |
-| **URL پیشوند CRM** | حالا `/crm/` است (قبلاً `/crm/requests/` بود) |
-| **testing_nogis** | مستقل از base است؛ `BASE_DIR` را خودش تعریف می‌کند |
-| **Celery Beat** | `send_due_task_reminders` هر ۳۰ دقیقه؛ `CELERY_TASK_ALWAYS_EAGER` در تست |
-| **ImportJob** | `run_import_job_task.delay(job.pk)` — در Celery |
-| **openpyxl** | `pip install openpyxl` برای تست xlsx در dev |
+| **SMS Provider** | `AgencySMSConfig` با `is_active=True` باید وجود داشته باشد؛ وگرنه Console |
+| **ConsentRecord.is_active** | property است، نه فیلد DB — در filter از `revoked_at__isnull=True` استفاده کنید |
+| **RequestStatus** | مقادیر: `new`, `in_progress`, `matched`, `closed`, `cancelled`, `expired` — `active` وجود ندارد |
+| **Request.expires_at** | `DateTimeField` است نه `DateField` |
+| **ContactPhone** | فیلدهای `phone` (encrypted) و `phone_normalized` دارد — `phone_raw` وجود ندارد |
+| **ConsentRecord** | به `agency` FK نیاز دارد؛ فیلد `text_version` (نه `consent_text_version`) |
+| **URL پیشوند SMS** | `/messaging/` |
 | **dev server** | `python manage.py runserver 8070 --settings=ara_amlak.settings.local_sqlite` |
 
 ---
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/2b-timeline-visit-tasks` (از `phase/1d-search-filter-import` ساخته شده)
-- `[ ]` کامیت‌های این فاز هنوز پوش نشده‌اند
-- پروژه گراف: `I-amlak` (تازه ایندکس شده، ۱۵۶۱ نود)
+- شاخه: `phase/4ab-sms-notification` (از `phase/2b-timeline-visits-tasks`)
+- آخرین کامیت: `11e89f5`
+- پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. کامیت و پوش این شاخه + ساخت PR
-2. فاز 4A (roadmap): interface `SMSProvider` + آداپتر کاوه‌نگار/ملی‌پیامک + Console/Fake
-3. فاز 4B: ارسال خودکار تطبیق، ساعت مجاز، سقف روزانه، فرم عمومی OTP
+1. فاز 5A — Voice entry (Whisper/Gemini) + ثبت هوشمند فایل
+2. فاز 5B — پیش‌نویس هوشمند
+3. فاز 6A — رندر PDF پوستر
+4. فاز 7A — انتشار واقعی به پورتال‌ها
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (218 تست)
+# تست no-GIS (271 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
 
 # lint
-python -m ruff check .
+ruff check .
 
 # dev server (port 8070)
 python manage.py runserver 8070 --settings=ara_amlak.settings.local_sqlite
