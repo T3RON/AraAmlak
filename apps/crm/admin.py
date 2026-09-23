@@ -5,7 +5,16 @@ CRM Django admin.
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from apps.crm.models import ConsentRecord, Contact, ContactPhone, Request
+from apps.crm.models import (
+    ConsentRecord,
+    Contact,
+    ContactPhone,
+    Interaction,
+    Notification,
+    Request,
+    Task,
+    Visit,
+)
 
 
 class ContactPhoneInline(admin.TabularInline):
@@ -86,3 +95,44 @@ class RequestAdmin(admin.ModelAdmin):
             "fields": ("expires_at", "contacted_at", "closed_at", "created_at", "updated_at"),
         }),
     )
+
+
+@admin.register(Interaction)
+class InteractionAdmin(admin.ModelAdmin):
+    list_display = ("kind", "summary", "agency", "contact", "listing", "request", "occurred_at")
+    list_filter = ("kind", "agency", "occurred_at")
+    search_fields = ("summary", "detail")
+    raw_id_fields = ("contact", "listing", "request", "performed_by")
+    date_hierarchy = "occurred_at"
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Visit)
+class VisitAdmin(admin.ModelAdmin):
+    list_display = (
+        "contact", "listing", "agency", "scheduled_at", "status", "outcome", "agent",
+    )
+    list_filter = ("status", "outcome", "agency")
+    search_fields = ("note", "contact__full_name")
+    raw_id_fields = ("listing", "contact", "request", "agent")
+    date_hierarchy = "scheduled_at"
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ("title", "assignee", "agency", "due_at", "priority", "status", "completed_at")
+    list_filter = ("status", "priority", "agency")
+    search_fields = ("title", "description")
+    raw_id_fields = ("assignee", "related_contact", "related_listing", "related_request")
+    date_hierarchy = "due_at"
+    readonly_fields = ("created_at", "updated_at", "reminder_sent_at")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "agency", "kind", "is_read", "created_at")
+    list_filter = ("kind", "is_read", "agency")
+    search_fields = ("title", "body")
+    raw_id_fields = ("user",)
+    readonly_fields = ("created_at", "updated_at", "read_at")
