@@ -6,6 +6,10 @@ Run tests with:
   pytest --ds=ara_amlak.settings.testing_nogis tests/test_listings_nogis.py ...
 """
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
 SECRET_KEY = "test-secret-key-not-for-production"  # noqa: S105
 DEBUG = True
 # Valid 32-byte Fernet key for tests — not used in production
@@ -54,7 +58,7 @@ LANGUAGE_CODE = "fa"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
