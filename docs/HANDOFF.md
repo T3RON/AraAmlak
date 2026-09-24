@@ -1,7 +1,7 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فاز 6A — رندر واقعی پوستر PDF/PNG با Playwright
-**شاخه جاری:** `phase/6a-poster-render`
+**آخرین به‌روزرسانی:** پس از تکمیل فاز 7A — انتشار واقعی به دیوار (Kenar)
+**شاخه جاری:** `phase/7a-portal-publishing`
 **آخرین کامیت:** پس از کامیت docs این جلسه
 
 ---
@@ -26,7 +26,8 @@
 | **5A** | **زیرساخت صدا (Whisper/Gemini/Console) + رونویسی** | **✅ کامل** | **100%** |
 | **5B** | **پارسر فارسی + پیش‌نویس هوشمند فایل از رونویسی** | **✅ کامل** | **100%** |
 | **6A** | **رندر واقعی پوستر PDF/PNG (Playwright)** | **✅ کامل** | **100%** |
-| 7–11 | انتشار واقعی، حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
+| **7A** | **انتشار واقعی به دیوار (Kenar)** | **✅ کامل** | **100%** |
+| 8–11 | حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
 
 ---
 
@@ -66,9 +67,19 @@
 - Migration: `rendering/0001_initial`
 - **۲۵ تست جدید** در `tests/test_6a_rendering.py` — شامل **دو تست رندر واقعی Playwright** (PDF واقعی > 1KB و PNG واقعی؛ skipif وقتی Chromium نباشد)
 
+### فاز 7A — انتشار واقعی به دیوار (Kenar)
+
+- **[`apps/publishing/adapters.py`](../apps/publishing/adapters.py)** — `DivarAdapter` واقعی در `ADAPTER_MAP`؛ مستندات رسمی خوانده شد (کنار: divar-ir.github.io/kenar-docs + SDK رسمی)
+- جریان: `GET /v2/open-platform/post/upload-urls` → آپلود باینری عکس با `http_method` پاسخ → `POST /experimental/open-platform/posts/new-v2` → `post_token` به‌عنوان external_id؛ احراز با هدر `X-API-Key` از `PortalConfig.credentials` (رمزنگاری‌شده)
+- عنوان/توضیح فارسی از فیلدهای لیستینگ ساخته می‌شود (فعل معامله + نوع + متراژ + شهر؛ مشخصات/امکانات/قیمت `format_toman` + کارگزاری)
+- `category_fields` از `extra_config` با جای‌گذاری `{{sale_price}}`-مانند؛ **schema فیلدهای دسته حدس زده نمی‌شود** — کلیدها را آژانس از مستندات کنار در `extra_config` تنظیم می‌کند
+- آپلود عکس ناموفق → ادامه بدون عکس (آگهی متنی)، لاگ هشدار
+- **شیپور آداپتور ندارد** — API عمومی مستند ندارد؛ endpoint حدس زده نمی‌شود (قانون §10)
+- **۱۹ تست جدید** در `tests/test_7a_divar_publishing.py` (همه HTTP mocked)
+
 ---
 
-## ۳. تست‌ها (365 passing — بدون PostGIS)
+## ۳. تست‌ها (384 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -89,7 +100,8 @@
 | `tests/test_5a_voice_transcription.py` | **43** |
 | `tests/test_5b_smart_draft.py` | **26** |
 | `tests/test_6a_rendering.py` | **25** |
-| **جمع** | **365** |
+| `tests/test_7a_divar_publishing.py` | **19** |
+| **جمع** | **384** |
 
 ---
 
@@ -132,6 +144,7 @@
 | **URL پیشوند SMS** | `/messaging/` |
 | **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
 | **URL پیشوند Rendering** | `/rendering/` — job list/create/download/status |
+| **دیوار (Kenar)** | `X-API-Key` در `PortalConfig.credentials`؛ `category_slug` و `category_fields` در `extra_config` اجباری؛ base: `open-api.divar.ir`؛ ثبت: `posts/new-v2` → `post_token` |
 | **RENDER_BACKEND** | `playwright` پیش‌فرض (در این محیط Chromium نصب است)؛ `stub` برای محیط بدون مرورگر؛ fallback خودکار اگر playwright import نشود |
 | **کاما فارسی** | U+060C داخل رنج `[\u0600-\u06FF]` است — در regex فارسی کلاس حروف بدون علائم (`_FA`) استفاده شود |
 | **Celery در تست** | `CELERY_TASK_ALWAYS_EAGER=True` — آپلود صوت و رندر پوستر در تست تا انتها اجرا می‌شوند (رندر واقعی ~۱-۲ ثانیه) |
@@ -143,23 +156,23 @@
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/6a-poster-render` (از `phase/5a-voice-entry`)
+- شاخه: `phase/7a-portal-publishing` (از `phase/6a-poster-render`)
 - پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. فاز 7A — انتشار واقعی به پورتال‌ها (Divar/Sheypoor adapters)
-2. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
-3. فونت فارسی embedded برای پوستر در Docker
+1. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
+2. فونت فارسی embedded برای پوستر در Docker
+3. آداپتور شیپور — پس از دسترسی API رسمی/شراکتی
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (365 تست)
+# تست no-GIS (384 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
