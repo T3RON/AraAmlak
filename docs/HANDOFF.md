@@ -1,8 +1,8 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فازهای 5A + 5B — ثبت با صدا و پیش‌نویس هوشمند
-**شاخه جاری:** `phase/5a-voice-entry`
-**آخرین کامیت:** `eadd23b` feat(ai): add draft detail, generate and apply views
+**آخرین به‌روزرسانی:** پس از تکمیل فاز 6A — رندر واقعی پوستر PDF/PNG با Playwright
+**شاخه جاری:** `phase/6a-poster-render`
+**آخرین کامیت:** پس از کامیت docs این جلسه
 
 ---
 
@@ -25,7 +25,8 @@
 | 4B | ارسال خودکار تطبیق، فرم عمومی، لغو، تمدید | ✅ کامل | 100% |
 | **5A** | **زیرساخت صدا (Whisper/Gemini/Console) + رونویسی** | **✅ کامل** | **100%** |
 | **5B** | **پارسر فارسی + پیش‌نویس هوشمند فایل از رونویسی** | **✅ کامل** | **100%** |
-| 6–11 | رندر، انتشار واقعی، حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
+| **6A** | **رندر واقعی پوستر PDF/PNG (Playwright)** | **✅ کامل** | **100%** |
+| 7–11 | انتشار واقعی، حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
 
 ---
 
@@ -53,9 +54,21 @@
 - Template: `partials/draft_fields.html` (جدول فیلدها + فیلدهای نایافته + دکمه ساخت فایل)
 - **۶۹ تست جدید** در `tests/test_5a_voice_transcription.py` (43) و `tests/test_5b_smart_draft.py` (26)
 
+### فاز 6A — رندر پوستر (واقعی، نه stub)
+
+- **[`apps/rendering/models.py`](../apps/rendering/models.py)** — `RenderJob` (ماشین وضعیت pending → running → success/failed، مشابه PublishJob)
+- **[`apps/rendering/engines.py`](../apps/rendering/engines.py)** — `BaseRenderEngine` ABC، `PlaywrightRenderEngine` (chromium headless → `page.pdf(format="A4")` یا `page.screenshot`)، `StubRenderEngine` (فقط dev/test بدون مرورگر)؛ انتخاب با `RENDER_BACKEND` (پیش‌فرض playwright، fallback خودکار به stub اگر playwright نصب نباشد)
+- **[`apps/rendering/services.py`](../apps/rendering/services.py)** — `render_poster_html` (پوستر self-contained: عکس شاخص و لوگو به‌صورت base64 data URI — بدون وابستگی خارجی)، `enqueue_render`، `run_render`
+- **[`apps/rendering/tasks.py`](../apps/rendering/tasks.py)** — `render_poster_task` با exponential backoff
+- قالب: `templates/rendering/poster.html` (RTL، Apple-style، `format_toman` برای قیمت، ارقام فارسی)، `render_job_list.html` + پارشیال با polling HTMX
+- Views/URLs: `/rendering/listings/<pk>/jobs/` (لیست + رندر PDF/PNG)، `create/`، `jobs/<pk>/download/` (FileResponse scoped)، `jobs/<pk>/status/`
+- لینک «پوستر PDF» در Actions صفحه جزئیات فایل
+- Migration: `rendering/0001_initial`
+- **۲۵ تست جدید** در `tests/test_6a_rendering.py` — شامل **دو تست رندر واقعی Playwright** (PDF واقعی > 1KB و PNG واقعی؛ skipif وقتی Chromium نباشد)
+
 ---
 
-## ۳. تست‌ها (340 passing — بدون PostGIS)
+## ۳. تست‌ها (365 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -75,17 +88,18 @@
 | `tests/test_4ab_sms_notification.py` | 53 |
 | `tests/test_5a_voice_transcription.py` | **43** |
 | `tests/test_5b_smart_draft.py` | **26** |
-| **جمع** | **340** |
+| `tests/test_6a_rendering.py` | **25** |
+| **جمع** | **365** |
 
 ---
 
 ## ۴. آنچه نیمه‌کاره است
 
 ### ۴.۱ فازهای بعدی (اولویت‌بندی)
-1. **6A** — رندر پوستر (PDF, Playwright/Pillow)
-2. **7A** — انتشار واقعی به پورتال‌ها (adapterهای Divar/Sheypoor)
-3. LLM draft provider — استخراج پیش‌نویس با Gemini (فعلاً پارسر رجکسی قطعی)
-4. آپلود فایل‌های صوتی بزرگ در Gemini از طریق Files API (فعلاً فقط inline ≤20MB)
+1. **7A** — انتشار واقعی به پورتال‌ها (adapterهای Divar/Sheypoor)
+2. LLM draft provider — استخراج پیش‌نویس با Gemini (فعلاً پارسر رجکسی قطعی)
+3. آپلود فایل‌های صوتی بزرگ در Gemini از طریق Files API (فعلاً فقط inline ≤20MB)
+4. فونت Vazirmatn embedded در پوستر (فعلاً fallback سیستمی — در Docker فونت فارسی لازم است)
 
 ### ۴.۲ موارد نیمه‌کاره
 - `test_tenant_isolation.py` — تست‌های pre-existing broken
@@ -94,6 +108,7 @@
 - `openpyxl` برای xlsx import نیاز به نصب جداگانه دارد
 - پنل مدیریت AI (AgencyAIConfig) فعلاً فقط از طریق admin
 - ضبط مستقیم با MediaRecorder JS — فعلاً input file با capture=microphone (موبایل‌فرندلی)
+- پنل مدیریت RenderJob از طریق admin (صفحه اختصاصی در فاز UI)
 
 ---
 
@@ -116,32 +131,35 @@
 | **ConsentRecord** | به `agency` FK نیاز دارد؛ فیلد `text_version` (نه `consent_text_version`) |
 | **URL پیشوند SMS** | `/messaging/` |
 | **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
+| **URL پیشوند Rendering** | `/rendering/` — job list/create/download/status |
+| **RENDER_BACKEND** | `playwright` پیش‌فرض (در این محیط Chromium نصب است)؛ `stub` برای محیط بدون مرورگر؛ fallback خودکار اگر playwright import نشود |
 | **کاما فارسی** | U+060C داخل رنج `[\u0600-\u06FF]` است — در regex فارسی کلاس حروف بدون علائم (`_FA`) استفاده شود |
-| **Celery در تست** | `CELERY_TASK_ALWAYS_EAGER=True` — آپلود صوت در تست تا transcribed کامل می‌شود |
+| **Celery در تست** | `CELERY_TASK_ALWAYS_EAGER=True` — آپلود صوت و رندر پوستر در تست تا انتها اجرا می‌شوند (رندر واقعی ~۱-۲ ثانیه) |
+| **override_settings** | روی کلاس‌های plain pytest کار نمی‌کند — از فیکسچر `settings` استفاده کنید |
+| **FieldFile بدون فایل** | `not media_file.file` با ValueError کرش می‌کند — در try/pattern امن بخوانید |
 | **dev server** | `python manage.py runserver 8070 --settings=ara_amlak.settings.local_sqlite` |
 
 ---
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/5a-voice-entry` (از `phase/4ab-sms-notification`)
-- آخرین کامیت: `eadd23b`
+- شاخه: `phase/6a-poster-render` (از `phase/5a-voice-entry`)
 - پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. فاز 6A — رندر PDF پوستر فایل
-2. فاز 7A — انتشار واقعی به پورتال‌ها
-3. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
+1. فاز 7A — انتشار واقعی به پورتال‌ها (Divar/Sheypoor adapters)
+2. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
+3. فونت فارسی embedded برای پوستر در Docker
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (340 تست)
+# تست no-GIS (365 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
