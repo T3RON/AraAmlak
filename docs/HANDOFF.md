@@ -1,8 +1,8 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فازهای 4A + 4B — زیرساخت پیامک و سیاست اعلان
-**شاخه جاری:** `phase/4ab-sms-notification`
-**آخرین کامیت:** `11e89f5` feat(messaging): Phase 4A+4B
+**آخرین به‌روزرسانی:** پس از تکمیل فازهای 5A + 5B — ثبت با صدا و پیش‌نویس هوشمند
+**شاخه جاری:** `phase/5a-voice-entry`
+**آخرین کامیت:** `eadd23b` feat(ai): add draft detail, generate and apply views
 
 ---
 
@@ -21,41 +21,41 @@
 | 2B | تایم‌لاین، بازدید، وظایف، اعلان‌ها | ✅ کامل | 100% |
 | 3 | Matching engine + Dashboard | ✅ کامل | 100% |
 | 4 (publishing) | Publishing به پورتال‌ها | ✅ کامل | 100% |
-| **4A** | **زیرساخت پیامک (Kavenegar, MeliPayamak, Console)** | **✅ کامل** | **100%** |
-| **4B** | **ارسال خودکار تطبیق، فرم عمومی، لغو، تمدید** | **✅ کامل** | **100%** |
-| 5–11 | صدا، رندر، انتشار، حسابداری، AI، ... | ⬜ شروع نشده | 0% |
+| 4A | زیرساخت پیامک (Kavenegar, MeliPayamak, Console) | ✅ کامل | 100% |
+| 4B | ارسال خودکار تطبیق، فرم عمومی، لغو، تمدید | ✅ کامل | 100% |
+| **5A** | **زیرساخت صدا (Whisper/Gemini/Console) + رونویسی** | **✅ کامل** | **100%** |
+| **5B** | **پارسر فارسی + پیش‌نویس هوشمند فایل از رونویسی** | **✅ کامل** | **100%** |
+| 6–11 | رندر، انتشار واقعی، حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
 
 ---
 
 ## ۲. آنچه در این جلسه کامل شد
 
-### فاز 4A — زیرساخت پیامک
+### فاز 5A — زیرساخت صدا
 
-- **[`apps/messaging/providers/base.py`](../apps/messaging/providers/base.py)** — `SMSProvider` ABC
-- **[`apps/messaging/providers/console.py`](../apps/messaging/providers/console.py)** — dev/test adapter
-- **[`apps/messaging/providers/kavenegar.py`](../apps/messaging/providers/kavenegar.py)** — Kavenegar REST adapter
-- **[`apps/messaging/providers/melipayamak.py`](../apps/messaging/providers/melipayamak.py)** — MeliPayamak REST adapter
-- **[`apps/messaging/models.py`](../apps/messaging/models.py)** — `AgencySMSConfig`, `SMSTemplate`, `SMSMessage` (state machine)
-- **[`apps/messaging/services.py`](../apps/messaging/services.py)** — `enqueue_sms`, `send_sms_message`, `get_provider_for_agency`
-- **[`apps/messaging/tasks.py`](../apps/messaging/tasks.py)** — `send_sms_task` با exponential backoff
-- **[`apps/accounts/tasks.py`](../apps/accounts/tasks.py)** — OTP task حالا ConsoleSMSProvider واقعی را صدا می‌زند
-- Migration: `messaging/0001_initial`
+- **[`apps/ai/models.py`](../apps/ai/models.py)** — `AgencyAIConfig` (کلید رمزنگاری‌شده)، `VoiceNote` (ماشین وضعیت: uploaded → queued → transcribing → transcribed/failed)، `VoiceDraft`
+- **[`apps/ai/providers/base.py`](../apps/ai/providers/base.py)** — `TranscriptionProvider` ABC + `TranscriptionResult`
+- **[`apps/ai/providers/console.py`](../apps/ai/providers/console.py)** — رونویسی ساختگی قطعی برای dev/test (متن نمونه فارسی)
+- **[`apps/ai/providers/openai_whisper.py`](../apps/ai/providers/openai_whisper.py)** — `POST /v1/audio/transcriptions` (multipart، مدل whisper-1، پارامتر language)
+- **[`apps/ai/providers/gemini.py`](../apps/ai/providers/gemini.py)** — `POST /v1beta/interactions` (هدر x-goog-api-key، صوت base64 + mime_type، پاسخ output_text، سقف inline)
+- **[`apps/ai/services.py`](../apps/ai/services.py)** — `create_voice_note` (اعتبارسنجی magic bytes + سقف 20MB)، `enqueue_transcription`، `run_transcription`
+- **[`apps/ai/tasks.py`](../apps/ai/tasks.py)** — `transcribe_voice_task` با exponential backoff (60s پایه، ۵ بار)
+- Views/URLs: `/ai/voice/` (لیست + آپلود)، `upload/`، `<pk>/status/` (polling HTMX)، `<pk>/retry/`، `<pk>/`
+- بخش «یادداشت صوتی» در صفحه جزئیات فایل + لینک ناوبری «🎙️ ثبت با صدا»
+- Migration: `ai/0001_initial`
 
-### فاز 4B — ارسال خودکار و فرم عمومی
+### فاز 5B — پیش‌نویس هوشمند
 
-- **[`apps/messaging/models.py`](../apps/messaging/models.py)** — `AgencySMSPolicy` (ساعت سکوت، سقف روزانه، آستانه امتیاز)، `MatchSMSSent` (dedup)، `make/verify_unsubscribe_token`، `make/verify_renewal_token`
-- **[`apps/messaging/notification_policy.py`](../apps/messaging/notification_policy.py)** — `should_send_sms()` (تابع خالص)، `process_match_notification()`، `handle_unsubscribe()`، `handle_renewal()`، `send_renewal_sms()`
-- **[`apps/messaging/views.py`](../apps/messaging/views.py)** — `PublicSubscribeView` (دو مرحله‌ای: OTP)، `UnsubscribeView`، `RenewalView`
-- **[`apps/messaging/urls.py`](../apps/messaging/urls.py)** — `/messaging/subscribe/<slug>/`، `/messaging/unsubscribe/<token>/`، `/messaging/renew/<token>/<action>/`
-- **[`apps/matching/tasks.py`](../apps/matching/tasks.py)** — پس از یافتن تطبیق‌ها، `process_match_notification` صدا می‌زند
-- Beat task: `send_renewal_reminders` روزانه ساعت ۹
-- Templates: public_subscribe, verify, done, unsubscribe, renewal
-- Migration: `messaging/0002_agencysmspolicy_matchsmssent`
-- **53 تست** در `tests/test_4ab_sms_notification.py` (مجموعاً ۲۷۱ تست)
+- **[`apps/ai/draft_parser.py`](../apps/ai/draft_parser.py)** — `parse_listing_transcript()` تابع خالص: متراژ، اتاق/خواب (رقمی/حرفی/چسبیده)، طبقه و طبقات کل («طبقه سوم از پنج طبقه»)، سال ساخت شمسی→میلادی (−621)، قیمت (رقمی/حرفی/مرکب «یک میلیارد و دویست میلیون»، رهن/اجاره از context)، امکانات با نقیض («بدون پارکینگ»)، نوع ملک، جهت، محله؛ خروجی data + missing (وابسته به deal_type) + confidence
+- **کلاس حروف فارسی `_FA`** بدون علائم (، ؛) تا توکن‌ها به کاما نچسبند — دام کلاس `[\u0600-\u06FF]`
+- **[`apps/ai/services.py`](../apps/ai/services.py)** — `extract_draft()` (idempotent، resolve محله به Neighborhood با نادیده‌گرفتن فاصله/ZWNJ)، `apply_draft_to_listing()` (ساخت Listing با status=draft + کد خودکار + اتصال به VoiceNote/VoiceDraft)
+- Views: `draft_generate` (HTMX)، `draft_apply` (redirect به فرم ویرایش فایل)
+- Template: `partials/draft_fields.html` (جدول فیلدها + فیلدهای نایافته + دکمه ساخت فایل)
+- **۶۹ تست جدید** در `tests/test_5a_voice_transcription.py` (43) و `tests/test_5b_smart_draft.py` (26)
 
 ---
 
-## ۳. تست‌ها (271 passing — بدون PostGIS)
+## ۳. تست‌ها (340 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -72,25 +72,28 @@
 | `tests/test_1c_media.py` | 19 |
 | `tests/test_1d_search_import.py` | 38 |
 | `tests/test_2b_timeline_visit_tasks.py` | 26 |
-| `tests/test_4ab_sms_notification.py` | **53** |
-| **جمع** | **271** |
+| `tests/test_4ab_sms_notification.py` | 53 |
+| `tests/test_5a_voice_transcription.py` | **43** |
+| `tests/test_5b_smart_draft.py` | **26** |
+| **جمع** | **340** |
 
 ---
 
 ## ۴. آنچه نیمه‌کاره است
 
 ### ۴.۱ فازهای بعدی (اولویت‌بندی)
-1. **5A** — صدا و ثبت هوشمند (MVP اصلی پروژه — Whisper/Gemini)
-2. **5B** — پیش‌نویس هوشمند فایل از صدا
-3. **6A** — رندر پوستر (PDF, Pillow)
-4. **7A** — انتشار واقعی به پورتال‌ها
+1. **6A** — رندر پوستر (PDF, Playwright/Pillow)
+2. **7A** — انتشار واقعی به پورتال‌ها (adapterهای Divar/Sheypoor)
+3. LLM draft provider — استخراج پیش‌نویس با Gemini (فعلاً پارسر رجکسی قطعی)
+4. آپلود فایل‌های صوتی بزرگ در Gemini از طریق Files API (فعلاً فقط inline ≤20MB)
 
 ### ۴.۲ موارد نیمه‌کاره
 - `test_tenant_isolation.py` — تست‌های pre-existing broken
 - `test_health.py` — pre-existing broken
-- پنل مدیریت SMS (AgencySMSConfig) فعلاً فقط از طریق admin
 - OTP در تولید باید از `AgencySMSConfig` آژانس استفاده کند (فعلاً Console)
 - `openpyxl` برای xlsx import نیاز به نصب جداگانه دارد
+- پنل مدیریت AI (AgencyAIConfig) فعلاً فقط از طریق admin
+- ضبط مستقیم با MediaRecorder JS — فعلاً input file با capture=microphone (موبایل‌فرندلی)
 
 ---
 
@@ -103,37 +106,42 @@
 | **GDAL** | روی Windows نصب نیست |
 | **Fernet key** | `_Rb6cmq4gjE2pZRi7BalzwZb49Amh9s0NGmxP0dbyW4=` |
 | **SMS Provider** | `AgencySMSConfig` با `is_active=True` باید وجود داشته باشد؛ وگرنه Console |
+| **AI Provider** | بدون `AgencyAIConfig` فعال → `ConsoleTranscriptionProvider` (متن نمونه قطعی) |
+| **سقف صوت** | 20MB (کامپایل با سقف 25MB اوپن‌ای‌آی و سقف inline 20MB جمنای) |
+| **build_year** | میلادی در DB؛ پارسر شمسی را −621 می‌کند |
 | **ConsentRecord.is_active** | property است، نه فیلد DB — در filter از `revoked_at__isnull=True` استفاده کنید |
 | **RequestStatus** | مقادیر: `new`, `in_progress`, `matched`, `closed`, `cancelled`, `expired` — `active` وجود ندارد |
 | **Request.expires_at** | `DateTimeField` است نه `DateField` |
 | **ContactPhone** | فیلدهای `phone` (encrypted) و `phone_normalized` دارد — `phone_raw` وجود ندارد |
 | **ConsentRecord** | به `agency` FK نیاز دارد؛ فیلد `text_version` (نه `consent_text_version`) |
 | **URL پیشوند SMS** | `/messaging/` |
+| **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
+| **کاما فارسی** | U+060C داخل رنج `[\u0600-\u06FF]` است — در regex فارسی کلاس حروف بدون علائم (`_FA`) استفاده شود |
+| **Celery در تست** | `CELERY_TASK_ALWAYS_EAGER=True` — آپلود صوت در تست تا transcribed کامل می‌شود |
 | **dev server** | `python manage.py runserver 8070 --settings=ara_amlak.settings.local_sqlite` |
 
 ---
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/4ab-sms-notification` (از `phase/2b-timeline-visits-tasks`)
-- آخرین کامیت: `11e89f5`
+- شاخه: `phase/5a-voice-entry` (از `phase/4ab-sms-notification`)
+- آخرین کامیت: `eadd23b`
 - پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. فاز 5A — Voice entry (Whisper/Gemini) + ثبت هوشمند فایل
-2. فاز 5B — پیش‌نویس هوشمند
-3. فاز 6A — رندر PDF پوستر
-4. فاز 7A — انتشار واقعی به پورتال‌ها
+1. فاز 6A — رندر PDF پوستر فایل
+2. فاز 7A — انتشار واقعی به پورتال‌ها
+3. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (271 تست)
+# تست no-GIS (340 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
