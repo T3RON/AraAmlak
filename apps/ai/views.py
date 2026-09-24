@@ -9,15 +9,21 @@ Endpoints:
 
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 
-from apps.ai.models import VoiceNote
-from apps.ai.services import create_voice_note, enqueue_transcription
+from apps.ai.models import VoiceDraft, VoiceNote
+from apps.ai.services import (
+    apply_draft_to_listing,
+    create_voice_note,
+    enqueue_transcription,
+    extract_draft,
+)
 from apps.listings.models import Listing
 
 logger = logging.getLogger(__name__)
@@ -106,7 +112,46 @@ def voice_note_detail_view(request, pk: int) -> HttpResponse:
         pk=pk,
         agency=request.user.agency,
     )
-    return render(request, "ai/voice_note_detail.html", {"note": note})
+    return render(
+        request,
+        "ai/voice_note_detail.html",
+        {"note": note, "draft": getattr(note, "draft", None)},
+    )
+
+
+@login_required
+@require_POST
+def draft_generate_view(request, pk: int) -> HttpResponse:
+    """HTMX: extract a structured draft from a transcribed voice note."""
+    note = get_object_or_404(VoiceNote, pk=pk, agency=request.user.agency)
+    try:
+        draft = extract_draft(note)
+    except ValidationError as exc:
+        return HttpResponse(_error_html(" ".join(exc.messages)), status=422)
+    html = render_to_string(
+        "ai/partials/draft_fields.html",
+        {"note": note, "draft": draft},
+        request=request,
+    )
+    return HttpResponse(html)
+
+
+@login_required
+@require_POST
+def draft_apply_view(request, pk: int) -> HttpResponse:
+    """Apply the extracted draft: create a Listing and redirect to it."""
+    draft = get_object_or_404(
+        VoiceDraft.objects.select_related("voice_note"),
+        pk=pk,
+        agency=request.user.agency,
+    )
+    if draft.status == "applied":
+        return redirect(draft.listing)
+    listing = apply_draft_to_listing(draft, request.user)
+    messages.success(
+        request, f"فایل «{listing.code}» از پیش‌نویس صوتی ساخته شد."
+    )
+    return redirect("listings:update", listing.pk)
 
 
 def _error_html(message: str) -> str:

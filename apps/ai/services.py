@@ -13,6 +13,13 @@ Public API:
 
 - get_transcription_provider_for_agency(agency)
     Returns the active adapter, falling back to ConsoleTranscriptionProvider.
+
+Phase 5B:
+- extract_draft(voice_note)
+    Parses the transcript into a structured VoiceDraft (regex parser).
+
+- apply_draft_to_listing(voice_draft, user)
+    Creates a Listing (status=draft) from the extracted fields.
 """
 
 from __future__ import annotations
@@ -28,6 +35,7 @@ from apps.ai.models import (
     MAX_AUDIO_SIZE_BYTES,
     AgencyAIConfig,
     AIProvider,
+    VoiceDraft,
     VoiceNote,
     VoiceNoteState,
 )
@@ -215,3 +223,131 @@ def run_transcription(voice_note_id: int) -> None:
         voice_note.save(update_fields=["status", "error_message", "updated_at"])
         logger.error("VoiceNote #%d transcription failed: %s", voice_note_id, exc)
         raise
+
+
+# ─── Draft extraction (Phase 5B) ──────────────────────────────────────────────
+
+
+def _resolve_neighborhood(district_text: str):
+    """
+    Match a plain-text district to a Neighborhood by name or alias.
+
+    Neighborhood is a shared (non-tenant) table; matching is best-effort
+    and returns None when nothing plausible is found.
+    """
+    from apps.listings.models import Neighborhood
+
+    name = district_text.strip()
+    if not name:
+        return None
+    nb = Neighborhood.objects.filter(name__iexact=name).first()
+    if nb is None:
+        nb = Neighborhood.objects.filter(name__icontains=name).first()
+    if nb is None:
+        for candidate in Neighborhood.objects.all():
+            aliases = candidate.aliases or []
+            if any(name in alias or alias in name for alias in aliases):
+                return candidate
+    return nb
+
+
+def extract_draft(voice_note: VoiceNote) -> VoiceDraft:
+    """
+    Parse a transcribed VoiceNote into a VoiceDraft.
+
+    Idempotent: re-running replaces the previous draft (still unapplied).
+    The parser is the deterministic Persian regex parser (apps.ai.draft_parser).
+    """
+    from apps.ai.draft_parser import parse_listing_transcript
+    from apps.ai.models import DraftState, VoiceNoteState
+
+    if voice_note.status != VoiceNoteState.TRANSCRIBED:
+        raise ValidationError("برای استخراج پیش‌نویس، رونویسی باید کامل شده باشد.")
+
+    result = parse_listing_transcript(voice_note.transcript)
+    data = result["data"]
+
+    if district := data.pop("district", None):
+        nb = _resolve_neighborhood(district)
+        if nb is not None:
+            data["neighborhood"] = nb.pk
+            data["district"] = district  # keep the raw text too
+
+    VoiceDraft.objects.filter(
+        voice_note=voice_note, status=DraftState.DRAFT
+    ).delete()
+
+    draft = VoiceDraft.objects.create(
+        agency=voice_note.agency,
+        voice_note=voice_note,
+        data=data,
+        missing=result["missing"],
+        confidence=result["confidence"],
+        parser="regex_fa",
+    )
+    logger.info("VoiceDraft #%d extracted from VoiceNote #%d", draft.pk, voice_note.pk)
+    return draft
+
+
+# Mapping draft keys → Listing.create kwargs; booleans default False,
+# enum fields fall back to Listing defaults when absent.
+_LISTING_BOOL_FIELDS = ("parking", "elevator", "storage", "balcony")
+
+
+def apply_draft_to_listing(voice_draft: VoiceDraft, user) -> Listing:
+    """
+    Create a Listing (status=draft) from the extracted VoiceDraft fields.
+
+    Marks the draft as applied and links both the draft and the voice note
+    to the new listing.
+    """
+    from apps.listings.models import Listing, ListingStatus, Neighborhood
+
+    data = dict(voice_draft.data)
+
+    neighborhood = None
+    if nb_pk := data.pop("neighborhood", None):
+        neighborhood = Neighborhood.objects.filter(pk=nb_pk).first()
+
+    kwargs = {}
+    for field in (
+        "area",
+        "rooms",
+        "floor",
+        "total_floors",
+        "build_year",
+        "sale_price",
+        "mortgage_amount",
+        "rent_amount",
+        "district",
+        "property_type",
+        "deal_type",
+        "direction",
+    ):
+        if field in data:
+            kwargs[field] = data[field]
+    for field in _LISTING_BOOL_FIELDS:
+        kwargs[field] = bool(data.get(field, False))
+
+    listing = Listing.objects.create(
+        agency=voice_draft.agency,
+        neighborhood=neighborhood,
+        status=ListingStatus.DRAFT,
+        assigned_to=user,
+        title=data.get("title", ""),
+        **kwargs,
+    )
+
+    voice_draft.listing = listing
+    voice_draft.status = "applied"
+    voice_draft.save(update_fields=["listing", "status", "updated_at"])
+    voice_draft.voice_note.listing = listing
+    voice_draft.voice_note.save(update_fields=["listing", "updated_at"])
+
+    logger.info(
+        "VoiceDraft #%d applied → Listing #%d (%s)",
+        voice_draft.pk,
+        listing.pk,
+        listing.code,
+    )
+    return listing
