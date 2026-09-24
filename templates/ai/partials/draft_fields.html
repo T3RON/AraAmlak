@@ -1,0 +1,51 @@
+{% load core_tags %}
+{# ─── Extracted draft fields — included in voice note detail ─────────────── #}
+<div id="voice-draft">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-top:.5rem;">
+    <h2 class="form-section-title">پیش‌نویس فایل</h2>
+    <span class="badge badge-blue">اطمینان: {{ draft.confidence|fa_number }}٪</span>
+  </div>
+
+  {% if draft.listing %}
+    <p class="text-sm" style="margin-top:.5rem;">
+      این پیش‌نویس به فایل
+      <a href="{% url 'listings:detail' draft.listing.pk %}">{{ draft.listing.code }}</a>
+      اعمال شده است. ✓
+    </p>
+  {% else %}
+    <div class="table-wrap" style="margin-top:.5rem;">
+      <table>
+        <tbody>
+          {% if draft.data.property_type %}<tr><td>نوع ملک</td><td>{{ draft.data.property_type }}</td></tr>{% endif %}
+          {% if draft.data.deal_type %}<tr><td>نوع معامله</td><td>{{ draft.data.deal_type }}</td></tr>{% endif %}
+          {% if draft.data.area %}<tr><td>متراژ</td><td>{{ draft.data.area }} متر</td></tr>{% endif %}
+          {% if draft.data.rooms %}<tr><td>اتاق</td><td>{{ draft.data.rooms }}</td></tr>{% endif %}
+          {% if draft.data.floor %}<tr><td>طبقه</td><td>{{ draft.data.floor }}</td></tr>{% endif %}
+          {% if draft.data.total_floors %}<tr><td>طبقات کل</td><td>{{ draft.data.total_floors }}</td></tr>{% endif %}
+          {% if draft.data.build_year %}<tr><td>سال ساخت (میلادی)</td><td>{{ draft.data.build_year }}</td></tr>{% endif %}
+          {% if draft.data.direction %}<tr><td>جهت</td><td>{{ draft.data.direction }}</td></tr>{% endif %}
+          {% if draft.data.district %}<tr><td>محله</td><td>{{ draft.data.district }}</td></tr>{% endif %}
+          {% if draft.data.sale_price %}<tr><td>قیمت فروش</td><td>{{ draft.data.sale_price }} تومان</td></tr>{% endif %}
+          {% if draft.data.mortgage_amount %}<tr><td>رهن</td><td>{{ draft.data.mortgage_amount }} تومان</td></tr>{% endif %}
+          {% if draft.data.rent_amount %}<tr><td>اجاره</td><td>{{ draft.data.rent_amount }} تومان</td></tr>{% endif %}
+          {% if draft.data.parking %}<tr><td>پارکینگ</td><td>✓</td></tr>{% endif %}
+          {% if draft.data.elevator %}<tr><td>آسانسور</td><td>✓</td></tr>{% endif %}
+          {% if draft.data.storage %}<tr><td>انباری</td><td>✓</td></tr>{% endif %}
+          {% if draft.data.balcony %}<tr><td>بالکن</td><td>✓</td></tr>{% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if draft.missing %}
+      <p class="text-sm text-muted" style="margin-top:.5rem;">
+        فیلدهای نایافته (در فرم تکمیل کنید):
+        {% for field in draft.missing %}<span class="badge badge-orange" style="margin-inline-start:.25rem;">{{ field }}</span>{% endfor %}
+      </p>
+    {% endif %}
+
+    <form method="post" action="{% url 'ai:draft_apply' draft.pk %}" style="margin-top:.75rem;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">ساخت فایل از پیش‌نویس</button>
+    </form>
+  {% endif %}
+</div>

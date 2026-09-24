@@ -232,21 +232,34 @@ def _resolve_neighborhood(district_text: str):
     """
     Match a plain-text district to a Neighborhood by name or alias.
 
-    Neighborhood is a shared (non-tenant) table; matching is best-effort
-    and returns None when nothing plausible is found.
+    Comparison ignores spaces, ZWNJ variants and extra words («سعادتآباد
+    عالی» matches «سعادت‌آباد»). Neighborhood is a shared (non-tenant)
+    table; matching is best-effort and returns None on no plausible hit.
     """
+    from apps.core.text import normalize_fa
     from apps.listings.models import Neighborhood
 
-    name = district_text.strip()
+    name = normalize_fa(district_text).strip()
     if not name:
         return None
     nb = Neighborhood.objects.filter(name__iexact=name).first()
     if nb is None:
         nb = Neighborhood.objects.filter(name__icontains=name).first()
     if nb is None:
+        query = name.replace(" ", "").replace("\u200c", "")
         for candidate in Neighborhood.objects.all():
-            aliases = candidate.aliases or []
-            if any(name in alias or alias in name for alias in aliases):
+            cand = (
+                normalize_fa(candidate.name).replace(" ", "").replace("\u200c", "")
+            )
+            aliases = [
+                normalize_fa(a).replace(" ", "").replace("\u200c", "")
+                for a in (candidate.aliases or [])
+            ]
+            if (
+                cand in query
+                or query in cand
+                or any(query in alias or alias in query for alias in aliases)
+            ):
                 return candidate
     return nb
 

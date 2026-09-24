@@ -47,5 +47,21 @@
     {% endif %}
   </section>
 
+  {% if note.status == 'transcribed' %}
+  <section class="card" id="draft-section">
+    {% if draft %}
+      {% include "ai/partials/draft_fields.html" with note=note draft=draft %}
+    {% else %}
+      <h2 class="form-section-title">پیش‌نویس فایل</h2>
+      <form hx-post="{% url 'ai:draft_generate' note.pk %}"
+            hx-target="#draft-section" hx-swap="innerHTML"
+            style="margin-top:.5rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">استخراج پیش‌نویس از رونویسی</button>
+      </form>
+    {% endif %}
+  </section>
+  {% endif %}
+
 </div>
 {% endblock %}

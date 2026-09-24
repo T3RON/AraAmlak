@@ -146,7 +146,7 @@ def draft_apply_view(request, pk: int) -> HttpResponse:
         agency=request.user.agency,
     )
     if draft.status == "applied":
-        return redirect(draft.listing)
+        return redirect("listings:detail", draft.listing.pk)
     listing = apply_draft_to_listing(draft, request.user)
     messages.success(
         request, f"فایل «{listing.code}» از پیش‌نویس صوتی ساخته شد."
