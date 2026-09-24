@@ -74,10 +74,12 @@ def voice_note_status_view(request, pk: int) -> HttpResponse:
     note = get_object_or_404(
         VoiceNote.objects.select_related("listing"), pk=pk, agency=request.user.agency
     )
-    return render_to_string(
-        "ai/partials/voice_note_item.html",
-        {"note": note},
-        request=request,
+    return HttpResponse(
+        render_to_string(
+            "ai/partials/voice_note_item.html",
+            {"note": note},
+            request=request,
+        )
     )
 
 
@@ -87,10 +89,12 @@ def voice_note_retry_view(request, pk: int) -> HttpResponse:
     """HTMX: re-queue a failed voice note for transcription."""
     note = get_object_or_404(VoiceNote, pk=pk, agency=request.user.agency)
     enqueue_transcription(note)
-    return render_to_string(
-        "ai/partials/voice_note_item.html",
-        {"note": note},
-        request=request,
+    return HttpResponse(
+        render_to_string(
+            "ai/partials/voice_note_item.html",
+            {"note": note},
+            request=request,
+        )
     )
 
 

@@ -24,10 +24,10 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from apps.ai.models import (
-    AIProvider,
     ALLOWED_AUDIO_MIMES,
     MAX_AUDIO_SIZE_BYTES,
     AgencyAIConfig,
+    AIProvider,
     VoiceNote,
     VoiceNoteState,
 )
@@ -35,8 +35,8 @@ from apps.ai.models import (
 if TYPE_CHECKING:
     from django.core.files import File
 
-    from apps.agencies.models import Agency
     from apps.accounts.models import CustomUser
+    from apps.agencies.models import Agency
     from apps.listings.models import Listing
 
 logger = logging.getLogger(__name__)

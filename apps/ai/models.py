@@ -61,7 +61,7 @@ ALLOWED_AUDIO_MIMES = [
 ]
 
 
-def _voice_upload_path(instance: "VoiceNote", filename: str) -> str:
+def _voice_upload_path(instance: VoiceNote, filename: str) -> str:
     ext = Path(filename).suffix.lower()
     return f"ai/voice/{instance.agency_id}/{uuid4().hex}{ext}"
 
