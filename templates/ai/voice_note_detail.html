@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}یادداشت صوتی #{{ note.pk }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:800px;">
+
+  <nav class="breadcrumb">
+    <a href="{% url 'ai:voice_list' %}">ثبت با صدا</a>
+    <span> / </span>
+    <span>یادداشت #{{ note.pk }}</span>
+  </nav>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+      <h1 style="font-size:1.25rem;font-weight:700;">
+        {{ note.original_filename|default:"یادداشت صوتی" }}
+      </h1>
+      <span class="badge
+        {% if note.status == 'transcribed' %}badge-green
+        {% elif note.status == 'failed' %}badge-red
+        {% elif note.status == 'transcribing' %}badge-orange
+        {% else %}badge-blue{% endif %}">
+        {{ note.get_status_display }}
+      </span>
+    </div>
+    <dl style="margin-top:.75rem;">
+      {% if note.listing %}
+      <div class="detail-row"><dt>فایل ملک</dt><dd><a href="{% url 'listings:detail' note.listing.pk %}">{{ note.listing.code }}</a></dd></div>
+      {% endif %}
+      <div class="detail-row"><dt>زمان ثبت</dt><dd>{{ note.created_at|date:"Y/m/d H:i" }}</dd></div>
+      {% if note.duration_seconds %}<div class="detail-row"><dt>مدت</dt><dd>{{ note.duration_seconds }} ثانیه</dd></div>{% endif %}
+      {% if note.provider %}<div class="detail-row"><dt>ارائه‌دهنده رونویسی</dt><dd>{{ note.get_provider_display }}</dd></div>{% endif %}
+    </dl>
+  </div>
+
+  <section class="card">
+    <h2 class="form-section-title">متن رونویسی</h2>
+    {% if note.transcript %}
+      <p style="margin-top:.5rem;white-space:pre-wrap;line-height:2;">{{ note.transcript }}</p>
+    {% elif note.status == 'failed' %}
+      <p class="text-sm" style="color:var(--red);margin-top:.5rem;" role="alert">
+        رونویسی ناموفق: {{ note.error_message|default:"خطای ناشناخته" }}
+      </p>
+    {% else %}
+      <p class="text-muted" style="font-size:.85rem;margin-top:.5rem;">هنوز رونویسی کامل نشده است.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

@@ -71,6 +71,10 @@ class ListingDetailView(LoginRequiredMixin, DetailView):
         ctx["visits"] = self.object.visits.select_related(
             "contact", "agent"
         ).order_by("-scheduled_at")[:10]
+        # Phase 5A: voice notes attached to this listing.
+        ctx["voice_notes"] = self.object.voice_notes.select_related(
+            "uploaded_by"
+        )
         return ctx
 
 

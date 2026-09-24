@@ -1,0 +1,87 @@
+{% load static %}
+{# ─── Voice upload panel — standalone or included inside listing detail ──── #}
+
+<div class="card" x-data="voiceUpload()" style="margin-top:1.5rem;">
+  <h2 class="form-section-title">ثبت با صدا</h2>
+  <p class="text-muted" style="font-size:.85rem;margin-top:.25rem;">
+    توضیحات فایل را ضبط یا آپلود کنید؛ پس از رونویسی، پیش‌نویس ساختاریافته استخراج می‌شود.
+  </p>
+
+  {# ── Upload dropzone ── #}
+  <div @dragover.prevent="dragging=true"
+       @dragleave.prevent="dragging=false"
+       @drop.prevent="handleDrop($event)"
+       :class="dragging ? 'dropzone-active' : ''"
+       style="border:2px dashed var(--line);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;margin-top:.75rem;"
+       @click="$refs.fileInput.click()">
+    <input type="file"
+           x-ref="fileInput"
+           accept="audio/*"
+           capture="microphone"
+           style="display:none;"
+           @change="uploadFile($event.target.files[0])">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎙️</div>
+    <p style="font-size:.85rem;color:var(--muted);">برای ضبط یا انتخاب فایل صوتی کلیک کنید</p>
+    <p style="font-size:.75rem;color:var(--muted);">MP3 · WAV · OGG · WebM · M4A — حداکثر ۲۰ MB</p>
+  </div>
+
+  <div style="margin-top:.5rem;">
+    <span x-show="status==='uploading'" style="font-size:.8rem;color:var(--accent);">⬆ در حال ارسال…</span>
+    <span x-show="status==='done'" style="font-size:.8rem;color:var(--green);">✓ برای رونویسی ارسال شد</span>
+    <span x-show="status==='error'" style="font-size:.8rem;color:var(--red);" x-text="error"></span>
+  </div>
+</div>
+
+<script>
+function voiceUpload() {
+  return {
+    dragging: false,
+    status: '',
+    error: '',
+    uploadUrl: '{% url "ai:voice_upload" %}',
+    csrfToken: '{{ csrf_token }}',
+    listingPk: '{{ listing.pk|default:"" }}',
+
+    handleDrop(e) {
+      this.dragging = false;
+      this.uploadFile(e.dataTransfer.files[0]);
+    },
+
+    uploadFile(file) {
+      if (!file) return;
+      this.status = 'uploading';
+      this.error = '';
+
+      const fd = new FormData();
+      fd.append('audio', file);
+      if (this.listingPk) fd.append('listing', this.listingPk);
+
+      fetch(this.uploadUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': this.csrfToken, 'HX-Request': 'true' },
+        body: fd,
+      })
+      .then(async r => {
+        if (r.ok) {
+          this.status = 'done';
+          const html = await r.text();
+          const list = document.getElementById('voice-notes-list');
+          if (list) {
+            list.insertAdjacentHTML('afterbegin', html);
+            if (window.htmx) htmx.process(list.firstElementChild);
+          }
+          this.$refs.fileInput.value = '';
+        } else {
+          const txt = await r.text();
+          this.status = 'error';
+          this.error = txt.replace(/<[^>]+>/g, '').trim().slice(0, 80) || 'خطای آپلود';
+        }
+      })
+      .catch(() => {
+        this.status = 'error';
+        this.error = 'اتصال قطع شد';
+      });
+    },
+  };
+}
+</script>

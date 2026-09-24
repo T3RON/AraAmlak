@@ -17,6 +17,7 @@
       <div class="nav-actions">
         {% if user.is_authenticated %}
           <a href="{% url 'crm:my_day' %}" class="text-sm text-accent">امروز من</a>
+          <a href="{% url 'ai:voice_list' %}" class="text-sm text-accent">🎙️ ثبت با صدا</a>
           <a href="{% url 'crm:notifications' %}" class="relative text-sm" style="position:relative;">
             🔔
             {% unread_notifications_badge user as unread_count %}

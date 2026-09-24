@@ -1,0 +1,49 @@
+{% load static %}
+<div id="voice-note-{{ note.pk }}" class="card" style="margin-top:.5rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+    <div>
+      <p class="text-sm" style="font-weight:600;">
+        {{ note.original_filename|default:"یادداشت صوتی" }}
+        {% if note.listing %}<span class="text-muted text-sm">— فایل {{ note.listing.code }}</span>{% endif %}
+      </p>
+      <p class="text-xs text-muted" style="margin-top:.15rem;">
+        {{ note.created_at|date:"Y/m/d H:i" }}
+        {% if note.duration_seconds %} · {{ note.duration_seconds }} ثانیه{% endif %}
+        {% if note.file_size %} · {{ note.file_size|filesizeformat }}{% endif %}
+      </p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <span class="badge
+        {% if note.status == 'transcribed' %}badge-green
+        {% elif note.status == 'failed' %}badge-red
+        {% elif note.status == 'transcribing' %}badge-orange
+        {% else %}badge-blue{% endif %}">
+        {{ note.get_status_display }}
+      </span>
+      {% if note.status == 'transcribed' %}
+        <a href="{% url 'ai:voice_detail' note.pk %}" class="btn btn-sm btn-secondary">مشاهده پیش‌نویس</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if note.status == 'failed' %}
+    <p class="text-sm" style="color:var(--red);margin-top:.5rem;" role="alert">
+      رونویسی ناموفق: {{ note.error_message|default:"خطای ناشناخته" }}
+    </p>
+    <form hx-post="{% url 'ai:voice_retry' note.pk %}" hx-target="#voice-note-{{ note.pk }}" hx-swap="outerHTML" style="margin-top:.5rem;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-secondary">تلاش مجدد</button>
+    </form>
+  {% elif note.transcript %}
+    <p class="text-sm" style="margin-top:.5rem;white-space:pre-wrap;">{{ note.transcript|truncatechars:300 }}</p>
+  {% else %}
+    <p class="text-xs text-muted" style="margin-top:.5rem;">
+      {{ note.get_status_display }}…
+    </p>
+  {% endif %}
+
+  {% if not note.is_terminal %}
+  <!-- Poll status until transcription finishes -->
+  <div hx-get="{% url 'ai:voice_status' note.pk %}" hx-trigger="load delay:2s" hx-swap="outerHTML"></div>
+  {% endif %}
+</div>

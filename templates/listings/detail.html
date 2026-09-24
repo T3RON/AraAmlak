@@ -109,6 +109,19 @@
   <!-- Media section (Phase 1C) -->
   {% include "listings/partials/media_upload.html" with listing=listing media_list=media_list %}
 
+  <!-- Voice notes (Phase 5A) -->
+  {% include "ai/partials/voice_upload.html" with listing=listing %}
+  <section style="margin-top:1rem;">
+    <h2 class="form-section-title">یادداشت‌های صوتی این فایل</h2>
+    <div id="voice-notes-list" style="margin-top:.5rem;">
+      {% for note in voice_notes %}
+        {% include "ai/partials/voice_note_item.html" with note=note %}
+      {% empty %}
+        <p class="text-muted" style="font-size:.85rem;padding:.5rem 0;">هنوز یادداشت صوتی‌ای برای این فایل ثبت نشده است.</p>
+      {% endfor %}
+    </div>
+  </section>
+
   <!-- Visits (Phase 2B) -->
   <section class="card">
     <h2 class="form-section-title">بازدیدها</h2>
