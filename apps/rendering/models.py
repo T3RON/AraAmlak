@@ -17,7 +17,7 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import AgencyOwned, TimeStampedModel
+from apps.core.models import AgencyOwned
 
 # ─── Choices ──────────────────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ class RenderStatus(models.TextChoices):
     FAILED = "failed", _("ناموفق")
 
 
-def _render_output_path(instance: "RenderJob", filename: str) -> str:
+def _render_output_path(instance: RenderJob, filename: str) -> str:
     ext = Path(filename).suffix.lower() or ".pdf"
     return f"rendering/{instance.agency_id}/{uuid4().hex}{ext}"
 

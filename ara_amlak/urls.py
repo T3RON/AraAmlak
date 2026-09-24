@@ -21,6 +21,8 @@ urlpatterns = [
     path("messaging/", include("apps.messaging.urls")),
     # AI (ثبت با صدا، پیش‌نویس هوشمند)
     path("ai/", include("apps.ai.urls")),
+    # Rendering (پوستر PDF/PNG)
+    path("rendering/", include("apps.rendering.urls")),
     # App views (dashboard, health, home)
     path("", include("apps.core.urls")),
     path("", include("apps.dashboard.urls")),

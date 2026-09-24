@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}پوستر {{ listing.code }} — آرا املاک{% endblock %}
+
+{% block content %}
+<div class="space-y-6" style="max-width:800px;">
+
+  <nav class="breadcrumb">
+    <a href="{% url 'listings:list' %}">فایل‌های ملک</a>
+    <span> / </span>
+    <a href="{% url 'listings:detail' listing.pk %}">{{ listing.code }}</a>
+    <span> / </span>
+    <span>پوستر</span>
+  </nav>
+
+  <section class="card" id="render-create">
+    <h2 class="form-section-title">تولید پوستر</h2>
+    <p class="text-muted" style="font-size:.85rem;margin-top:.25rem;">
+      پوستر PDF/PNG شامل عکس شاخص، قیمت و مشخصات فایل — آماده چاپ و اشتراک‌گذاری.
+    </p>
+    <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap;" id="render-buttons">
+      <form hx-post="{% url 'rendering:job_create' listing.pk %}"
+            hx-target="#render-jobs-list" hx-swap="afterbegin">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="poster_pdf">
+        <button type="submit" class="btn btn-primary">📄 رندر PDF</button>
+      </form>
+      <form hx-post="{% url 'rendering:job_create' listing.pk %}"
+            hx-target="#render-jobs-list" hx-swap="afterbegin">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="poster_png">
+        <button type="submit" class="btn btn-secondary">🖼️ رندر PNG</button>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="form-section-title">رندرهای قبلی</h2>
+    <div id="render-jobs-list" style="margin-top:.5rem;">
+      {% for job in jobs %}
+        {% include "rendering/partials/render_job_item.html" with job=job %}
+      {% empty %}
+        <p class="text-muted" style="font-size:.85rem;padding:.5rem 0;">هنوز پوستری برای این فایل ساخته نشده است.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+</div>
+{% endblock %}

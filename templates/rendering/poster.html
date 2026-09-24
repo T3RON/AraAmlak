@@ -1,0 +1,160 @@
+{% load core_tags %}<!DOCTYPE html>
+{# ─── Self-contained listing poster — rendered to PDF/PNG by Playwright ──── #}
+{# All assets are inlined (base64) so no external requests are needed.       #}
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Vazirmatn", "Tahoma", "Segoe UI", sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    direction: rtl;
+  }
+  .poster {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+  }
+  .cover {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+    background: #e8e8ed;
+  }
+  .cover-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #e8e8ed 0%, #d5d5db 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: #aeaeb2;
+  }
+  .body { padding: 28px 32px 0; }
+  .badge-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .badge {
+    font-size: 13px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: #f5f5f7;
+    color: #3a3a3c;
+  }
+  .badge.accent { background: #0071e3; color: #fff; }
+  h1 { font-size: 24px; font-weight: 800; line-height: 1.5; }
+  .location { color: #86868b; font-size: 14px; margin-top: 6px; }
+  .price-band {
+    margin: 20px 0;
+    background: #f5f5f7;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .price { font-size: 20px; font-weight: 800; color: #0071e3; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .cell {
+    background: #f5f5f7;
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .cell .v { font-size: 17px; font-weight: 700; }
+  .cell .k { font-size: 12px; color: #86868b; margin-top: 2px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .chip {
+    font-size: 13px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid #d2d2d7;
+    color: #3a3a3c;
+  }
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 32px;
+    background: #1d1d1f;
+    color: #f5f5f7;
+  }
+  .footer img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; }
+  .agency-name { font-weight: 700; font-size: 16px; }
+  .agency-contact { font-size: 13px; color: #a1a1a6; margin-top: 2px; }
+  .code { margin-inline-start: auto; font-size: 13px; color: #a1a1a6; }
+</style>
+</head>
+<body>
+<div class="poster">
+  {% if cover_data_uri %}
+    <img class="cover" src="{{ cover_data_uri }}" alt="">
+  {% else %}
+    <div class="cover-placeholder">🏠</div>
+  {% endif %}
+
+  <div class="body">
+    <div class="badge-row">
+      <span class="badge accent">{{ listing.get_deal_type_display }}</span>
+      <span class="badge">{{ listing.get_property_type_display }}</span>
+      {% if listing.direction %}<span class="badge">{{ listing.get_direction_display }}</span>{% endif %}
+    </div>
+
+    <h1>{{ listing.title|default:"فایل ملکی" }}</h1>
+    <p class="location">
+      {% if listing.city %}{{ listing.city }}{% endif %}
+      {% if listing.neighborhood %} — {{ listing.neighborhood.name }}{% endif %}
+      {% if listing.district and not listing.neighborhood %} — {{ listing.district }}{% endif %}
+    </p>
+
+    {% if price_lines %}
+    <div class="price-band">
+      {% for line in price_lines %}<span class="price">{{ line }}</span>{% endfor %}
+      {% if listing.price_negotiable %}<span class="badge" style="align-self:center;">توافقی</span>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="grid">
+      {% if area_str %}<div class="cell"><div class="v">{{ area_str }}</div><div class="k">متر مربع</div></div>{% endif %}
+      {% if rooms_str %}<div class="cell"><div class="v">{{ rooms_str }}</div><div class="k">اتاق خواب</div></div>{% endif %}
+      {% if listing.floor != None %}<div class="cell"><div class="v">{{ listing.floor|fa_number }}</div><div class="k">طبقه</div></div>{% endif %}
+      {% if listing.total_floors %}<div class="cell"><div class="v">{{ listing.total_floors|fa_number }}</div><div class="k">طبقات کل</div></div>{% endif %}
+      {% if listing.build_year %}<div class="cell"><div class="v">{{ listing.build_year|fa_number }}</div><div class="k">سال ساخت</div></div>{% endif %}
+      {% if listing.land_area %}<div class="cell"><div class="v">{{ listing.land_area|fa_number }}</div><div class="k">متراژ زمین</div></div>{% endif %}
+    </div>
+
+    {% if listing.parking or listing.elevator or listing.storage or listing.balcony %}
+    <div class="chips">
+      {% if listing.parking %}<span class="chip">🚗 پارکینگ</span>{% endif %}
+      {% if listing.elevator %}<span class="chip">🛗 آسانسور</span>{% endif %}
+      {% if listing.storage %}<span class="chip">📦 انباری</span>{% endif %}
+      {% if listing.balcony %}<span class="chip">🌿 بالکن</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="footer">
+    {% if logo_data_uri %}<img src="{{ logo_data_uri }}" alt="">{% endif %}
+    <div>
+      <div class="agency-name">{{ agency.name }}</div>
+      <div class="agency-contact">
+        {% if agency.phone %}☎ {{ agency.phone|fa_number }}{% endif %}
+        {% if agency.address %} — {{ agency.address }}{% endif %}
+      </div>
+    </div>
+    <div class="code">کد: {{ listing.code|fa_number }}</div>
+  </div>
+</div>
+</body>
+</html>
