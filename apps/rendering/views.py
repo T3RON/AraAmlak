@@ -67,10 +67,12 @@ def render_job_download_view(request, job_pk: int) -> HttpResponse:
     job = get_object_or_404(RenderJob, pk=job_pk, agency=request.user.agency)
     if not job.file:
         return HttpResponse("فایل خروجی هنوز آماده نیست.", status=404)
+    ext = job.file.name.rsplit(".", 1)[-1]
+    kind = job.kind.replace("poster_", "")
     return FileResponse(
         job.file.open("rb"),
         as_attachment=True,
-        filename=f"poster-{job.listing.code}-{job.kind.replace('poster_', '')}.{job.file.name.rsplit('.', 1)[-1]}",
+        filename=f"poster-{job.listing.code}-{kind}.{ext}",
     )
 
 
