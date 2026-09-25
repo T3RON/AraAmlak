@@ -67,6 +67,7 @@ def voice_note_upload_view(request) -> HttpResponse:
         return HttpResponse(_error_html("خطای داخلی رخ داد."), status=500)
 
     enqueue_transcription(note)
+    note.refresh_from_db()  # eager Celery already finished — show final state
     html = render_to_string(
         "ai/partials/voice_note_item.html",
         {"note": note},

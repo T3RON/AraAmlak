@@ -138,3 +138,174 @@ input[type=checkbox] { width: 1rem; height: 1rem; accent-color: var(--accent); }
 
 /* Responsive */
 @media (max-width: 640px) { .grid-cards { grid-template-columns: 1fr; } }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dashboard design system — sidebar + topbar + charts + forms (Phase 0B)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── App shell ─── */
+.app-shell { display: flex; min-height: 100vh; }
+
+/* ─── Sidebar (RTL → right side) ─── */
+.sidebar {
+  position: fixed; inset-block: 0; inset-inline-end: 0;
+  width: 260px; z-index: 50;
+  background: var(--bg-card);
+  border-inline-start: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transition: transform .25s ease;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: .6rem;
+  padding: 1.1rem 1.25rem; text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand .logo {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 1rem;
+}
+.sidebar-brand .name { font-weight: 700; color: var(--text); font-size: 1rem; }
+.sidebar-brand .name small { display: block; font-weight: 400; font-size: .68rem; color: var(--muted); }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: .75rem .75rem 1rem; }
+.nav-section { font-size: .68rem; font-weight: 600; color: var(--muted); letter-spacing: .04em; padding: 1rem .6rem .35rem; }
+.nav-item {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .55rem .75rem; margin-block: .1rem;
+  border-radius: 10px; text-decoration: none;
+  color: var(--text); font-size: .875rem; font-weight: 500;
+  transition: background .15s, color .15s;
+}
+.nav-item .ico { width: 20px; text-align: center; font-size: 1rem; }
+.nav-item:hover { background: rgba(0,122,255,.08); }
+.nav-item.active { background: rgba(0,122,255,.13); color: var(--accent); font-weight: 600; }
+.nav-item .count {
+  margin-inline-start: auto; font-size: .68rem; font-weight: 700;
+  background: var(--red); color: #fff; border-radius: 999px; padding: .05rem .45rem;
+}
+
+.sidebar-footer { padding: .9rem 1rem; border-top: 1px solid var(--border); font-size: .78rem; }
+.sidebar-footer .plan { color: var(--muted); }
+
+/* ─── Main area ─── */
+.main-area { flex: 1; margin-inline-end: 260px; display: flex; flex-direction: column; min-width: 0; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: .9rem;
+  padding: .7rem 1.5rem;
+  background: rgba(242,242,247,.82);
+  backdrop-filter: saturate(180%) blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.dark .topbar { background: rgba(28,28,30,.8); }
+.topbar .hamburger { display: none; background: none; border: none; font-size: 1.35rem; cursor: pointer; color: var(--text); padding: .15rem .35rem; border-radius: 8px; }
+.topbar .page-crumb { font-size: .85rem; color: var(--muted); font-weight: 500; }
+.topbar .spacer { flex: 1; }
+.topbar .top-actions { display: flex; align-items: center; gap: .9rem; }
+.topbar .user-chip { display: flex; align-items: center; gap: .5rem; font-size: .82rem; color: var(--text); text-decoration: none; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--border); }
+.topbar .user-chip:hover { background: rgba(0,122,255,.08); }
+.topbar .user-chip .avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #fff; font-size: .7rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.content { padding: 1.5rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+/* Mobile: off-canvas sidebar */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 45; }
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); inset-inline-end: auto; inset-inline-start: 0; }
+  [dir="rtl"] .sidebar { transform: translateX(100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.show { display: block; }
+  .main-area { margin-inline-end: 0; }
+  .topbar .hamburger { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .nav-item, .btn { transition: none; }
+}
+
+/* ─── Page headers ─── */
+.page-title { font-size: 1.45rem; font-weight: 800; }
+.page-sub { font-size: .85rem; color: var(--muted); margin-top: .2rem; }
+
+/* ─── Stat cards ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .9rem; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1rem 1.1rem; display: flex; align-items: center; gap: .85rem;
+}
+.stat-card .ico {
+  width: 42px; height: 42px; border-radius: 12px; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.stat-card .ico.blue { background: rgba(0,122,255,.12); }
+.stat-card .ico.green { background: rgba(52,199,89,.12); }
+.stat-card .ico.orange { background: rgba(255,149,0,.14); }
+.stat-card .ico.red { background: rgba(255,59,48,.12); }
+.stat-card .ico.purple { background: rgba(88,86,214,.12); }
+.stat-card .ico.gray { background: rgba(142,142,147,.14); }
+.stat-card .val { font-size: 1.45rem; font-weight: 800; line-height: 1.1; }
+.stat-card .lbl { font-size: .72rem; color: var(--muted); margin-top: .15rem; }
+
+/* ─── Chart cards ─── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+.chart-card h3 { font-size: .9rem; font-weight: 700; margin-bottom: .75rem; }
+.chart-box { position: relative; height: 260px; }
+.chart-box canvas { max-width: 100%; }
+
+/* ─── Tables polish ─── */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.table-wrap th { text-align: right; font-size: .72rem; font-weight: 600; color: var(--muted); padding: .7rem .9rem; border-bottom: 1px solid var(--border); background: rgba(142,142,147,.06); }
+.table-wrap td { padding: .65rem .9rem; border-bottom: 1px solid var(--border); }
+.table-wrap tr:last-child td { border-bottom: none; }
+.table-wrap tr:hover td { background: rgba(0,122,255,.04); }
+
+/* ─── Forms polish ─── */
+.form-control::placeholder { color: var(--muted); opacity: .7; }
+textarea.form-control { min-height: 90px; resize: vertical; }
+select.form-control { appearance: none; background-image: linear-gradient(45deg, transparent 49%, var(--muted) 50%), linear-gradient(-45deg, transparent 49%, var(--muted) 50%); background-size: 5px 5px; background-position: left 1rem center, left 1.3rem center; background-repeat: no-repeat; }
+.form-hint { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+.form-section .form-grid-2 > .form-group:only-child, .form-section .form-grid-3 > .form-group:only-child { grid-column: 1 / -1; }
+.form-actions { display: flex; gap: .75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+.error-text { color: var(--red); font-size: .75rem; margin-top: .3rem; }
+
+/* ─── Empty states ─── */
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+.empty-state .em { font-size: 2rem; margin-bottom: .5rem; }
+
+/* Style Django widget inputs even when the form doesn't set .form-control */
+.form-section input[type="text"],
+.form-section input[type="number"],
+.form-section input[type="tel"],
+.form-section input[type="email"],
+.form-section input[type="date"],
+.form-section textarea,
+.form-section select,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: .5rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: .9rem;
+  transition: box-shadow .15s;
+}
+.form-section input:focus, .form-section textarea:focus, .form-section select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,122,255,.25);
+  border-color: var(--accent);
+}
+.form-section input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }

@@ -132,6 +132,8 @@ function voiceUpload() {
           const html = await r.text();
           const list = document.getElementById('voice-notes-list');
           if (list) {
+            const empty = list.querySelector('.empty-state');
+            if (empty) empty.remove();
             list.insertAdjacentHTML('afterbegin', html);
             if (window.htmx) htmx.process(list.firstElementChild);
           }

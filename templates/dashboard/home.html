@@ -2,49 +2,149 @@
 {% load static core_tags %}
 
 {% block title %}داشبورد — آرا املاک{% endblock %}
+{% block crumb %}داشبورد{% endblock %}
 
 {% block content %}
+{{ chart_data|json_script:"chart-data" }}
 <div class="space-y-6">
+
   <!-- Welcome -->
-  <div>
-    <h1 class="page-title">خوش آمدید{% if user.full_name %}، {{ user.full_name }}{% endif %}</h1>
-    <p class="page-sub">{% if agency %}{{ agency.name }}{% else %}آرا املاک{% endif %} — داشبورد</p>
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 class="page-title">خوش آمدید{% if user.full_name %}، {{ user.full_name }}{% endif %} 👋</h1>
+      <p class="page-sub">{% if agency %}{{ agency.name }}{% else %}آرا املاک{% endif %} — نمای کلی امروز</p>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+      <a href="{% url 'listings:create' %}" class="btn btn-primary">＋ ثبت فایل جدید</a>
+      <a href="{% url 'crm:create' %}" class="btn btn-ghost">＋ درخواست جدید</a>
+    </div>
   </div>
 
   <!-- Stats -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">فایل‌های فعال</p>
-      <p style="font-size:2rem;font-weight:700;color:var(--green);">{{ active_listings|fa_number }}</p>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <span class="ico green">🏠</span>
+      <div><div class="val" style="color:var(--green);">{{ active_listings|fa_number }}</div><div class="lbl">فایل‌های فعال</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">کل فایل‌ها</p>
-      <p style="font-size:2rem;font-weight:700;">{{ total_listings|fa_number }}</p>
+    <div class="stat-card">
+      <span class="ico blue">🗂️</span>
+      <div><div class="val">{{ total_listings|fa_number }}</div><div class="lbl">کل فایل‌ها</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">درخواست‌های جدید</p>
-      <p style="font-size:2rem;font-weight:700;color:var(--accent);">{{ new_requests|fa_number }}</p>
+    <div class="stat-card">
+      <span class="ico orange">🤝</span>
+      <div><div class="val" style="color:var(--orange);">{{ new_requests|fa_number }}</div><div class="lbl">درخواست‌های جدید</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">کل درخواست‌ها</p>
-      <p style="font-size:2rem;font-weight:700;">{{ total_requests|fa_number }}</p>
+    <div class="stat-card">
+      <span class="ico purple">📋</span>
+      <div><div class="val">{{ total_requests|fa_number }}</div><div class="lbl">کل درخواست‌ها</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">تطبیق‌های امروز</p>
-      <p style="font-size:2rem;font-weight:700;color:var(--green);">{{ matches_today|fa_number }}</p>
+    <div class="stat-card">
+      <span class="ico green">🎯</span>
+      <div><div class="val" style="color:var(--green);">{{ matches_today|fa_number }}</div><div class="lbl">تطبیق‌های امروز</div></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <p class="text-xs text-muted" style="margin-bottom:.5rem;">انتشار امروز</p>
-      <p style="font-size:2rem;font-weight:700;color:var(--accent);">{{ published_today|fa_number }}</p>
+    <div class="stat-card">
+      <span class="ico blue">🌐</span>
+      <div><div class="val" style="color:var(--accent);">{{ published_today|fa_number }}</div><div class="lbl">انتشار امروز</div></div>
     </div>
   </div>
 
-  <!-- Quick links -->
-  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-    <a href="{% url 'listings:list' %}" class="btn btn-primary">فایل‌های ملک</a>
-    <a href="{% url 'listings:create' %}" class="btn btn-ghost">+ ثبت فایل جدید</a>
-    <a href="{% url 'crm:list' %}" class="btn btn-ghost">درخواست‌ها</a>
-    <a href="{% url 'crm:create' %}" class="btn btn-ghost">+ ثبت درخواست</a>
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>وضعیت فایل‌های ملک</h3>
+      <div class="chart-box"><canvas id="statusChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>درخواست‌های ۶ ماه اخیر</h3>
+      <div class="chart-box"><canvas id="requestsChart"></canvas></div>
+    </div>
   </div>
+
+  <!-- Quick actions -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>دسترسی سریع</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;margin-top:.4rem;">
+        <a href="{% url 'ai:voice_list' %}" class="btn btn-ghost" style="justify-content:center;padding:.9rem;">🎙️ ثبت با صدا</a>
+        <a href="{% url 'listings:list' %}" class="btn btn-ghost" style="justify-content:center;padding:.9rem;">🏠 فایل‌ها</a>
+        <a href="{% url 'crm:list' %}" class="btn btn-ghost" style="justify-content:center;padding:.9rem;">🤝 درخواست‌ها</a>
+        <a href="{% url 'crm:tasks' %}" class="btn btn-ghost" style="justify-content:center;padding:.9rem;">✅ وظایف</a>
+        <a href="{% url 'crm:my_day' %}" class="btn btn-ghost" style="justify-content:center;padding:.9rem;">☀️ امروز من</a>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>راهنمای سریع</h3>
+      <p class="text-sm text-muted" style="line-height:2;">
+        با «ثبت با صدا» توضیحات فایل را بگویید؛ رونویسی و پیش‌نویس فایل خودکار ساخته می‌شود.
+        از هر فایل می‌توانید پوستر PDF بگیرید و به دیوار منتشر کنید.
+      </p>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block bottom_scripts %}
+<script src="{% static 'js/chart.umd.min.js' %}"></script>
+<script>
+  const data = JSON.parse(document.getElementById('chart-data').textContent);
+
+  // Persian digits helper
+  const fa = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+  // Donut — listings by status
+  if (data.statusChart.length) {
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: data.statusChart.map(d => d.label),
+        datasets: [{
+          data: data.statusChart.map(d => d.value),
+          backgroundColor: data.statusChart.map(d => d.color),
+          borderWidth: 2,
+          borderColor: getComputedStyle(document.body).getPropertyValue('--bg-card') || '#fff',
+          hoverOffset: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { position: 'left', rtl: true, labels: { font: { family: 'Vazirmatn', size: 12 }, padding: 14 } },
+          tooltip: { rtl: true, titleFont: { family: 'Vazirmatn' }, bodyFont: { family: 'Vazirmatn' } }
+        }
+      }
+    });
+  } else {
+    document.getElementById('statusChart').closest('.chart-box').innerHTML =
+      '<div class="empty-state"><div class="em">🏠</div>هنوز فایلی ثبت نشده است</div>';
+  }
+
+  // Bar — requests last 6 months
+  new Chart(document.getElementById('requestsChart'), {
+    type: 'bar',
+    data: {
+      labels: data.requestsChart.labels.map(fa),
+      datasets: [{
+        label: 'درخواست',
+        data: data.requestsChart.values,
+        backgroundColor: 'rgba(0,122,255,.75)',
+        hoverBackgroundColor: 'rgba(0,122,255,1)',
+        borderRadius: 8,
+        maxBarThickness: 42,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { rtl: true, titleFont: { family: 'Vazirmatn' }, bodyFont: { family: 'Vazirmatn' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Vazirmatn', size: 11 } } },
+        y: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Vazirmatn', size: 11 } }, border: { display: false }, grid: { color: 'rgba(142,142,147,.15)' } }
+      }
+    }
+  });
+</script>
 {% endblock %}

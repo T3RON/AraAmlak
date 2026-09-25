@@ -10,53 +10,96 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <a href="{% url 'dashboard:home' %}" class="nav-brand">آرا املاک</a>
-      <div class="nav-actions">
+<div class="app-shell">
+
+  <!-- ─── Sidebar ─── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="{% url 'dashboard:home' %}" class="sidebar-brand">
+      <span class="logo">آ</span>
+      <span class="name">آرا املاک
+        <small>{% if agency %}{{ agency.name }}{% else %}پنل مدیریت{% endif %}</small>
+      </span>
+    </a>
+
+    <nav class="sidebar-nav" aria-label="منوی اصلی">
+      <div class="nav-section">اصلی</div>
+      <a class="nav-item" data-prefix="/dashboard" href="{% url 'dashboard:home' %}"><span class="ico">📊</span> داشبورد</a>
+      <a class="nav-item" data-prefix="/crm/my-day" href="{% url 'crm:my_day' %}"><span class="ico">☀️</span> امروز من</a>
+
+      <div class="nav-section">فایل و مشتریان</div>
+      <a class="nav-item" data-prefix="/listings" href="{% url 'listings:list' %}"><span class="ico">🏠</span> فایل‌های ملک</a>
+      <a class="nav-item" data-prefix="/crm" href="{% url 'crm:list' %}"><span class="ico">🤝</span> درخواست‌ها</a>
+      <a class="nav-item" data-prefix="/crm/timeline" href="{% url 'crm:timeline' %}"><span class="ico">🗓️</span> تایم‌لاین</a>
+      <a class="nav-item" data-prefix="/crm/tasks" href="{% url 'crm:tasks' %}"><span class="ico">✅</span> وظایف</a>
+
+      <div class="nav-section">هوشمند</div>
+      <a class="nav-item" data-prefix="/ai/voice" href="{% url 'ai:voice_list' %}"><span class="ico">🎙️</span> ثبت با صدا</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      {% if user.is_authenticated %}
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <span class="avatar" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">{{ user.full_name|default:user.phone|slice:":2" }}</span>
+          <span style="font-weight:600;">{{ user.full_name|default:user.phone }}</span>
+        </div>
+        <a href="{% url 'accounts:logout' %}" style="color:var(--red);text-decoration:none;font-size:.78rem;">خروج از حساب</a>
+      {% endif %}
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- ─── Main area ─── -->
+  <div class="main-area">
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="منو">☰</button>
+      <span class="page-crumb">{% block crumb %}{% endblock %}</span>
+      <span class="spacer"></span>
+      <div class="top-actions">
         {% if user.is_authenticated %}
-          <a href="{% url 'crm:my_day' %}" class="text-sm text-accent">امروز من</a>
-          <a href="{% url 'ai:voice_list' %}" class="text-sm text-accent">🎙️ ثبت با صدا</a>
-          <a href="{% url 'crm:notifications' %}" class="relative text-sm" style="position:relative;">
+          <a href="{% url 'crm:notifications' %}" class="nav-item" style="position:relative;padding:.35rem .6rem;" aria-label="اعلان‌ها">
             🔔
             {% unread_notifications_badge user as unread_count %}
             {% if unread_count %}
-              <span id="notif-badge" class="badge badge-red" style="font-size:.7rem;padding:.05rem .35rem;">{{ unread_count|fa_number }}</span>
+              <span id="notif-badge" class="badge badge-red" style="font-size:.65rem;padding:.05rem .35rem;position:absolute;top:-2px;left:-4px;">{{ unread_count|fa_number }}</span>
             {% endif %}
           </a>
-          <span class="text-sm text-muted">{{ user.get_short_name }}</span>
-          <a href="{% url 'accounts:logout' %}" class="text-sm" style="color:var(--red)">خروج</a>
-        {% else %}
-          <a href="{% url 'accounts:login' %}" class="text-sm text-accent">ورود</a>
         {% endif %}
-        <button class="dark-toggle" onclick="toggleDark()" aria-label="تغییر حالت تاریک" x-show="true">
+        <button class="dark-toggle" onclick="toggleDark()" aria-label="تغییر حالت تاریک">
           <span x-show="!darkMode">🌙</span>
           <span x-show="darkMode">☀️</span>
         </button>
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:logout' %}" class="user-chip" title="خروج">
+            <span class="avatar">{{ user.full_name|default:user.phone|slice:":2" }}</span>
+            <span>{{ user.full_name|default:user.phone }}</span>
+          </a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="user-chip">ورود</a>
+        {% endif %}
       </div>
-    </div>
-  </nav>
+    </header>
 
-  <!-- Messages -->
-  {% if messages %}
-  <div style="max-width:72rem;margin:0 auto;padding:.75rem 1rem;">
-    {% for message in messages %}
-    <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% else %}msg-info{% endif %}">
-      {{ message }}
+    <!-- Messages -->
+    {% if messages %}
+    <div style="padding:.75rem 1.5rem 0;">
+      {% for message in messages %}
+      <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% else %}msg-info{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
   </div>
-  {% endif %}
-
-  <!-- Main Content -->
-  <main class="content">
-    {% block content %}{% endblock %}
-  </main>
+</div>
 
   <!-- Scripts -->
-  <script src="{% static 'js/alpine.min.js' %}" defer></script>
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine.min.js' %}" defer></script>
+  {% block extra_scripts %}{% endblock %}
   <script>
     function app() {
       return {
@@ -68,11 +111,24 @@
       const isDark = body.classList.toggle('dark');
       localStorage.setItem('darkMode', isDark);
     }
+    function toggleSidebar(force) {
+      const sb = document.getElementById('sidebar');
+      const ov = document.getElementById('sidebar-overlay');
+      const open = force !== undefined ? force : !sb.classList.contains('open');
+      sb.classList.toggle('open', open);
+      ov.classList.toggle('show', open);
+    }
     // Apply dark mode on load
     if (localStorage.getItem('darkMode') === 'true') {
       document.documentElement.classList.add('dark');
     }
+    // Active nav highlighting
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.nav-item[data-prefix]').forEach(a => {
+        if (location.pathname.startsWith(a.dataset.prefix)) a.classList.add('active');
+      });
+    });
   </script>
-  {% block extra_scripts %}{% endblock %}
+  {% block bottom_scripts %}{% endblock %}
 </body>
 </html>

@@ -2,38 +2,49 @@
 {% load static %}
 
 {% block title %}{{ page_title|default:"ثبت فایل" }} — آرا املاک{% endblock %}
+{% block crumb %}فایل‌های ملک / {{ page_title|default:"ثبت فایل جدید" }}{% endblock %}
 
 {% block content %}
-<div style="max-width:700px;">
+<div style="max-width:760px;">
 
   <nav class="breadcrumb" style="margin-bottom:.5rem;">
     <a href="{% url 'listings:list' %}">فایل‌های ملک</a> / {{ page_title|default:"ثبت فایل جدید" }}
   </nav>
-  <h1 class="page-title" style="margin-bottom:1.5rem;">{{ page_title|default:"ثبت فایل جدید" }}</h1>
+  <h1 class="page-title" style="margin-bottom:1.25rem;">{{ page_title|default:"ثبت فایل جدید" }}</h1>
 
-  <form method="post" class="space-y-4">
+  <form method="post" class="space-y-4" novalidate>
     {% csrf_token %}
 
     {% if form.errors %}
-    <div class="msg msg-error">لطفاً خطاهای زیر را برطرف کنید: {{ form.errors }}</div>
+    <div class="msg msg-error">
+      <strong>لطفاً خطاهای زیر را برطرف کنید:</strong>
+      <ul style="margin:.35rem 1rem 0;">
+        {% for field, errors in form.errors.items %}
+          {% if field != '__all__' %}{% for e in errors %}<li>{{ field }} — {{ e }}</li>{% endfor %}{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
     {% endif %}
 
     <div class="form-section">
       <h2 class="form-section-title">نوع معامله</h2>
-      <div class="form-grid-2">
+      <div class="form-grid-3">
         <div class="form-group"><label class="form-label">{{ form.property_type.label }}</label>{{ form.property_type }}</div>
         <div class="form-group"><label class="form-label">{{ form.deal_type.label }}</label>{{ form.deal_type }}</div>
+        <div class="form-group"><label class="form-label">{{ form.status.label }}</label>{{ form.status }}</div>
       </div>
-      <div class="form-group"><label class="form-label">{{ form.title.label }}</label>{{ form.title }}</div>
+      <div class="form-group"><label class="form-label">{{ form.title.label }}</label>{{ form.title }}
+        <p class="form-hint">مثلاً: آپارتمان نوساز دوخوابه با پارکینگ</p>
+      </div>
     </div>
 
     <div class="form-section">
       <h2 class="form-section-title">موقعیت</h2>
-      <div class="form-grid-2">
+      <div class="form-grid-3">
         <div class="form-group"><label class="form-label">{{ form.province.label }}</label>{{ form.province }}</div>
         <div class="form-group"><label class="form-label">{{ form.city.label }}</label>{{ form.city }}</div>
+        <div class="form-group"><label class="form-label">{{ form.district.label }}</label>{{ form.district }}</div>
       </div>
-      <div class="form-group"><label class="form-label">{{ form.district.label }}</label>{{ form.district }}</div>
       <div class="form-group"><label class="form-label">{{ form.address.label }}</label>{{ form.address }}</div>
     </div>
 
@@ -42,12 +53,12 @@
       <div class="form-grid-3">
         <div class="form-group"><label class="form-label">{{ form.area.label }}</label>{{ form.area }}</div>
         <div class="form-group"><label class="form-label">{{ form.rooms.label }}</label>{{ form.rooms }}</div>
+        <div class="form-group"><label class="form-label">{{ form.build_year.label }}</label>{{ form.build_year }}</div>
         <div class="form-group"><label class="form-label">{{ form.floor.label }}</label>{{ form.floor }}</div>
         <div class="form-group"><label class="form-label">{{ form.total_floors.label }}</label>{{ form.total_floors }}</div>
-        <div class="form-group"><label class="form-label">{{ form.build_year.label }}</label>{{ form.build_year }}</div>
         <div class="form-group"><label class="form-label">{{ form.direction.label }}</label>{{ form.direction }}</div>
       </div>
-      <div style="display:flex;gap:1.5rem;padding-top:.5rem;">
+      <div style="display:flex;gap:1.5rem;padding-top:.6rem;flex-wrap:wrap;">
         <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.parking }} {{ form.parking.label }}</label>
         <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.elevator }} {{ form.elevator.label }}</label>
         <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">{{ form.storage }} {{ form.storage.label }}</label>
@@ -66,6 +77,7 @@
 
     <div class="form-section">
       <h2 class="form-section-title">اطلاعات مالک (محرمانه)</h2>
+      <p class="form-hint" style="margin-bottom:.75rem;">شماره مالک رمزنگاری‌شده ذخیره می‌شود و فقط برای اعضای همین آژانس نمایش داده می‌شود.</p>
       <div class="form-grid-2">
         <div class="form-group"><label class="form-label">{{ form.owner_name.label }}</label>{{ form.owner_name }}</div>
         <div class="form-group"><label class="form-label">{{ form.owner_phone.label }}</label>{{ form.owner_phone }}</div>
@@ -73,15 +85,14 @@
     </div>
 
     <div class="form-section">
-      <h2 class="form-section-title">وضعیت و انتساب</h2>
+      <h2 class="form-section-title">انتساب</h2>
       <div class="form-grid-2">
-        <div class="form-group"><label class="form-label">{{ form.status.label }}</label>{{ form.status }}</div>
         <div class="form-group"><label class="form-label">{{ form.assigned_to.label }}</label>{{ form.assigned_to }}</div>
         <div class="form-group"><label class="form-label">{{ form.branch.label }}</label>{{ form.branch }}</div>
       </div>
     </div>
 
-    <div style="display:flex;gap:.75rem;padding-top:.5rem;">
+    <div class="form-actions">
       <button type="submit" class="btn btn-primary">ذخیره فایل</button>
       <a href="{% url 'listings:list' %}" class="btn btn-ghost">انصراف</a>
     </div>
