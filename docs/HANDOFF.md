@@ -1,7 +1,7 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فاز 7A — انتشار واقعی به دیوار (Kenar)
-**شاخه جاری:** `phase/7a-portal-publishing`
+**آخرین به‌روزرسانی:** پس از تکمیل فاز 5C — استخراج پیش‌نویس با Gemini structured output
+**شاخه جاری:** `phase/5c-llm-draft`
 **آخرین کامیت:** پس از کامیت docs این جلسه
 
 ---
@@ -27,6 +27,7 @@
 | **5B** | **پارسر فارسی + پیش‌نویس هوشمند فایل از رونویسی** | **✅ کامل** | **100%** |
 | **6A** | **رندر واقعی پوستر PDF/PNG (Playwright)** | **✅ کامل** | **100%** |
 | **7A** | **انتشار واقعی به دیوار (Kenar)** | **✅ کامل** | **100%** |
+| **5C** | **استخراج پیش‌نویس با Gemini structured output** | **✅ کامل** | **100%** |
 | 8–11 | حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
 
 ---
@@ -77,9 +78,20 @@
 - **شیپور آداپتور ندارد** — API عمومی مستند ندارد؛ endpoint حدس زده نمی‌شود (قانون §10)
 - **۱۹ تست جدید** در `tests/test_7a_divar_publishing.py` (همه HTTP mocked)
 
+### فاز 5C — استخراج پیش‌نویس با LLM (Gemini structured output)
+
+- **[`apps/ai/providers/draft_base.py`](../apps/ai/providers/draft_base.py)** — `DraftProvider` ABC (`name`, `is_async`, `extract`)
+- **[`apps/ai/providers/regex_draft.py`](../apps/ai/providers/regex_draft.py)** — `RegexPersianDraftProvider` (پارسر 5B به‌عنوان fallback آفلاین، همگام)
+- **[`apps/ai/providers/gemini_draft.py`](../apps/ai/providers/gemini_draft.py)** — `GeminiDraftProvider`: Interactions API با `response_format` (type=text, mime_type=application/json, schema) طبق مستندات رسمی؛ JSON از `output_text`
+- نرمال‌سازی سخت‌گیرانه (توصیه رسمی گوگل): whitelist فیلدها، coerce عددی، اعتبارسنجی enum با choices لیستینگ، سال ساخت شمسی→میلادی (۱۳۰۰-۱۴۹۹ → +621، دو رقمی → +1300+621)، حذف مقادیر منفی/صفر بی‌معنی
+- **[`apps/ai/draft_parser.py`](../apps/ai/draft_parser.py)** — `score_draft()` مشترک (missing/confidence بر اساس مقدار) برای مسیر LLM
+- **[`apps/ai/services.py`](../apps/ai/services.py)** — `get_draft_provider_for_agency()` (config گمنای با کلید → Gemini؛ در غیر این صورت regex)؛ `extract_draft(note, provider=None)` با `parser=provider.name`
+- تماس LLM خارجی → فقط از Celery (قانون §5): `extract_draft_task` + ویو دو‌مسیره (regex فوری، LLM → 202 با partial «در حال استخراج» و polling با endpoint جدید `draft_status`)
+- **۲۶ تست جدید** در `tests/test_5c_llm_draft.py`
+
 ---
 
-## ۳. تست‌ها (384 passing — بدون PostGIS)
+## ۳. تست‌ها (410 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -101,7 +113,8 @@
 | `tests/test_5b_smart_draft.py` | **26** |
 | `tests/test_6a_rendering.py` | **25** |
 | `tests/test_7a_divar_publishing.py` | **19** |
-| **جمع** | **384** |
+| `tests/test_5c_llm_draft.py` | **26** |
+| **جمع** | **410** |
 
 ---
 
@@ -144,6 +157,7 @@
 | **URL پیشوند SMS** | `/messaging/` |
 | **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
 | **URL پیشوند Rendering** | `/rendering/` — job list/create/download/status |
+| **Gemini Draft** | `AgencyAIConfig` با provider=gemini و کلید → استخراج LLM؛ بدون config → پارسر regex (همگام)؛ مسیر LLM حتماً Celery (202 + polling) |
 | **دیوار (Kenar)** | `X-API-Key` در `PortalConfig.credentials`؛ `category_slug` و `category_fields` در `extra_config` اجباری؛ base: `open-api.divar.ir`؛ ثبت: `posts/new-v2` → `post_token` |
 | **RENDER_BACKEND** | `playwright` پیش‌فرض (در این محیط Chromium نصب است)؛ `stub` برای محیط بدون مرورگر؛ fallback خودکار اگر playwright import نشود |
 | **کاما فارسی** | U+060C داخل رنج `[\u0600-\u06FF]` است — در regex فارسی کلاس حروف بدون علائم (`_FA`) استفاده شود |
@@ -156,23 +170,23 @@
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/7a-portal-publishing` (از `phase/6a-poster-render`)
+- شاخه: `phase/5c-llm-draft` (از `phase/7a-portal-publishing`)
 - پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. LLM provider برای استخراج پیش‌نویس (Gemini structured output)
-2. فونت فارسی embedded برای پوستر در Docker
-3. آداپتور شیپور — پس از دسترسی API رسمی/شراکتی
+1. فونت فارسی embedded برای پوستر در Docker
+2. آداپتور شیپور — پس از دسترسی API رسمی/شراکتی
+3. ضبط صوت درون‌صفحه‌ای با MediaRecorder JS
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (384 تست)
+# تست no-GIS (410 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
