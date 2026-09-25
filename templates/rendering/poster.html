@@ -5,6 +5,15 @@
 <head>
 <meta charset="UTF-8">
 <style>
+  {% if font_regular_uri %}
+  @font-face { font-family:'Vazirmatn'; src:url('{{ font_regular_uri }}') format('woff2'); font-weight:400; font-style:normal; }
+  {% endif %}
+  {% if font_bold_uri %}
+  @font-face { font-family:'Vazirmatn'; src:url('{{ font_bold_uri }}') format('woff2'); font-weight:700; font-style:normal; }
+  {% endif %}
+  {% if font_xbold_uri %}
+  @font-face { font-family:'Vazirmatn'; src:url('{{ font_xbold_uri }}') format('woff2'); font-weight:800; font-style:normal; }
+  {% endif %}
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: "Vazirmatn", "Tahoma", "Segoe UI", sans-serif;

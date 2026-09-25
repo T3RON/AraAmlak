@@ -17,8 +17,10 @@ from __future__ import annotations
 
 import base64
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -41,6 +43,36 @@ _IMAGE_MIMES = {
     ".webp": "image/webp",
     ".gif": "image/gif",
 }
+
+# Poster embeds its own fonts so headless rendering works on hosts without
+# Persian system fonts (e.g. plain Docker images).
+_POSTER_FONTS = [
+    ("font_regular_uri", "fonts/Vazirmatn-Regular.woff2"),
+    ("font_bold_uri", "fonts/Vazirmatn-Bold.woff2"),
+    ("font_xbold_uri", "fonts/Vazirmatn-ExtraBold.woff2"),
+]
+
+
+def _font_data_uris() -> dict:
+    """Read self-hosted Vazirmatn fonts and encode them as data URIs.
+
+    Fonts are read straight from BASE_DIR/static (shipped in the repo) —
+    not via staticfiles finders, which depend on STATICFILES_DIRS being
+    configured in every settings module.
+    """
+    uris = {}
+    for key, relpath in _POSTER_FONTS:
+        path = Path(settings.BASE_DIR) / "static" / relpath
+        if not path.is_file():
+            logger.warning(
+                "Poster font not found: %s — falling back to system fonts", relpath
+            )
+            uris[key] = ""
+            continue
+        with open(path, "rb") as fh:
+            data = base64.b64encode(fh.read()).decode("ascii")
+        uris[key] = f"data:font/woff2;base64,{data}"
+    return uris
 
 
 def _guess_image_mime(name: str) -> str:
@@ -105,6 +137,7 @@ def render_poster_html(listing: Listing) -> str:
             "price_lines": price_lines,
             "area_str": format_number_fa(listing.area) if listing.area else "",
             "rooms_str": format_number_fa(listing.rooms) if listing.rooms else "",
+            **_font_data_uris(),
         },
     )
     return html

@@ -134,6 +134,29 @@ class TestPosterHTML:
         assert "data:image" not in html
 
 
+@pytest.mark.django_db
+class TestPosterFonts:
+    def test_fonts_embedded_as_data_uris(self, listing):
+        from apps.rendering.services import render_poster_html
+
+        html = render_poster_html(listing)
+        assert html.count("@font-face") == 3  # regular + bold + extra-bold
+        assert "data:font/woff2;base64," in html
+
+    def test_missing_fonts_render_without_face(self, listing):
+        from unittest.mock import patch
+
+        from apps.rendering.services import render_poster_html
+
+        with patch(
+            "apps.rendering.services._POSTER_FONTS",
+            [("font_regular_uri", "fonts/Nope.woff2")],
+        ):
+            html = render_poster_html(listing)
+        assert "@font-face" not in html  # graceful fallback to system fonts
+        assert "آپارتمان تست پوستر" in html
+
+
 # ─── Pipeline (stub engine) ───────────────────────────────────────────────────
 
 
