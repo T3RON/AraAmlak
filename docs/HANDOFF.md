@@ -1,7 +1,7 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فاز 5C — استخراج پیش‌نویس با Gemini structured output
-**شاخه جاری:** `phase/5c-llm-draft`
+**آخرین به‌روزرسانی:** پس از تکمیل فازهای 6B (فونت پوستر) و 5D (ضبط درون‌صفحه‌ای)
+**شاخه جاری:** `phase/5d-voice-recording`
 **آخرین کامیت:** پس از کامیت docs این جلسه
 
 ---
@@ -28,6 +28,8 @@
 | **6A** | **رندر واقعی پوستر PDF/PNG (Playwright)** | **✅ کامل** | **100%** |
 | **7A** | **انتشار واقعی به دیوار (Kenar)** | **✅ کامل** | **100%** |
 | **5C** | **استخراج پیش‌نویس با Gemini structured output** | **✅ کامل** | **100%** |
+| **5D** | **ضبط صوت درون‌صفحه‌ای (MediaRecorder)** | **✅ کامل** | **100%** |
+| **6B** | **فونت Vazirmatn embedded در پوستر** | **✅ کامل** | **100%** |
 | 8–11 | حسابداری، AI کامل، ... | ⬜ شروع نشده | 0% |
 
 ---
@@ -89,9 +91,22 @@
 - تماس LLM خارجی → فقط از Celery (قانون §5): `extract_draft_task` + ویو دو‌مسیره (regex فوری، LLM → 202 با partial «در حال استخراج» و polling با endpoint جدید `draft_status`)
 - **۲۶ تست جدید** در `tests/test_5c_llm_draft.py`
 
+### فاز 6B — فونت پوستر embedded
+
+- **[`apps/rendering/services.py`](../apps/rendering/services.py)** — `_font_data_uris()`: سه وزن Vazirmatn (Regular/Bold/ExtraBold) از `BASE_DIR/static/fonts/` → base64 data URI (نه از staticfiles finders — وابسته به STATICFILES_DIRS در همه settings است)
+- `templates/rendering/poster.html` — سه `@font-face` شرطی؛ بدون فونت، fallback سیستمی (هرگز fail نمی‌شود)
+- نتیجه: پوستر در Docker بدون فونت فارسی سالم رندر می‌شود
+- ۲ تست جدید در `tests/test_6a_rendering.py`
+
+### فاز 5D — ضبط صوت درون‌صفحه‌ای
+
+- **[`templates/ai/partials/voice_upload.html`](../templates/ai/partials/voice_upload.html)** — دکمه «🎙️ ضبط از میکروفن» با MediaRecorder (mime ترجیحی audio/webm → audio/ogg)، تایمر ثانیه، پیام خطای اجازه/عدم پشتیبانی، fallback انتخاب فایل؛ خروجی به همان endpoint آپلود موجود
+- سمت سرور بدون تغییر (webm/ogg/mp4 قبلاً در ALLOWED_AUDIO_MIMES و magic-detection)
+- ۳ تست جدید در `tests/test_5d_voice_recording.py` (شامل آپلود webm end-to-end)
+
 ---
 
-## ۳. تست‌ها (410 passing — بدون PostGIS)
+## ۳. تست‌ها (415 passing — بدون PostGIS)
 
 | فایل | تعداد |
 |------|-------|
@@ -114,7 +129,8 @@
 | `tests/test_6a_rendering.py` | **25** |
 | `tests/test_7a_divar_publishing.py` | **19** |
 | `tests/test_5c_llm_draft.py` | **26** |
-| **جمع** | **410** |
+| `tests/test_5d_voice_recording.py` | **3** |
+| **جمع** | **415** |
 
 ---
 
@@ -157,6 +173,7 @@
 | **URL پیشوند SMS** | `/messaging/` |
 | **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
 | **URL پیشوند Rendering** | `/rendering/` — job list/create/download/status |
+| **MediaRecorder** | خروجی webm/ogg/mp4 — هر سه در ALLOWED_AUDIO_MIMES؛ در تست آپلود webm end-to-end است |
 | **Gemini Draft** | `AgencyAIConfig` با provider=gemini و کلید → استخراج LLM؛ بدون config → پارسر regex (همگام)؛ مسیر LLM حتماً Celery (202 + polling) |
 | **دیوار (Kenar)** | `X-API-Key` در `PortalConfig.credentials`؛ `category_slug` و `category_fields` در `extra_config` اجباری؛ base: `open-api.divar.ir`؛ ثبت: `posts/new-v2` → `post_token` |
 | **RENDER_BACKEND** | `playwright` پیش‌فرض (در این محیط Chromium نصب است)؛ `stub` برای محیط بدون مرورگر؛ fallback خودکار اگر playwright import نشود |
@@ -170,23 +187,23 @@
 
 ## ۶. وضعیت گیت
 
-- شاخه: `phase/5c-llm-draft` (از `phase/7a-portal-publishing`)
+- شاخه: `phase/5d-voice-recording` (از `phase/6b-poster-font`، آن هم از `phase/5c-llm-draft`)
 - پوش شده: ✅
 
 ---
 
 ## ۷. قدم‌های بعدی به ترتیب
 
-1. فونت فارسی embedded برای پوستر در Docker
-2. آداپتور شیپور — پس از دسترسی API رسمی/شراکتی
-3. ضبط صوت درون‌صفحه‌ای با MediaRecorder JS
+1. آداپتور شیپور — پس از دسترسی API رسمی/شراکتی (مسدود تا دسترسی)
+2. فاز 8 — حسابداری/تسویه (طبق نقشه راه کلی)
+3. پنل مدیریت AgencySMSConfig/AgencyAIConfig در UI (خارج از admin)
 
 ---
 
 ## ۸. دستورهای اجرا و تست
 
 ```powershell
-# تست no-GIS (410 تست)
+# تست no-GIS (415 تست)
 python -m pytest --ds=ara_amlak.settings.testing_nogis tests/ `
   --ignore=tests/test_tenant_isolation.py `
   --ignore=tests/test_health.py -v
