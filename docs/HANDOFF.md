@@ -1,7 +1,7 @@
 # HANDOFF — آرا املاک / Ara Amlak
 
-**آخرین به‌روزرسانی:** پس از تکمیل فازهای 6B (فونت پوستر) و 5D (ضبط درون‌صفحه‌ای)
-**شاخه جاری:** `phase/5d-voice-recording`
+**آخرین به‌روزرسانی:** بازطراحی پنل (سایدبار/چارت/فرم) + تأیید E2E جریان صوت با مرورگر واقعی
+**شاخه جاری:** `phase/0b-design-system`
 **آخرین کامیت:** پس از کامیت docs این جلسه
 
 ---
@@ -11,7 +11,7 @@
 | فاز | موضوع | وضعیت | درصد |
 |-----|--------|--------|------|
 | 0A | زیرساخت (Docker, CI, pre-commit) | ✅ کامل | 100% |
-| 0B | دیزاین‌سیستم Apple-style | ⚠️ نسبی | 60% |
+| 0B | دیزاین‌سیستم Apple-style (سایدبار، چارت، فرم) | ✅ کامل | 100% |
 | 0C | هویت کاربر، نقش‌ها، AuditLog، دعوت عضو | ✅ کامل | 100% |
 | 1A | مدل داده فایل (City/Neighborhood/Feature) | ✅ کامل | 100% |
 | 1B | صفحات CRUD فایل | ✅ کامل | 100% |
@@ -174,6 +174,7 @@
 | **URL پیشوند AI** | `/ai/` — voice list/upload/status/retry/draft/apply |
 | **URL پیشوند Rendering** | `/rendering/` — job list/create/download/status |
 | **MediaRecorder** | خروجی webm/ogg/mp4 — هر سه در ALLOWED_AUDIO_MIMES؛ در تست آپلود webm end-to-end است |
+| **تست E2E مرورگر** | `python scripts/e2e_voice.py` (سرور روی 8070 باید بالا باشد) — mic مجازی Chromium؛ خروجی 0 یعنی جریان کامل سالم |
 | **Gemini Draft** | `AgencyAIConfig` با provider=gemini و کلید → استخراج LLM؛ بدون config → پارسر regex (همگام)؛ مسیر LLM حتماً Celery (202 + polling) |
 | **دیوار (Kenar)** | `X-API-Key` در `PortalConfig.credentials`؛ `category_slug` و `category_fields` در `extra_config` اجباری؛ base: `open-api.divar.ir`؛ ثبت: `posts/new-v2` → `post_token` |
 | **RENDER_BACKEND** | `playwright` پیش‌فرض (در این محیط Chromium نصب است)؛ `stub` برای محیط بدون مرورگر؛ fallback خودکار اگر playwright import نشود |
