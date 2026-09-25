@@ -123,7 +123,7 @@ OTP_CODE_LENGTH = 6
 
 # Login URL
 LOGIN_URL = "/auth/login/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 
 # DRF
 REST_FRAMEWORK = {

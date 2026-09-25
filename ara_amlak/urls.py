@@ -24,6 +24,6 @@ urlpatterns = [
     # Rendering (پوستر PDF/PNG)
     path("rendering/", include("apps.rendering.urls")),
     # App views (dashboard, health, home)
+    path("dashboard/", include("apps.dashboard.urls")),
     path("", include("apps.core.urls")),
-    path("", include("apps.dashboard.urls")),
 ]

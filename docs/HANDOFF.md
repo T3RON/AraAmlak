@@ -182,6 +182,8 @@
 | **override_settings** | روی کلاس‌های plain pytest کار نمی‌کند — از فیکسچر `settings` استفاده کنید |
 | **FieldFile بدون فایل** | `not media_file.file` با ValueError کرش می‌کند — در try/pattern امن بخوانید |
 | **dev server** | `python manage.py runserver 8070 --settings=ara_amlak.settings.local_sqlite` |
+| **URL داشبورد** | `/dashboard/` (نه `/`) — لندینگ روی `/` است؛ هر دو قبلاً روی `/` بودند و core سایه می‌انداخت (حلقه ورود) |
+| **ورود وب** | دو مرحله‌ای OTP — در DEBUG کد ۶ رقمی روی صفحه verify نمایش داده می‌شود؛ `admin1234` فقط برای `/admin/` |
 
 ---
 
