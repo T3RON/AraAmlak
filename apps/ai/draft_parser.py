@@ -157,6 +157,34 @@ _KEY_FIELDS = [
 
 _BOOL_FIELDS = ["parking", "elevator", "storage", "balcony"]
 
+# Fields the LLM path may return (whitelist for normalization)
+ALLOWED_DRAFT_FIELDS = _KEY_FIELDS + _BOOL_FIELDS + [
+    "deal_type",
+    "title",
+    "neighborhood",
+]
+
+
+def score_draft(data: dict) -> tuple[list[str], float]:
+    """
+    Compute (missing, confidence) for an extracted draft by value.
+
+    Used by the LLM path (which only has final values, no detection set).
+    A field counts as found when present and not None/""/False.
+    """
+    required = ["area", "rooms"]
+    deal = data.get("deal_type")
+    if deal == "sale":
+        required.append("sale_price")
+    elif deal in ("rent", "mortgage_rent"):
+        required += ["rent_amount", "mortgage_amount"]
+    missing = [f for f in required if data.get(f) is None]
+
+    scored = _KEY_FIELDS + _BOOL_FIELDS
+    found = sum(1 for f in scored if data.get(f) not in (None, "", False))
+    confidence = round(found / len(scored), 2) if scored else 0.0
+    return missing, confidence
+
 # ─── Regexes (applied to normalised text) ─────────────────────────────────────
 
 # Persian/Arabic *letters only* — punctuation (، ؛ ؟) and tatweel are excluded

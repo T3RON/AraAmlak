@@ -23,6 +23,7 @@ from apps.ai.services import (
     create_voice_note,
     enqueue_transcription,
     extract_draft,
+    get_draft_provider_for_agency,
 )
 from apps.listings.models import Listing
 
@@ -122,10 +123,30 @@ def voice_note_detail_view(request, pk: int) -> HttpResponse:
 @login_required
 @require_POST
 def draft_generate_view(request, pk: int) -> HttpResponse:
-    """HTMX: extract a structured draft from a transcribed voice note."""
+    """
+    HTMX: extract a structured draft from a transcribed voice note.
+
+    Regex provider (offline) → immediate fields partial.
+    LLM provider (Gemini) → Celery task + pending partial with polling.
+    """
     note = get_object_or_404(VoiceNote, pk=pk, agency=request.user.agency)
+    provider = get_draft_provider_for_agency(request.user.agency)
+
+    if provider.is_async:
+        from apps.ai.tasks import extract_draft_task
+
+        extract_draft_task.delay(note.pk)
+        return HttpResponse(
+            render_to_string(
+                "ai/partials/draft_pending.html",
+                {"note": note},
+                request=request,
+            ),
+            status=202,
+        )
+
     try:
-        draft = extract_draft(note)
+        draft = extract_draft(note, provider)
     except ValidationError as exc:
         return HttpResponse(_error_html(" ".join(exc.messages)), status=422)
     html = render_to_string(
@@ -134,6 +155,27 @@ def draft_generate_view(request, pk: int) -> HttpResponse:
         request=request,
     )
     return HttpResponse(html)
+
+
+@login_required
+def draft_status_view(request, pk: int) -> HttpResponse:
+    """HTMX polling target: fields partial once the draft exists, else pending."""
+    note = get_object_or_404(VoiceNote, pk=pk, agency=request.user.agency)
+    draft = VoiceDraft.objects.filter(voice_note=note).first()
+    if draft is not None:
+        template = "ai/partials/draft_fields.html"
+        status = 200
+    else:
+        template = "ai/partials/draft_pending.html"
+        status = 202
+    return HttpResponse(
+        render_to_string(
+            template,
+            {"note": note, "draft": draft},
+            request=request,
+        ),
+        status=status,
+    )
 
 
 @login_required

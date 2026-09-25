@@ -264,20 +264,46 @@ def _resolve_neighborhood(district_text: str):
     return nb
 
 
-def extract_draft(voice_note: VoiceNote) -> VoiceDraft:
+def get_draft_provider_for_agency(agency):
+    """
+    Return the DraftProvider for the agency.
+
+    Active Gemini config with an API key → GeminiDraftProvider (LLM, async);
+    otherwise the deterministic regex parser (offline fallback).
+    """
+    from apps.ai.providers.regex_draft import RegexPersianDraftProvider
+
+    config = get_ai_config_for_agency(agency)
+    if (
+        config is not None
+        and config.provider == AIProvider.GEMINI
+        and (config.api_key or "").strip()
+    ):
+        from apps.ai.providers.gemini_draft import GeminiDraftProvider
+
+        return GeminiDraftProvider(
+            api_key=config.api_key,
+            model=config.model_name or "gemini-2.0-flash",
+        )
+    return RegexPersianDraftProvider()
+
+
+def extract_draft(voice_note: VoiceNote, provider=None) -> VoiceDraft:
     """
     Parse a transcribed VoiceNote into a VoiceDraft.
 
     Idempotent: re-running replaces the previous draft (still unapplied).
-    The parser is the deterministic Persian regex parser (apps.ai.draft_parser).
+    `provider` defaults to the agency's configured DraftProvider — the
+    deterministic regex parser offline, or Gemini structured output when
+    an active Gemini config exists.
     """
-    from apps.ai.draft_parser import parse_listing_transcript
     from apps.ai.models import DraftState, VoiceNoteState
 
     if voice_note.status != VoiceNoteState.TRANSCRIBED:
         raise ValidationError("برای استخراج پیش‌نویس، رونویسی باید کامل شده باشد.")
 
-    result = parse_listing_transcript(voice_note.transcript)
+    provider = provider or get_draft_provider_for_agency(voice_note.agency)
+    result = provider.extract(voice_note.transcript)
     data = result["data"]
 
     if district := data.pop("district", None):
@@ -296,9 +322,14 @@ def extract_draft(voice_note: VoiceNote) -> VoiceDraft:
         data=data,
         missing=result["missing"],
         confidence=result["confidence"],
-        parser="regex_fa",
+        parser=provider.name,
     )
-    logger.info("VoiceDraft #%d extracted from VoiceNote #%d", draft.pk, voice_note.pk)
+    logger.info(
+        "VoiceDraft #%d extracted from VoiceNote #%d via %s",
+        draft.pk,
+        voice_note.pk,
+        provider.name,
+    )
     return draft
 
 

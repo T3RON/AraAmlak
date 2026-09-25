@@ -1,0 +1,10 @@
+{# ─── Pending draft extraction (LLM path) — polls draft_status ───────────── #}
+<div id="draft-section">
+  <h2 class="form-section-title">پیش‌نویس فایل</h2>
+  <p class="text-sm" style="margin-top:.5rem;color:var(--accent);">
+    ⏳ در حال استخراج پیش‌نویس با هوش مصنوعی…
+  </p>
+  <div hx-get="{% url 'ai:draft_status' note.pk %}"
+       hx-trigger="load delay:2s"
+       hx-swap="outerHTML"></div>
+</div>
