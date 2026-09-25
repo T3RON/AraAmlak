@@ -1,28 +1,41 @@
 {% load static %}
-{# ─── Voice upload panel — standalone or included inside listing detail ──── #}
+{# ─── Voice upload panel with in-page recording (MediaRecorder) ──────────── #}
 
 <div class="card" x-data="voiceUpload()" style="margin-top:1.5rem;">
   <h2 class="form-section-title">ثبت با صدا</h2>
   <p class="text-muted" style="font-size:.85rem;margin-top:.25rem;">
-    توضیحات فایل را ضبط یا آپلود کنید؛ پس از رونویسی، پیش‌نویس ساختاریافته استخراج می‌شود.
+    توضیحات فایل را همان‌جا ضبط کنید یا فایل صوتی انتخاب کنید؛ پس از رونویسی، پیش‌نویس ساختاریافته استخراج می‌شود.
   </p>
 
-  {# ── Upload dropzone ── #}
+  {# ── Record bar ── #}
+  <div style="display:flex;gap:.75rem;align-items:center;margin-top:.75rem;flex-wrap:wrap;">
+    <template x-if="!recording">
+      <button type="button" class="btn btn-primary" @click="startRecording()">
+        🎙️ ضبط از میکروفن
+      </button>
+    </template>
+    <template x-if="recording">
+      <button type="button" class="btn" style="background:var(--red);color:#fff;border-radius:12px;padding:.6rem 1.2rem;"
+              @click="stopRecording()">
+        ⏹ پایان ضبط (<span x-text="seconds"></span> ثانیه)
+      </button>
+    </template>
+    <span x-show="recording" style="font-size:.8rem;color:var(--red);">● در حال ضبط…</span>
+  </div>
+
+  {# ── Manual file dropzone ── #}
   <div @dragover.prevent="dragging=true"
        @dragleave.prevent="dragging=false"
        @drop.prevent="handleDrop($event)"
        :class="dragging ? 'dropzone-active' : ''"
-       style="border:2px dashed var(--line);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;margin-top:.75rem;"
+       style="border:2px dashed var(--line);border-radius:12px;padding:1rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;margin-top:.75rem;"
        @click="$refs.fileInput.click()">
     <input type="file"
            x-ref="fileInput"
            accept="audio/*"
-           capture="microphone"
            style="display:none;"
            @change="uploadFile($event.target.files[0])">
-    <div style="font-size:2rem;margin-bottom:.5rem;">🎙️</div>
-    <p style="font-size:.85rem;color:var(--muted);">برای ضبط یا انتخاب فایل صوتی کلیک کنید</p>
-    <p style="font-size:.75rem;color:var(--muted);">MP3 · WAV · OGG · WebM · M4A — حداکثر ۲۰ MB</p>
+    <p style="font-size:.8rem;color:var(--muted);">یا انتخاب فایل صوتی (MP3 · WAV · OGG · WebM · M4A — حداکثر ۲۰ MB)</p>
   </div>
 
   <div style="margin-top:.5rem;">
@@ -38,6 +51,12 @@ function voiceUpload() {
     dragging: false,
     status: '',
     error: '',
+    recording: false,
+    seconds: 0,
+    _recorder: null,
+    _chunks: [],
+    _timer: null,
+    _stream: null,
     uploadUrl: '{% url "ai:voice_upload" %}',
     csrfToken: '{{ csrf_token }}',
     listingPk: '{{ listing.pk|default:"" }}',
@@ -45,6 +64,52 @@ function voiceUpload() {
     handleDrop(e) {
       this.dragging = false;
       this.uploadFile(e.dataTransfer.files[0]);
+    },
+
+    async startRecording() {
+      this.error = '';
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        this.status = 'error';
+        this.error = 'مرورگر شما از ضبط صدا پشتیبانی نمی‌کند — فایل صوتی انتخاب کنید.';
+        return;
+      }
+      try {
+        this._stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        this.status = 'error';
+        this.error = 'دسترسی به میکروفن داده نشد — از تنظیمات مرورگر اجازه دهید یا فایل انتخاب کنید.';
+        return;
+      }
+      const mime = ['audio/webm', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+      this._chunks = [];
+      this._recorder = new MediaRecorder(this._stream, mime ? { mimeType: mime } : undefined);
+      this._recorder.ondataavailable = (e) => { if (e.data.size) this._chunks.push(e.data); };
+      this._recorder.onstop = () => this._finishRecording();
+      this._recorder.start();
+      this.recording = true;
+      this.seconds = 0;
+      this._timer = setInterval(() => { this.seconds++; }, 1000);
+    },
+
+    stopRecording() {
+      if (this._recorder && this._recorder.state !== 'inactive') {
+        this._recorder.stop();
+      }
+    },
+
+    _finishRecording() {
+      this.recording = false;
+      clearInterval(this._timer);
+      if (this._stream) this._stream.getTracks().forEach(t => t.stop());
+      const type = this._recorder.mimeType || 'audio/webm';
+      const ext = type.includes('ogg') ? 'ogg' : (type.includes('mp4') ? 'm4a' : 'webm');
+      const blob = new Blob(this._chunks, { type });
+      if (blob.size === 0) {
+        this.status = 'error';
+        this.error = 'ضبطی ثبت نشد — دوباره تلاش کنید.';
+        return;
+      }
+      this.uploadFile(new File([blob], 'recording.' + ext, { type }));
     },
 
     uploadFile(file) {
